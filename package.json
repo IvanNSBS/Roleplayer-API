@@ -1,6 +1,6 @@
 {
   "name": "com.gecko-studio.roleplayer-api",
-  "version": "0.1.1",
+  "version": "0.1.1f",
   "displayName": "Roleplayer API",
   "description": "This is an example package",
   "unity": "2019.4",
