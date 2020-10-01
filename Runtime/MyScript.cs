@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class MyScript : MonoBehaviour
 {
-    public static string CurrentVersion => "0.1.0";
+    public static string CurrentVersion => "0.1.1";
 }
