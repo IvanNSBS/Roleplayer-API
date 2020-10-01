@@ -1,0 +1,19 @@
+{
+  "name": "com.gecko-studio.roleplayer-api",
+  "version": "0.1.0",
+  "displayName": "Roleplayer API",
+  "description": "This is an example package",
+  "unity": "2019.4",
+  "unityRelease": "11f1",
+  "dependencies": {},
+  "keywords": [
+    "keyword1",
+    "keyword2",
+    "keyword3"
+  ],
+  "author": {
+    "name": "Ivan Neves",
+    "email": "ivan.nevesdev@gmail.com",
+    "url": "https://www.mycompany.com"
+  }
+}
