@@ -1,7 +1,8 @@
 ﻿using System;
 using UnityEngine;
+using RPGCore.DataStructures;
 
-namespace RoleplayerAPI.Pathfinding2D
+namespace RPGCore.GameWorld
 {
     [Serializable]
     public enum GridCelState
@@ -16,28 +17,33 @@ namespace RoleplayerAPI.Pathfinding2D
     public class GridCel : IHeapItem<GridCel>
     {
         #region Fields
-        public GridCelState celState = GridCelState.Free;
-        public Vector3 worldPos; // Center of cel
-        public int gridX, gridY;
-
-        public int gCost;
-        public int hCost;
-        public int fCost { get => gCost + hCost; }
-        public int HeapIndex { get; set; }
-
-        public GridCel parent;
+        private int fCost => GCost + HCost; 
         #endregion Fields
 
+        #region Properties
+        public GridCelState celState = GridCelState.Free;
+        public Vector3 WorldPos { get; private set; } // Cel Center
+        public int GridX { get; private set; }
+        public int GridY { get; private set; }
+        public int GCost { get; set; }
+        public int HCost { get; set; }
+        public GridCel Parent { get; set; }
+        #endregion Properties
+
+        #region IHeapItem Properties
+        public int HeapIndex { get; set; }
+
+        #endregion IHeapItem Properties
 
         #region Constructors
         public GridCel(GridCelState state, Vector3 wPos, int x, int y)
         {
             this.celState = state;
-            worldPos = wPos;
-            gridX = x;
-            gridY = y;
+            WorldPos = wPos;
+            GridX = x;
+            GridY = y;
 
-            gCost = hCost = 0;
+            GCost = HCost = 0;
         }
         #endregion Constructors
 
@@ -48,7 +54,7 @@ namespace RoleplayerAPI.Pathfinding2D
             int compare = fCost.CompareTo(other.fCost);
             if (compare == 0)
             {
-                compare = hCost.CompareTo(other.hCost);
+                compare = HCost.CompareTo(other.HCost);
             }
 
             return -compare;

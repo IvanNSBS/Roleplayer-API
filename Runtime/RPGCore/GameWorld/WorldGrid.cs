@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
-namespace RoleplayerAPI.Pathfinding2D
+namespace RPGCore.GameWorld
 {
     [ExecuteInEditMode]
     public class WorldGrid : MonoBehaviour
@@ -12,10 +13,10 @@ namespace RoleplayerAPI.Pathfinding2D
         #endregion Singleton
 
 
-        #region Fields
-        [SerializeField] float _celSize = 1;
-        [SerializeField] Vector2Int _gridSize = new Vector2Int(128, 128);
+        [SerializeField] Vector2Int m_gridSize = new Vector2Int(128, 128);
+        [SerializeField] float m_celSize = 1;
 
+        #region Fields
         private GridCel[,] _grid;
         private Pathfinder _pathfinder;
         #endregion Fields
@@ -27,19 +28,22 @@ namespace RoleplayerAPI.Pathfinding2D
         /// </summary>
         public Vector3 GridOrigin
         {
-            get => transform.position + new Vector3(-_gridSize.x * _celSize / 2.0f, _gridSize.y * _celSize / 2.0f, 0);
+            get => transform.position + new Vector3(-m_gridSize.x * m_celSize / 2.0f, m_gridSize.y * m_celSize / 2.0f, 0);
         }
 
-        public Vector2 GridBounds { get => new Vector2(_celSize * _gridSize.x, _celSize * _gridSize.y); }
+        /// <summary>
+        /// Property to get the Grid XY Bounds
+        /// </summary>
+        public Vector2 GridBounds { get => new Vector2(m_celSize * m_gridSize.x, m_celSize * m_gridSize.y); }
 
         /// <summary>
         /// Function to offset the topleft position of a cell to the center
         /// </summary>
-        public Vector3 ToCenterOffset { get => new Vector3(_celSize / 2.0f, -_celSize / 2.0f, 0); }
+        public Vector3 ToCenterOffset { get => new Vector3(m_celSize / 2.0f, -m_celSize / 2.0f, 0); }
 
-        public float CelSize { get => _celSize; }
+        public float CelSize { get => m_celSize; }
 
-        public int CelCount { get => _gridSize.x * _gridSize.y; }
+        public int CelCount { get => m_gridSize.x * m_gridSize.y; }
 
         public Pathfinder Pathfinder { get => _pathfinder; }
         #endregion Properties
@@ -62,13 +66,13 @@ namespace RoleplayerAPI.Pathfinding2D
 
         private void Start()
         {
-            _grid = new GridCel[_gridSize.x, _gridSize.y];
+            _grid = new GridCel[m_gridSize.x, m_gridSize.y];
 
-            for (int y = 0; y < _gridSize.y; y++)
+            for (int y = 0; y < m_gridSize.y; y++)
             {
-                for (int x = 0; x < _gridSize.x; x++)
+                for (int x = 0; x < m_gridSize.x; x++)
                 {
-                    Vector3 celPos = GridOrigin + ToCenterOffset + new Vector3(_celSize * x, -_celSize * y);
+                    Vector3 celPos = GridOrigin + ToCenterOffset + new Vector3(m_celSize * x, -m_celSize * y);
                     _grid[x, y] = new GridCel(VerifyPosition(celPos), celPos, x, y);
                 }
             }
@@ -76,13 +80,13 @@ namespace RoleplayerAPI.Pathfinding2D
 
         private void OnValidate()
         {
-            _grid = new GridCel[_gridSize.x, _gridSize.y];
+            _grid = new GridCel[m_gridSize.x, m_gridSize.y];
 
-            for (int y = 0; y < _gridSize.y; y++)
+            for (int y = 0; y < m_gridSize.y; y++)
             {
-                for (int x = 0; x < _gridSize.x; x++)
+                for (int x = 0; x < m_gridSize.x; x++)
                 {
-                    Vector3 celPos = GridOrigin + ToCenterOffset + new Vector3(_celSize * x, -_celSize * y);
+                    Vector3 celPos = GridOrigin + ToCenterOffset + new Vector3(m_celSize * x, -m_celSize * y);
                     _grid[x, y] = new GridCel(VerifyPosition(celPos), celPos, x, y);
                 }
             }
@@ -91,13 +95,13 @@ namespace RoleplayerAPI.Pathfinding2D
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.gray;
-            Gizmos.DrawWireCube(transform.position, new Vector3(_gridSize.x * _celSize, _gridSize.y * _celSize, 0));
+            Gizmos.DrawWireCube(transform.position, new Vector3(m_gridSize.x * m_celSize, m_gridSize.y * m_celSize, 0));
             if (_grid != null)
             {
                 foreach (GridCel n in _grid)
                 {
                     Gizmos.color = ColorFromGridState(n);
-                    Gizmos.DrawCube(n.worldPos, new Vector3(_celSize - 0.05f, _celSize - 0.05f, 0f));
+                    Gizmos.DrawCube(n.WorldPos, new Vector3(m_celSize - 0.05f, m_celSize - 0.05f, 0f));
                 }
             }
         }
@@ -153,7 +157,7 @@ namespace RoleplayerAPI.Pathfinding2D
             if (col != null)
                 return GridCelState.NotWalkable;
 
-            return GridCelState.NotWalkable;
+            return GridCelState.Walkable;
         }
 
         /// <summary>
@@ -165,7 +169,7 @@ namespace RoleplayerAPI.Pathfinding2D
         {
             if (localPos.x > 0 && localPos.y > 0 && localPos.x <= GridBounds.x && localPos.y <= GridBounds.y)
             {
-                Vector3 pos = localPos / _celSize;
+                Vector3 pos = localPos / m_celSize;
                 int x = (int)pos.x;// % _gridSize;
                 int y = (int)pos.y;// % _gridSize;
                 return _grid[x, y];
@@ -222,10 +226,10 @@ namespace RoleplayerAPI.Pathfinding2D
                     if (x == 0 && y == 0 || x == 1 && y == 1 || x == -1 && y == 1 || x == 1 && y == -1 || x == -1 && y == -1)
                         continue;
 
-                    int checkX = cel.gridX + x;
-                    int checkY = cel.gridY + y;
+                    int checkX = cel.GridX + x;
+                    int checkY = cel.GridY + y;
 
-                    if (checkX >= 0 && checkX < _gridSize.x && checkY >= 0 && checkY < _gridSize.y)
+                    if (checkX >= 0 && checkX < m_gridSize.x && checkY >= 0 && checkY < m_gridSize.y)
                         neighbours.Add(_grid[checkX, checkY]);
 
                 }

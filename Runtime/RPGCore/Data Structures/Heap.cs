@@ -1,15 +1,15 @@
 ﻿using System;
 
-namespace RoleplayerAPI.Pathfinding2D
+namespace RPGCore.DataStructures
 {
 	public class Heap<T> where T : IHeapItem<T>
 	{
 		#region Fields
-		T[] items;
-		int currentItemCount;
+		private T[] items;
+		private int currentItemCount;
 		#endregion Field
 
-
+		
 		#region Constructors
 		public Heap(int maxHeapSize)
 		{
@@ -18,7 +18,7 @@ namespace RoleplayerAPI.Pathfinding2D
 		#endregion Constructors
 
 
-		#region Methods
+		#region Methodss
 		public void Add(T item)
 		{
 			item.HeapIndex = currentItemCount;
@@ -105,6 +105,6 @@ namespace RoleplayerAPI.Pathfinding2D
 			itemA.HeapIndex = itemB.HeapIndex;
 			itemB.HeapIndex = itemAIndex;
 		}
+		#endregion Methods
 	}
-	#endregion Methods
 }

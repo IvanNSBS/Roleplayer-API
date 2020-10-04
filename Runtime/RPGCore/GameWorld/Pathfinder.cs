@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using RPGCore.DataStructures;
 
-namespace RoleplayerAPI.Pathfinding2D
+namespace RPGCore.GameWorld
 {
     enum DistanceFunction
     {
-        Manhttan,
+        Manhattan,
         Euclidean
     }
 
@@ -22,6 +23,7 @@ namespace RoleplayerAPI.Pathfinding2D
         }
         #endregion Constructor
 
+        
         #region Methods
         /// <summary>
         /// Function to find a path between two positions
@@ -59,12 +61,12 @@ namespace RoleplayerAPI.Pathfinding2D
                     if (neighbour.celState == GridCelState.NotWalkable || neighbour.celState == GridCelState.Occupied || closedSet.Contains(neighbour))
                         continue;
 
-                    int newCostToNeighbour = currentCel.gCost + GetDistance(currentCel, neighbour);
-                    if (newCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
+                    int newCostToNeighbour = currentCel.GCost + GetDistance(currentCel, neighbour);
+                    if (newCostToNeighbour < neighbour.GCost || !openSet.Contains(neighbour))
                     {
-                        neighbour.gCost = newCostToNeighbour;
-                        neighbour.hCost = GetDistance(neighbour, targetCel);
-                        neighbour.parent = currentCel;
+                        neighbour.GCost = newCostToNeighbour;
+                        neighbour.HCost = GetDistance(neighbour, targetCel);
+                        neighbour.Parent = currentCel;
 
                         if (!openSet.Contains(neighbour))
                             openSet.Add(neighbour);
@@ -99,10 +101,10 @@ namespace RoleplayerAPI.Pathfinding2D
                 if (neighbour.celState != GridCelState.Walkable)
                     continue;
 
-                if (Vector3.Distance(neighbour.worldPos, startPos) < distance)
+                if (Vector3.Distance(neighbour.WorldPos, startPos) < distance)
                 {
-                    distance = Vector3.Distance(neighbour.worldPos, startPos);
-                    targetPos = neighbour.worldPos;
+                    distance = Vector3.Distance(neighbour.WorldPos, startPos);
+                    targetPos = neighbour.WorldPos;
                 }
             }
             return FindPath(startPos, targetPos);
@@ -115,7 +117,7 @@ namespace RoleplayerAPI.Pathfinding2D
             while (currentCel != startCel)
             {
                 path.Add(currentCel);
-                currentCel = currentCel.parent;
+                currentCel = currentCel.Parent;
             }
 
             path.Reverse();
@@ -123,10 +125,10 @@ namespace RoleplayerAPI.Pathfinding2D
             return pathQueue;
         }
 
-        int GetDistance(GridCel celA, GridCel celB)
+        private int GetDistance(GridCel celA, GridCel celB)
         {
-            int dstX = Mathf.Abs(celA.gridX - celB.gridX);
-            int dstY = Mathf.Abs(celA.gridY - celB.gridY);
+            int dstX = Mathf.Abs(celA.GridX - celB.GridX);
+            int dstY = Mathf.Abs(celA.GridY - celB.GridY);
             return dstX + dstY;
         }
         #endregion Methods

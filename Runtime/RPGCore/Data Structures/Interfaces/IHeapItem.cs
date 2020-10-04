@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RoleplayerAPI.Pathfinding2D
+namespace RPGCore.DataStructures
 {
 	public interface IHeapItem<T> : IComparable<T>
 	{

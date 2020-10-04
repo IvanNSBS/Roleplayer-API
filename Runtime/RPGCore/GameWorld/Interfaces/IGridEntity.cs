@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-namespace RoleplayerAPI.Pathfinding2D
+namespace RPGCore.GameWorld
 {
     public interface IGridEntity // Entities that can occupy a WorldGrid
     {
