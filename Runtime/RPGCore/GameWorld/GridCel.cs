@@ -35,6 +35,7 @@ namespace RPGCore.GameWorld
 
         #endregion IHeapItem Properties
 
+        
         #region Constructors
         public GridCel(GridCelState state, Vector3 wPos, int x, int y)
         {

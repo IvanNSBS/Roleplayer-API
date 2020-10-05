@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 using RPGCore.GridSystem;
+using RPGFramework.ItemSystem;
 
-namespace RPGCore.GameWorld
+namespace RPGFramework.ContainerSystem
 {
-    public class WorldGrid : Grid<GridCel>
+    public class ContainerGrid<TItem> : Grid<ContainerSlot<TItem>> where TItem : IItem
     {
 
         #region Fields
@@ -33,7 +33,7 @@ namespace RPGCore.GameWorld
         /// <summary>
         /// Public getter and setter for grid gridItems
         /// </summary>
-        public GridCel[,] GridItems
+        public ContainerSlot<TItem>[,] GridItems
         {
             get => gridItems;
             set => gridItems = value;
@@ -50,6 +50,7 @@ namespace RPGCore.GameWorld
         public Vector3 ToCenterOffset { get => new Vector3(celSize / 2.0f, -celSize / 2.0f, 0); }
         public int CelCount { get => gridSize.x * gridSize.y; }
         #endregion Properties
+       
         
         #region Grid Properties
         /// <summary>
@@ -63,7 +64,7 @@ namespace RPGCore.GameWorld
         
         
         #region Constructors
-        public WorldGrid(Vector2Int gridSize, float celSize, Transform transform) : base(gridSize, celSize)
+        public ContainerGrid(Vector2Int gridSize, float celSize, Transform transform) : base(gridSize, celSize)
         {
             userTransform = transform;
             StartGrid();
@@ -72,10 +73,10 @@ namespace RPGCore.GameWorld
         
 
         #region Methods
-        public override GridCel InitGridCel(int x, int y)
+        public override ContainerSlot<TItem> InitGridCel(int x, int y)
         {
             Vector3 celPos = GridOrigin + ToCenterOffset + new Vector3(celSize * x, -celSize * y);
-            return new GridCel(GridCelState.Free, celPos, x, y);
+            return new ContainerSlot<TItem>(x, y, userTransform,null, null);
         }
         
         public override Vector3 WorldPosToLocal(Vector3 worldPos)
@@ -85,7 +86,7 @@ namespace RPGCore.GameWorld
             return localPos;
         }
         
-        public override GridCel LocalPosToGrid(Vector3 localPos)
+        public override ContainerSlot<TItem> LocalPosToGrid(Vector3 localPos)
         {
             if (localPos.x > 0 && localPos.y > 0 && localPos.x < GridBounds.x && localPos.y < GridBounds.y)
             {
@@ -102,39 +103,12 @@ namespace RPGCore.GameWorld
         
         #region Utility Methods
         /// <summary>
-        /// Function to get all the the neighbour Cels of a GridCel
-        /// </summary>
-        /// <param name="cel">GridCel which neighbours must be found</param>
-        /// <returns>List with all the GridCels around the input Cel</returns>
-        public List<GridCel> GetNeighbours(GridCel cel)
-        {
-            List<GridCel> neighbours = new List<GridCel>();
-
-            for (int x = -1; x <= 1; x++)
-            {
-                for (int y = -1; y <= 1; y++)
-                {
-                    if (x == 0 && y == 0 || x == 1 && y == 1 || x == -1 && y == 1 || x == 1 && y == -1 || x == -1 && y == -1)
-                        continue;
-
-                    int checkX = cel.GridX + x;
-                    int checkY = cel.GridY + y;
-
-                    if (checkX >= 0 && checkX < gridSize.x && checkY >= 0 && checkY < gridSize.y)
-                        neighbours.Add(gridItems[checkX, checkY]);
-                }
-            }
-
-            return neighbours;
-        }
-        
-        /// <summary>
         /// Function to convert the mouse position on screen to local grid position
         /// </summary>
         /// <returns>The mouse position in grid coordinates</returns>
         public Vector3 MouseToLocal()
         {
-            return WorldPosToLocal(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            return WorldPosToLocal(Input.mousePosition);
         }
         #endregion Utility Methods
     }
