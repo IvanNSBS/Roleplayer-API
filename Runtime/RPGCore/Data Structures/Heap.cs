@@ -5,15 +5,15 @@ namespace RPGCore.DataStructures
 	public class Heap<T> where T : IHeapItem<T>
 	{
 		#region Fields
-		private T[] items;
-		private int currentItemCount;
+		private T[] m_items;
+		private int m_currentItemCount;
 		#endregion Field
 
 		
 		#region Constructors
 		public Heap(int maxHeapSize)
 		{
-			items = new T[maxHeapSize];
+			m_items = new T[maxHeapSize];
 		}
 		#endregion Constructors
 
@@ -21,19 +21,19 @@ namespace RPGCore.DataStructures
 		#region Methodss
 		public void Add(T item)
 		{
-			item.HeapIndex = currentItemCount;
-			items[currentItemCount] = item;
+			item.HeapIndex = m_currentItemCount;
+			m_items[m_currentItemCount] = item;
 			HeapifyUp(item);
-			currentItemCount++;
+			m_currentItemCount++;
 		}
 
 		public T RemoveFirst()
 		{
-			T firstItem = items[0];
-			currentItemCount--;
-			items[0] = items[currentItemCount];
-			items[0].HeapIndex = 0;
-			HeapifyDown(items[0]);
+			T firstItem = m_items[0];
+			m_currentItemCount--;
+			m_items[0] = m_items[m_currentItemCount];
+			m_items[0].HeapIndex = 0;
+			HeapifyDown(m_items[0]);
 			return firstItem;
 		}
 
@@ -46,13 +46,13 @@ namespace RPGCore.DataStructures
 		{
 			get
 			{
-				return currentItemCount;
+				return m_currentItemCount;
 			}
 		}
 
 		public bool Contains(T item)
 		{
-			return Equals(items[item.HeapIndex], item);
+			return Equals(m_items[item.HeapIndex], item);
 		}
 
 		void HeapifyDown(T item)
@@ -63,16 +63,16 @@ namespace RPGCore.DataStructures
 				int childIndexRight = item.HeapIndex * 2 + 2;
 				int swapIndex = 0;
 
-				if (childIndexLeft < currentItemCount)
+				if (childIndexLeft < m_currentItemCount)
 				{
 					swapIndex = childIndexLeft;
 
-					if (childIndexRight < currentItemCount)
-						if (items[childIndexLeft].CompareTo(items[childIndexRight]) < 0)
+					if (childIndexRight < m_currentItemCount)
+						if (m_items[childIndexLeft].CompareTo(m_items[childIndexRight]) < 0)
 							swapIndex = childIndexRight;
 
-					if (item.CompareTo(items[swapIndex]) < 0)
-						Swap(item, items[swapIndex]);
+					if (item.CompareTo(m_items[swapIndex]) < 0)
+						Swap(item, m_items[swapIndex]);
 					else
 						return;
 				}
@@ -87,7 +87,7 @@ namespace RPGCore.DataStructures
 
 			while (true)
 			{
-				T parentItem = items[parentIndex];
+				T parentItem = m_items[parentIndex];
 				if (item.CompareTo(parentItem) > 0)
 					Swap(item, parentItem);
 				else
@@ -99,8 +99,8 @@ namespace RPGCore.DataStructures
 
 		void Swap(T itemA, T itemB)
 		{
-			items[itemA.HeapIndex] = itemB;
-			items[itemB.HeapIndex] = itemA;
+			m_items[itemA.HeapIndex] = itemB;
+			m_items[itemB.HeapIndex] = itemA;
 			int itemAIndex = itemA.HeapIndex;
 			itemA.HeapIndex = itemB.HeapIndex;
 			itemB.HeapIndex = itemAIndex;

@@ -1,8 +1,8 @@
 ﻿using System;
 using UnityEngine;
-using RPGCore.DataStructures;
+using RPGCore.Grids.Algorithms;
 
-namespace RPGCore.GameWorld
+namespace RPGFramework.GameWorld
 {
     [Serializable]
     public enum GridCelState
@@ -14,26 +14,23 @@ namespace RPGCore.GameWorld
         NotWalkable = 1 << 4 // Can place structures or things like that, but pathfinding wont consider
     }
 
-    public class GridCel : IHeapItem<GridCel>
+    public class GridCel : IPath
     {
-        #region Fields
-        private int fCost => GCost + HCost; 
-        #endregion Fields
-
         #region Properties
         public GridCelState celState = GridCelState.Free;
+        #endregion Properties
+
+        #region IPath Properties
+        public int HeapIndex { get; set; }
         public Vector3 WorldPos { get; private set; } // Cel Center
         public int GridX { get; private set; }
         public int GridY { get; private set; }
         public int GCost { get; set; }
         public int HCost { get; set; }
-        public GridCel Parent { get; set; }
-        #endregion Properties
+        public int FCost => GCost + HCost; 
+        public IPath Parent { get; set; }
 
-        #region IHeapItem Properties
-        public int HeapIndex { get; set; }
-
-        #endregion IHeapItem Properties
+        #endregion IPath Properties
 
         
         #region Constructors
@@ -50,9 +47,9 @@ namespace RPGCore.GameWorld
 
 
         #region Methods
-        public int CompareTo(GridCel other)
+        public int CompareTo(IPath other)
         {
-            int compare = fCost.CompareTo(other.fCost);
+            int compare = FCost.CompareTo(other.FCost);
             if (compare == 0)
             {
                 compare = HCost.CompareTo(other.HCost);

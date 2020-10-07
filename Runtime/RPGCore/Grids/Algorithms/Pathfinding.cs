@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using RPGCore.Grids;
 using RPGCore.DataStructures;
+using System.Collections.Generic;
 
-namespace RPGCore.GameWorld
+namespace RPGCore.Grids.Algorithms
 {
     enum DistanceFunction
     {
@@ -10,16 +11,16 @@ namespace RPGCore.GameWorld
         Euclidean
     }
 
-    public class Pathfinder
+    public class Pathfinding
     {
         #region Fields
-        private WorldGrid _grid;
+        private SquareGrid<IPath> m_SquareGrid;
         #endregion Fields
 
         #region Constructor
-        public Pathfinder(WorldGrid grid)
+        public Pathfinding(SquareGrid<IPath> squareGrid)
         {
-            _grid = grid;
+            m_SquareGrid = squareGrid;
         }
         #endregion Constructor
 
@@ -31,23 +32,23 @@ namespace RPGCore.GameWorld
         /// <param name="startPos">starting position</param>
         /// <param name="targetPos">target position</param>
         /// <returns>Queue containing the nodes an entity shall traverse</returns>
-        public Queue<GridCel> FindPath(Vector3 startPos, Vector3 targetPos)
+        public Queue<IPath> FindPath(Vector3 startPos, Vector3 targetPos)
         {
-            GridCel startCel = _grid.WorldPosToGrid(startPos);
-            GridCel targetCel = _grid.WorldPosToGrid(targetPos);
+            IPath startCel = m_SquareGrid.WorldPosToGrid(startPos);
+            IPath targetCel = m_SquareGrid.WorldPosToGrid(targetPos);
 
             if (targetCel == null || startCel == null)
             {
                 return null;
             }
 
-            Heap<GridCel> openSet = new Heap<GridCel>(_grid.CelCount);
-            HashSet<GridCel> closedSet = new HashSet<GridCel>();
+            Heap<IPath> openSet = new Heap<IPath>(m_SquareGrid.CelCount);
+            HashSet<IPath> closedSet = new HashSet<IPath>();
             openSet.Add(startCel);
 
             while (openSet.Count > 0)
             {
-                GridCel currentCel = openSet.RemoveFirst();
+                IPath currentCel = openSet.RemoveFirst();
                 closedSet.Add(currentCel);
 
                 if (currentCel == targetCel)
@@ -56,9 +57,10 @@ namespace RPGCore.GameWorld
                     return path;
                 }
 
-                foreach (GridCel neighbour in _grid.GetNeighbours(currentCel))
+                foreach (IPath neighbour in GetNeighbours(currentCel))
                 {
-                    if (neighbour.celState == GridCelState.NotWalkable || neighbour.celState == GridCelState.Occupied || closedSet.Contains(neighbour))
+                    // TODO: Consider neighour state 
+                    if (closedSet.Contains(neighbour))
                         continue;
 
                     int newCostToNeighbour = currentCel.GCost + GetDistance(currentCel, neighbour);
@@ -85,21 +87,22 @@ namespace RPGCore.GameWorld
         /// <param name="startPos">starting position</param>
         /// <param name="entity">target entity</param>
         /// <returns>Queue containing the nodes an entity shall traverse</returns>
-        public Queue<GridCel> FindPath(Vector3 startPos, IGridEntity entity)
+        public Queue<IPath> FindPath(Vector3 startPos, IGridEntity entity)
         {
             var cels = entity.OccupyingCels;
-            List<GridCel> neighbours = new List<GridCel>();
+            List<IPath> neighbours = new List<IPath>();
 
-            foreach (GridCel cel in cels)
-                neighbours.AddRange(_grid.GetNeighbours(cel));
+            foreach (IPath cel in cels)
+                neighbours.AddRange(GetNeighbours(cel));
 
             float distance = Mathf.Infinity;
             Vector3 targetPos = Vector3.zero;
 
             foreach (var neighbour in neighbours)
             {
-                if (neighbour.celState != GridCelState.Walkable)
-                    continue;
+                // TODO: Consider neighbour state
+                // if (neighbour.celState != IPathState.Walkable)
+                //     continue;
 
                 if (Vector3.Distance(neighbour.WorldPos, startPos) < distance)
                 {
@@ -110,10 +113,10 @@ namespace RPGCore.GameWorld
             return FindPath(startPos, targetPos);
         }
 
-        public Queue<GridCel> RetracePath(GridCel startCel, GridCel endCel)
+        public Queue<IPath> RetracePath(IPath startCel, IPath endCel)
         {
-            List<GridCel> path = new List<GridCel>();
-            GridCel currentCel = endCel;
+            List<IPath> path = new List<IPath>();
+            IPath currentCel = endCel;
             while (currentCel != startCel)
             {
                 path.Add(currentCel);
@@ -121,15 +124,42 @@ namespace RPGCore.GameWorld
             }
 
             path.Reverse();
-            Queue<GridCel> pathQueue = new Queue<GridCel>(path);
+            Queue<IPath> pathQueue = new Queue<IPath>(path);
             return pathQueue;
         }
 
-        private int GetDistance(GridCel celA, GridCel celB)
+        private int GetDistance(IPath celA, IPath celB)
         {
             int dstX = Mathf.Abs(celA.GridX - celB.GridX);
             int dstY = Mathf.Abs(celA.GridY - celB.GridY);
             return dstX + dstY;
+        }
+        
+        /// <summary>
+        /// Function to get all the the neighbour Cels of a IPath
+        /// </summary>
+        /// <param name="cel">IPath which neighbours must be found</param>
+        /// <returns>List with all the IPaths around the input Cel</returns>
+        public List<IPath> GetNeighbours(IPath cel)
+        {
+            List<IPath> neighbours = new List<IPath>();
+
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    if (x == 0 && y == 0 || x == 1 && y == 1 || x == -1 && y == 1 || x == 1 && y == -1 || x == -1 && y == -1)
+                        continue;
+
+                    int checkX = cel.GridX + x;
+                    int checkY = cel.GridY + y;
+
+                    if (checkX >= 0 && checkX < m_SquareGrid.GridSize.x && checkY >= 0 && checkY < m_SquareGrid.GridSize.y)
+                        neighbours.Add(m_SquareGrid.GridItems[checkX, checkY]);
+                }
+            }
+
+            return neighbours;
         }
         #endregion Methods
     }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using RPGFramework.ItemSystem;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-
+using RPGCore.Grids;
+using RPGFramework.ItemSystem;
+using System.Collections.Generic;
+using System;
 
 namespace RPGFramework.ContainerSystem
 {
@@ -22,10 +21,11 @@ namespace RPGFramework.ContainerSystem
         [SerializeField] private Sprite containerSlotSprite;
         [SerializeField] private Vector2Int containerSize = new Vector2Int(1,1);
         [SerializeField] private float slotSize = 1;
+        [SerializeField] private List<Type> types;
 
-        private Image backgroundImage;
-        private GridLayoutGroup gridLayout;
-        private ContainerGrid<IItem> _grid;
+        private Image m_backgroundImage;
+        private GridLayoutGroup m_gridLayout;
+        private SquareGrid<ContainerSlot<IItem>> m_squareGrid;
         #endregion Fields
         
         #region Properties
@@ -36,21 +36,20 @@ namespace RPGFramework.ContainerSystem
         public List<IItem> ItemsInside { get; set; }
         public Vector2Int ContainerSize { get => containerSize; set => containerSize = value; }
         public ContainerGrid<IItem> ContainerGrid { get; set; }
-
         #endregion ContainerProperties
 
         
         #region MonoBehaviour Methods
         public void Awake()
         {
-            _grid = new ContainerGrid<IItem>(containerSize, slotSize, transform);
+            m_squareGrid = new ContainerGrid<IItem>(containerSize, slotSize, transform);
                 
-            backgroundImage = GetComponent<Image>();
-            backgroundImage.rectTransform.sizeDelta = _grid.GridBounds;
-            gridLayout = GetComponent<GridLayoutGroup>();
-            gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            gridLayout.constraintCount = containerSize.x;
-            gridLayout.cellSize = new Vector2(slotSize, slotSize);
+            m_backgroundImage = GetComponent<Image>();
+            m_backgroundImage.rectTransform.sizeDelta = m_squareGrid.GridBounds;
+            m_gridLayout = GetComponent<GridLayoutGroup>();
+            m_gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            m_gridLayout.constraintCount = containerSize.x;
+            m_gridLayout.cellSize = new Vector2(slotSize, slotSize);
         }
 
         // private void OnValidate()
@@ -70,8 +69,14 @@ namespace RPGFramework.ContainerSystem
 
         private void Update()
         {
-            Debug.Log(_grid.MouseToLocal());
-            var slot = _grid.LocalPosToGrid(_grid.MouseToLocal());
+            for (int x = 0; x < m_squareGrid.GridSize.x; x++)
+            {
+                for (int y = 0; y < m_squareGrid.GridSize.y; y++)
+                {
+                    var curSlot = m_squareGrid.GridItems[x, y].m_Image.color = Color.white;
+                }
+            }
+            var slot = m_squareGrid.LocalPosToGrid(m_squareGrid.WorldPosToLocal(Input.mousePosition));
             if(slot != null)
                 slot.m_Image.color = Color.green;
         }
