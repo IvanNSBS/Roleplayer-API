@@ -2,14 +2,9 @@
 {
     public class ShowAllCheats : CheatCommand
     {
-        #region Fields
-        private CheatController m_controller;
-        #endregion Fields
-        
         #region Constructors
-        public ShowAllCheats(CheatController controller):base("help", "Shows all available commands", "help")
+        public ShowAllCheats(CheatController controller):base(controller, "help", "Shows all available commands", "help")
         {
-            m_controller = controller;
         }
         #endregion Constructors
         
@@ -18,9 +13,9 @@
 
         public override void Invoke(params string[] args)
         {
-            foreach (var commands in m_controller.Commands)
+            foreach (var commands in m_cheatController.Commands)
             {
-                m_controller.UsedCommandsBuffer.Add($"{commands.Value.CommandFormat} - {commands.Value.CommandDescription}");
+                m_cheatController.CheatLogBuffer.Add($"{commands.Value.CommandFormat} - {commands.Value.CommandDescription}");
             }
         }
 

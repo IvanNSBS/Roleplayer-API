@@ -1,10 +1,6 @@
-﻿using System;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using RPGCore.Utils.Extensions;
 using System.Collections.Generic;
-using System.Xml.Schema;
-using RPGCore.CheatConsole.CommandExamples;
 
 namespace RPGCore.CheatConsole
 {
@@ -14,90 +10,72 @@ namespace RPGCore.CheatConsole
         private bool m_showConsole = false;
         private string m_inputString = "";
         private Dictionary<string, CheatCommand> m_commands;
-        private List<string> m_usedCommandsBuffer;
+        private List<string> m_cheatLogBuffer;
         private Vector2 m_bufferScroll;
         #endregion Fields
 
         #region Properites
         public Dictionary<string, CheatCommand> Commands => m_commands;
 
-        public List<string> UsedCommandsBuffer
+        public List<string> CheatLogBuffer
         {
-            get => m_usedCommandsBuffer;
-            set => m_usedCommandsBuffer = value;
+            get => m_cheatLogBuffer;
+            set => m_cheatLogBuffer = value;
         }
         #endregion
         
 
         #region Methods
-        private void ToggleDebug()
+        protected void SetShowDebug(bool newValue)
         {
-            m_showConsole = !m_showConsole;
+            m_showConsole = newValue;
         }
 
-        private void HandleInput()
+        protected void HandleInput(bool hideConsoleAfter = false)
         {
-            if (m_showConsole)
+            if (m_inputString == "")
             {
-                m_usedCommandsBuffer.Add(m_inputString);
-                string[] split = m_inputString.Split(' ');
-                string[] args = split.SubArray(1);
-                foreach (var splitted in args)
-                {
-                    Debug.Log($"Split: {splitted}");    
-                }
-                m_commands[split[0]].Invoke(args);
-                m_inputString = "";
+                SetShowDebug(hideConsoleAfter);
             }
-            ToggleDebug();
+            m_cheatLogBuffer.Add($">>> {m_inputString} <<<");
+            string[] split = m_inputString.Split(' ');
+            string[] args = split.SubArray(1);
+            if(m_commands.ContainsKey(split[0]))
+                m_commands[split[0]].Invoke(args);
+            else
+                m_cheatLogBuffer.Add($"Command not recognized: {split[0]}");
+            m_inputString = "";
+            
+            SetShowDebug(hideConsoleAfter);
         }
         #endregion
         
         
         #region MonoBehaviour Methods
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                HandleInput();
-            }
-        }
-
-        private void Awake()
+        protected virtual void Awake()
         {
             m_commands = new Dictionary<string, CheatCommand>();
-            m_usedCommandsBuffer = new List<string>();
+            m_cheatLogBuffer = new List<string>();
             
-            // IEnumerable<CheatCommand> exporters = typeof(CheatCommand)
-            //     .Assembly.GetTypes()
-            //     .Where(t => t.IsSubclassOf(typeof(CheatCommand)) && !t.IsAbstract)
-            //     .Select(t => (CheatCommand)Activator.CreateInstance(t));
-            //
-            // foreach (var cheat in exporters)
-            // {
-            //     Debug.Log($"Cheats found: {cheat.CommandId}");
-            //     m_commands.Add(cheat.CommandId, cheat);                
-            // }
-            
-            var printDebug = new PrintDebugMessage();
-            m_commands.Add(printDebug.CommandId, printDebug);
             var showallcheats = new ShowAllCheats(this);
             m_commands.Add(showallcheats.CommandId, showallcheats);
+            var clearCheatLog = new ClearCheatLog(this);
+            m_commands.Add(clearCheatLog.CommandId, clearCheatLog);
         }
 
-        private void OnGUI()
+        protected virtual void OnGUI()
         {
             if (!m_showConsole)
                 return;
 
             float y = 0f;
             GUI.Box(new Rect(0, y, Screen.width, 100), "");
-            Rect viewport = new Rect(0, 0, Screen.width - 30, 20*m_usedCommandsBuffer.Count);
+            Rect viewport = new Rect(0, 0, Screen.width - 30, 20*m_cheatLogBuffer.Count);
             m_bufferScroll = GUI.BeginScrollView(new Rect(0, y + 5f, Screen.width, 90), m_bufferScroll, viewport);
             
-            for (int i = 0; i < m_usedCommandsBuffer.Count; i++)
+            for (int i = 0; i < m_cheatLogBuffer.Count; i++)
             {
-                string message = m_usedCommandsBuffer[i];
+                string message = m_cheatLogBuffer[i];
                 Rect labelRect = new Rect(5f, 20*i, viewport.width - 100, 20);
                 GUI.Label(labelRect, message);
             }
