@@ -1,8 +1,8 @@
 ﻿using System;
 using UnityEngine;
 using System.Linq;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace RPGCore.FileManagement.SavingFramework
 {
@@ -11,10 +11,11 @@ namespace RPGCore.FileManagement.SavingFramework
     {
         #region Fields
         public string m_componentId;
-        private List<ISaveableData> m_saveableComponents;
+        private Dictionary<string, ISaveableData> m_saveableComponents;
         #endregion Fields
 
         #region Properties
+        public string ComponentId => m_componentId;
         #endregion Properties
         
         
@@ -28,7 +29,7 @@ namespace RPGCore.FileManagement.SavingFramework
 
         private void Awake()
         {
-            m_saveableComponents = GetComponents<ISaveableData>().ToList();
+            m_saveableComponents = GetComponents<ISaveableData>().ToDictionary(x=>x.SurrogateName, x => x);
             SaveManager.Instance.AddSubscriber(this);
         }
 
@@ -36,48 +37,30 @@ namespace RPGCore.FileManagement.SavingFramework
         {
             SaveManager.Instance.RemoveSubscriber(this);
         }
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.F5))
-            {
-                SaveComponents();
-            }
-            
-            if (Input.GetKeyDown(KeyCode.F9))
-            {
-                LoadComponents(null);
-            }
-        }
-
         #endregion MonoBehaviour Methods
     
     
         #region Methods
 
-        public List<string> SaveComponents()
+        public Tuple<Saveable, JObject> SaveComponents()
         {
-            List<string> jsonStringCollection = new List<string>();
             JObject jsonResult = new JObject();
-            
+
             foreach (var saveable in m_saveableComponents)
             {
-                string save = saveable.Save();
-                jsonResult.Add(saveable.SurrogateName, JObject.Parse(save));
-                jsonStringCollection.Add(save);    
+                string save = saveable.Value.Save();
+                jsonResult.Add(saveable.Key, JObject.Parse(save));
             }
             
-            Debug.Log(jsonResult);
-            
-            return jsonStringCollection;
+            return new Tuple<Saveable, JObject>(this, jsonResult);
         }
 
-        public bool LoadComponents(List<string> jsonStringCollection)
+        public bool LoadComponents(JObject componentJson)
         {
             bool result = true;
             foreach (var saveable in m_saveableComponents)
             {
-                result &= saveable.Load("");
+                result &= saveable.Value.Load(componentJson[saveable.Key] as JObject);
             }
             return result;
         }

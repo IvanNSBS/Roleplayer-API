@@ -19,16 +19,14 @@ namespace RPGCore.FileManagement.SavingFramework.Surrogates
             
             string jsonString = jObject.ToString();
             json = jsonString;
-            Debug.Log(jsonString);
             return jsonString;
         }
 
         private string json;
         
-        public bool Load(string componentJsonString)
+        public bool Load(JObject saveable)
         {
             // JObject saveable = JObject.Parse(componentJsonString);
-            JObject saveable = JObject.Parse(json);
             bool active = (bool)saveable["activeSelf"];
             gameObject.SetActive(active);
             

@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
 using Unity.Collections;
 
 namespace RPGCore.FileManagement.SavingFramework
@@ -7,6 +8,6 @@ namespace RPGCore.FileManagement.SavingFramework
     {
         string SurrogateName { get; }
         string Save();
-        bool Load(string componentJsonString);
+        bool Load(JObject saveable);
     }
 }
