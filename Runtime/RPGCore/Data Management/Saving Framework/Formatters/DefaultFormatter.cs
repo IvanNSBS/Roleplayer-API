@@ -1,18 +1,21 @@
-﻿using System;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 namespace RPGCore.FileManagement.SavingFramework.Formatters
 {
+    /// <summary>
+    /// DefaultFormatter simply puts all objects into a json.
+    /// No scene or any other data is considered in the operations
+    /// </summary>
     public class DefaultFormatter : IJsonFormatter
     {
-        public JObject Format(List<Tuple<Saveable, JObject>> componentsToSave)
+        public JObject Format(Dictionary<Saveable, JObject> componentsToSave)
         {
             JObject result = new JObject();
             foreach (var saveComponent in componentsToSave)
             {
-                Saveable saveable = saveComponent.Item1;
-                JObject jsonRepresentation = saveComponent.Item2;
+                Saveable saveable = saveComponent.Key;
+                JObject jsonRepresentation = saveComponent.Value;
                 
                 result.Add(saveable.m_componentId, jsonRepresentation);
             }

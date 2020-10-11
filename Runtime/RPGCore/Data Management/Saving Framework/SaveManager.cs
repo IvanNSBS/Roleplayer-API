@@ -7,11 +7,21 @@ using RPGCore.FileManagement.SavingFramework.Formatters;
 
 namespace RPGCore.FileManagement.SavingFramework
 {
+    /// <summary>
+    /// Save manager handles Save game Load and Save Events.
+    /// </summary>
     public class SaveManager
     {
         #region Fields
+        /// <summary>
+        /// List of Save/Load Events listeners
+        /// </summary>
         private List<Saveable> m_subscribers;
-        private JObject m_currentSaveCache;
+
+        /// <summary>
+        /// Formatting policy used to concatenate all m_subscribers
+        /// json representation into a single json file to save to disk
+        /// </summary>
         private readonly IJsonFormatter m_formatPolicy;
         #endregion Fields
         
@@ -40,18 +50,35 @@ namespace RPGCore.FileManagement.SavingFramework
         
 
         #region Savegame Events
+        /// <summary>
+        /// Save Game Event.
+        /// Calls the SaveComponents Method for every Saveable
+        /// that have been subscribed to the save manager and
+        /// unify them through the FormattingPolicy to be a
+        /// single json string and Binarize it through the
+        /// BinarizePolicy
+        /// </summary>
         public void Save()
         {
-            List<Tuple<Saveable, JObject>> savedComponents = new List<Tuple<Saveable, JObject>>();
+            Dictionary<Saveable, JObject> savedComponents = new Dictionary<Saveable, JObject>();
+
             foreach (var subscriber in m_subscribers)
             {
-                savedComponents.Add(subscriber.SaveComponents());
+                var tuple = subscriber.SaveComponents();
+                savedComponents.Add(tuple.Item1, tuple.Item2);
             }
 
             JObject saveFileString = m_formatPolicy.Format(savedComponents);
             saveFileString.ToString().ToJsonFile("D:\\Unity Projects\\Project Small Sandbox\\Assets\\Resources\\Saves\\savegame.json");
         }
 
+        /// <summary>
+        /// Load Save Game Event.
+        /// Reads and undo binarizing through the BinarizePolicy
+        /// and undo the formating through the Formatting Policy
+        /// to prepare the json to be loadable from the object
+        /// Saveable Component.
+        /// </summary>
         public void Load()
         {
             string jsonText = Resources.Load<TextAsset>("Saves/savegame").text;
@@ -74,11 +101,20 @@ namespace RPGCore.FileManagement.SavingFramework
         
         
         #region Methods
+        /// <summary>
+        /// Add subscriber to SaveGame listeners
+        /// </summary>
+        /// <param name="saveable">New Subscriber</param>
         public void AddSubscriber(Saveable saveable)
         {
             m_subscribers.Add(saveable);
         }
 
+        /// <summary>
+        /// Removes Saveable from the event listener list.
+        /// </summary>
+        /// <param name="saveable">Saveable to remove</param>
+        /// <returns>True if Saveable was removed. False otherwise</returns>
         public bool RemoveSubscriber(Saveable saveable)
         {
             return m_subscribers.Remove(saveable);

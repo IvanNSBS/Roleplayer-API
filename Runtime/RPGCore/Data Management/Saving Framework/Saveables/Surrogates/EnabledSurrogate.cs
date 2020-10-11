@@ -10,23 +10,18 @@ namespace RPGCore.FileManagement.SavingFramework.Surrogates
         #endregion Properties
         
         #region Surrogate Methods
-        public string Save()
+        public JObject Save()
         {
             JObject jObject = JObject.FromObject(new
             {
-                this.gameObject.activeSelf
+                gameObject.activeSelf
             });
             
-            string jsonString = jObject.ToString();
-            json = jsonString;
-            return jsonString;
+            return jObject;
         }
 
-        private string json;
-        
         public bool Load(JObject saveable)
         {
-            // JObject saveable = JObject.Parse(componentJsonString);
             bool active = (bool)saveable["activeSelf"];
             gameObject.SetActive(active);
             

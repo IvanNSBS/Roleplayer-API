@@ -10,7 +10,7 @@ namespace RPGCore.FileManagement.SavingFramework.Surrogates
         #endregion Properties
         
         #region Surrogate Methods
-        public string Save()
+        public JObject Save()
         {
             Vector3 position = transform.position;
             Quaternion rotation = transform.rotation;
@@ -39,12 +39,8 @@ namespace RPGCore.FileManagement.SavingFramework.Surrogates
                 }
             });
             
-            string jsonString = jObject.ToString();
-            json = jsonString;
-            return jsonString;
+            return jObject;
         }
-
-        private string json;
         
         public bool Load(JObject saveable)
         {
