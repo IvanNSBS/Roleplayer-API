@@ -3,6 +3,8 @@ using UnityEngine;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using RPGCore.Loggers;
+using Logger = RPGCore.Loggers.Logger;
 
 namespace RPGCore.FileManagement.SavingFramework
 {
@@ -40,12 +42,6 @@ namespace RPGCore.FileManagement.SavingFramework
         private void Awake()
         {
             m_saveableComponents = GetComponents<ISaveableData>().ToDictionary(x=>x.SurrogateName, x => x);
-            SaveManager.Instance.AddSubscriber(this);
-        }
-
-        private void OnDestroy()
-        {
-            SaveManager.Instance.RemoveSubscriber(this);
         }
         #endregion MonoBehaviour Methods
     
