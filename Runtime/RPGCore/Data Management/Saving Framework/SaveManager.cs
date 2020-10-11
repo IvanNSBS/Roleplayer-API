@@ -2,8 +2,10 @@
 using UnityEngine;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.IO;
 using RPGCore.DataManagement.Serializers;
 using RPGCore.FileManagement.SavingFramework.Formatters;
+using RPGCore.FileManagement.SavingFramework.JsonEncryption;
 
 namespace RPGCore.FileManagement.SavingFramework
 {
@@ -23,7 +25,18 @@ namespace RPGCore.FileManagement.SavingFramework
         /// json representation into a single json file to save to disk
         /// </summary>
         private readonly IJsonFormatter m_formatPolicy;
+
+        /// <summary>
+        /// Encryption Policy
+        /// </summary>
+        private readonly IJsonEncrypter m_jsonEncrypter;
         #endregion Fields
+        
+        #region Constants
+
+        public const string SAVE_PATH = "D:\\Unity Projects\\Project Small Sandbox\\Assets\\Resources\\Saves";
+        public const string FILE_NAME = "save.dat";
+        #endregion Constants
         
         #region Singleton
         private static SaveManager _instance;
@@ -45,6 +58,7 @@ namespace RPGCore.FileManagement.SavingFramework
         {
             m_subscribers = new List<Saveable>();  
             m_formatPolicy = new DefaultFormatter();
+            m_jsonEncrypter = new NoEncryption();
         }
         #endregion Constructors
         
@@ -69,7 +83,7 @@ namespace RPGCore.FileManagement.SavingFramework
             }
 
             JObject saveFileString = m_formatPolicy.Format(savedComponents);
-            saveFileString.ToString().ToJsonFile("D:\\Unity Projects\\Project Small Sandbox\\Assets\\Resources\\Saves\\savegame.json");
+            m_jsonEncrypter.SaveToDisk(saveFileString, SAVE_PATH, FILE_NAME);
         }
 
         /// <summary>
@@ -81,8 +95,8 @@ namespace RPGCore.FileManagement.SavingFramework
         /// </summary>
         public void Load()
         {
-            string jsonText = Resources.Load<TextAsset>("Saves/savegame").text;
-            JObject saveFileObject = JObject.Parse(jsonText);
+            string fullPath = Path.Combine(SAVE_PATH, FILE_NAME);
+            JObject saveFileObject = m_jsonEncrypter.ReadFromDisk(fullPath);
             var undo = m_formatPolicy.UndoFormatting(saveFileObject);
             
             // Check if Saveables present in the scene are on save game file

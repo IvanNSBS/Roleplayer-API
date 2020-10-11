@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace RPGCore.CheatConsole
+﻿namespace RPGCore.CheatConsole
 {
     public class CheatCommand
     {
