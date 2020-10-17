@@ -35,6 +35,23 @@ namespace RPGCore.FileManagement.SavingFramework.Formatters
         /// Dictionary that has the Saveable Component ID as key and
         /// it's json representation(JObject) as value
         /// </returns>
-        Dictionary<string, JObject> UndoFormatting(JObject saveGameJson);
+        Dictionary<int, List<SavedObject>> UndoFormatting(JObject saveGameJson);
+    }
+
+    public class SavedObject
+    {
+        #region Fields
+        public string id;
+        public JObject jsonRepresentation;
+        #endregion Fields
+        
+        
+        #region Constructors
+        public SavedObject(string id, JObject jsonRepresentation)
+        {
+            this.id = id;
+            this.jsonRepresentation = jsonRepresentation;
+        }
+        #endregion Constructors
     }
 }

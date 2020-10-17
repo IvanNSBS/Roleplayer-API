@@ -1,16 +1,22 @@
 ﻿using System.IO;
 using UnityEngine;
-using System.Linq;
 using Newtonsoft.Json.Linq;
+using RPGCore.Utils.Extensions;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.SceneManagement;
 using RPGCore.FileManagement.SavingFramework.Formatters;
-using RPGCore.FileManagement.SavingFramework.JsonEncryption;
 using RPGCore.FileManagement.SavingFramework.PrefabManager;
-using RPGCore.Loggers;
-using UnityEditor;
+using RPGCore.FileManagement.SavingFramework.JsonEncryption;
 
 namespace RPGCore.FileManagement.SavingFramework
 {
+    public enum SaveableOptions
+    {
+        Global,
+        Scenes
+    }
+    
     /// <summary>
     /// Save manager handles Save game Load and Save Events.
     /// </summary>
@@ -22,6 +28,11 @@ namespace RPGCore.FileManagement.SavingFramework
         /// Hash of Save/Load Events listeners
         /// </summary>
         private Dictionary<string, Saveable> m_subscribersHash;
+
+        /// <summary>
+        /// Cache of current save game.
+        /// </summary>
+        private JObject m_saveGameCache;
         
         /// <summary>
         /// Formatting policy used to concatenate all m_subscribers
@@ -43,22 +54,35 @@ namespace RPGCore.FileManagement.SavingFramework
         
         #region Constants
         public const string SAVE_PATH = "D:\\Unity Projects\\Project Small Sandbox\\Assets\\Resources\\Saves";
-        public const string FILE_NAME = "save.dat";
+        public const string FILE_NAME = "save.json";
         #endregion Constants
       
+        #region Singleton
+        private static SaveManager _instance;
+        public static SaveManager Instance => _instance;
+        #endregion Singleton
         
-        #region MonoBehaviour
+        #region Properties
+        public Dictionary<string, Saveable> SubscribersHash => m_subscribersHash;
+        #endregion Properties
+        
+        
+        #region MonoBehaviour Methods
         private void Awake()
         {
+            if (_instance == null)
+                _instance = this;
+            
+            if(_instance != this)
+                Destroy(gameObject);
+
+            m_saveGameCache = new JObject();
             m_subscribersHash = new Dictionary<string, Saveable>();
-            m_subscribersHash = FindObjectsOfType<Saveable>().ToDictionary(x => x.m_componentId, x => x);
             m_jsonEncrypter = new NoEncryption();
             m_formatPolicy = new DefaultFormatter();
             m_prefabManager = GetComponent<IPrefabManager>();
-                        
-            DontDestroyOnLoad(this);
         }
-        #endregion MonoBehaviour
+        #endregion MonoBehaviour Methods
         
 
         #region Savegame Events
@@ -72,8 +96,6 @@ namespace RPGCore.FileManagement.SavingFramework
         /// </summary>
         public virtual void Save()
         {
-            //Reaload hash to make sure objects that were spawned later will be considered
-            m_subscribersHash = FindObjectsOfType<Saveable>().ToDictionary(x => x.m_componentId, x => x);
             Dictionary<Saveable, JObject> savedComponents = new Dictionary<Saveable, JObject>();
 
             foreach (var subscriber in m_subscribersHash)
@@ -82,12 +104,12 @@ namespace RPGCore.FileManagement.SavingFramework
                 savedComponents.Add(tuple.Item1, tuple.Item2);
             }
 
-            JObject saveFileString = m_formatPolicy.Format(savedComponents);
-            m_jsonEncrypter.SaveToDisk(saveFileString, SAVE_PATH, FILE_NAME);
+            JObject saveFileJson = m_formatPolicy.Format(savedComponents);
+            m_jsonEncrypter.SaveToDisk(saveFileJson, SAVE_PATH, FILE_NAME);
         }
 
         /// <summary>
-        /// Load Save Game Event.
+        /// Load Save Event.
         /// Reads and undo binarizing through the BinarizePolicy
         /// and undo the formating through the Formatting Policy
         /// to prepare the json to be loadable from the object
@@ -97,41 +119,69 @@ namespace RPGCore.FileManagement.SavingFramework
         {
             string fullPath = Path.Combine(SAVE_PATH, FILE_NAME);
             JObject saveFileObject = m_jsonEncrypter.ReadFromDisk(fullPath);
-            var undo = m_formatPolicy.UndoFormatting(saveFileObject);
+            var savedGameObjects = m_formatPolicy.UndoFormatting(saveFileObject);
+
+            var loadedScenes = SceneUtils.GetLoadedScenesAndBuildIndex();
+            Scene activeScene = SceneManager.GetActiveScene();
             
             Dictionary<string, Saveable> newSubscribersHash = new Dictionary<string, Saveable>();
-
-            foreach (var saveObject in undo)
+            
+            foreach (var savedGameObject in savedGameObjects)
             {
-                // Scene game object is on SaveGame. Load it
-                if (m_subscribersHash.ContainsKey(saveObject.Key))
+                int currentSceneIndex = savedGameObject.Key;
+                foreach (var savedObject in savedGameObject.Value)
                 {
-                    m_subscribersHash[saveObject.Key].LoadComponents(saveObject.Value);
-                    // Add the updated object to the new subscriber hash and remove it from
-                    // the old one
-                    newSubscribersHash.Add(saveObject.Key, m_subscribersHash[saveObject.Key]);
-                    m_subscribersHash.Remove(saveObject.Key);
-                }
-                else // Not present in the save game. Try to instantiate it
-                {
-                    var saveableGameObject = m_prefabManager.InstantiatePrefab(saveObject.Key, saveObject.Value);
-                    if (saveableGameObject != null)
+                    if (m_subscribersHash.ContainsKey(savedObject.id))
                     {
-                        Saveable saveableComponent = saveableGameObject.GetComponent<Saveable>();
-                        newSubscribersHash.Add(saveableComponent.m_componentId, saveableComponent);
+                        string objectId = savedObject.id;
+                        m_subscribersHash[objectId].LoadComponents(savedObject.jsonRepresentation);
+                        // Add the updated object to the new subscriber hash and remove it from
+                        // the old one
+                        newSubscribersHash.Add(objectId, m_subscribersHash[objectId]);
+                        m_subscribersHash.Remove(objectId);
+                    }
+                    else
+                    {
+                        // Scene that contains this object is not open, do not try to instantiate object
+                        if (!loadedScenes.ContainsKey(currentSceneIndex))
+                            continue;
+                            
+                        var saveableGameObject = m_prefabManager.InstantiatePrefab(savedObject.id, savedObject.jsonRepresentation);
+                        if (saveableGameObject != null)
+                        {
+                            Saveable saveableComponent = saveableGameObject.GetComponent<Saveable>();
+                            newSubscribersHash.Add(saveableComponent.m_componentId, saveableComponent);
+                            if(currentSceneIndex == -1)
+                                SceneManager.MoveGameObjectToScene(saveableGameObject, activeScene);
+                            else
+                                SceneManager.MoveGameObjectToScene(saveableGameObject, loadedScenes[currentSceneIndex]);
+                        }
                     }
                 }
             }
             
-            // All subscribers that are here are not present in the save file, so they must be
+            // All subscribers that are still here are not present in the save file, so they must be
             // deleted
             foreach (var remainingSubscriber in m_subscribersHash)
-            {
                 Destroy(remainingSubscriber.Value.gameObject);
-            }
-            
+
             m_subscribersHash = newSubscribersHash;
         }
         #endregion Savegame Events
+        
+        
+        #region Methods
+        public void AddSubscriber(Saveable subscriber)
+        {
+            if(!m_subscribersHash.ContainsKey(subscriber.m_componentId))
+                m_subscribersHash.Add(subscriber.m_componentId, subscriber);
+        }
+
+        public void RemoveSubscriber(Saveable subscriber)
+        {
+            if(m_subscribersHash.ContainsKey(subscriber.m_componentId))
+                m_subscribersHash.Remove(subscriber.m_componentId);
+        }
+        #endregion Methods
     }
 }

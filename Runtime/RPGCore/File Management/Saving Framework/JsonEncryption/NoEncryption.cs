@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RPGCore.DataManagement.Serializers;
 
@@ -20,7 +21,7 @@ namespace RPGCore.FileManagement.SavingFramework.JsonEncryption
                 Directory.CreateDirectory(filePath);
 
             string finalPath = Path.Combine(filePath, fileName);
-            jObject.ToString().ToJsonFile(finalPath);
+            jObject.ToString(Formatting.Indented).ToJsonFile(finalPath);
             return true;
         }
 

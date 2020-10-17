@@ -3,12 +3,9 @@ using UnityEngine;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using RPGCore.Loggers;
-using Logger = RPGCore.Loggers.Logger;
 
 namespace RPGCore.FileManagement.SavingFramework
 {
-    [ExecuteInEditMode]
     public class Saveable : MonoBehaviour
     {
         #region Fields
@@ -16,6 +13,17 @@ namespace RPGCore.FileManagement.SavingFramework
         /// GameObject Unique Identifier
         /// </summary>
         public string m_componentId;
+
+        /// <summary>
+        /// Saving Options
+        /// </summary>
+        public SaveableOptions m_saveableOptions;
+        
+        /// <summary>
+        /// Prefab referenc id to instantiate the gameObject through
+        /// SaveManager's PrefabManager
+        /// </summary>
+        public string m_prefabReferenceId;
         
         /// <summary>
         /// Dictionary of ISaveableData Name and the ISaveableData object
@@ -32,17 +40,29 @@ namespace RPGCore.FileManagement.SavingFramework
         
         
         #region MonoBehaviour Methods
-
-        private void OnEnable()
+        /// <summary>
+        /// Unity Start Event guarantee that the Saveable ID is unique
+        /// and add it to the save manager subscriber list
+        /// </summary>
+        private void Start()
         {
-            if (String.IsNullOrEmpty(m_componentId))
-                m_componentId = gameObject.name + "_" +Guid.NewGuid().ToString();
+            if (String.IsNullOrEmpty(m_componentId) || SaveManager.Instance.SubscribersHash.ContainsKey(m_componentId))
+                GenerateID();
+
+            SaveManager.Instance.AddSubscriber(this);
         }
 
         private void Awake()
         {
-            m_saveableComponents = GetComponents<ISaveableData>().ToDictionary(x=>x.SurrogateName, x => x);
+            if(m_saveableComponents == null)
+                m_saveableComponents = GetComponents<ISaveableData>().ToDictionary(x=>x.SurrogateName, x => x);
         }
+
+        private void OnDestroy()
+        {
+            SaveManager.Instance.RemoveSubscriber(this);
+        }
+
         #endregion MonoBehaviour Methods
     
     
@@ -57,6 +77,7 @@ namespace RPGCore.FileManagement.SavingFramework
         public Tuple<Saveable, JObject> SaveComponents()
         {
             JObject jsonResult = new JObject();
+            jsonResult.Add("prefabId", m_prefabReferenceId);
             foreach (var saveable in m_saveableComponents)
             {
                 JObject save = saveable.Value.Save();
@@ -82,5 +103,22 @@ namespace RPGCore.FileManagement.SavingFramework
             return result;
         }
         #endregion Methods
+
+        
+        #region Utility Methods
+        [ContextMenu("Generate ID")]
+        private void GenerateID()
+        {
+            m_componentId = gameObject.name + "_" +Guid.NewGuid().ToString();
+        }
+        
+        [ContextMenu("Print Saveable Scene Data")]
+        private void PrintSceneData()
+        {
+            Debug.Log($" Scene Name: {gameObject.scene.name}");
+            Debug.Log($" Scene Build Index: {gameObject.scene.buildIndex}");
+        }
+        #endregion Utility Methods
+        
     }
 }
