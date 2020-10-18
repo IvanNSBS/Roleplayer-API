@@ -23,7 +23,7 @@ namespace RPGCore.FileManagement.SavingFramework.Formatters
         /// it's json representation(JObject) as value
         /// </param>
         /// <returns>A single json(JObject) that represents the save file</returns>
-        JObject Format(Dictionary<Saveable, JObject> componentsToSave);
+        JObject Format(Dictionary<Saveable, JObject> componentsToSave, JObject savegameCache);
         
         /// <summary>
         /// Undo the formatting.
@@ -35,7 +35,7 @@ namespace RPGCore.FileManagement.SavingFramework.Formatters
         /// Dictionary that has the Saveable Component ID as key and
         /// it's json representation(JObject) as value
         /// </returns>
-        Dictionary<int, List<SavedObject>> UndoFormatting(JObject saveGameJson);
+        Dictionary<int, List<SavedObject>> UndoFormatting(JObject saveGameJson, JObject savegameCache);
     }
 
     public class SavedObject

@@ -46,7 +46,10 @@ namespace RPGCore.FileManagement.SavingFramework
         /// </summary>
         private void Start()
         {
-            if (String.IsNullOrEmpty(m_componentId) || SaveManager.Instance.SubscribersHash.ContainsKey(m_componentId))
+            int sceneIndex = gameObject.scene.buildIndex;
+            var subscriberHash = SaveManager.Instance.SubscribersHash;
+            
+            if (String.IsNullOrEmpty(m_componentId))
                 GenerateID();
 
             SaveManager.Instance.AddSubscriber(this);
@@ -110,13 +113,6 @@ namespace RPGCore.FileManagement.SavingFramework
         private void GenerateID()
         {
             m_componentId = gameObject.name + "_" +Guid.NewGuid().ToString();
-        }
-        
-        [ContextMenu("Print Saveable Scene Data")]
-        private void PrintSceneData()
-        {
-            Debug.Log($" Scene Name: {gameObject.scene.name}");
-            Debug.Log($" Scene Build Index: {gameObject.scene.buildIndex}");
         }
         #endregion Utility Methods
         

@@ -3,7 +3,6 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using RPGCore.Utils.Extensions;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine.SceneManagement;
 using RPGCore.FileManagement.SavingFramework.Formatters;
 using RPGCore.FileManagement.SavingFramework.PrefabManager;
@@ -25,9 +24,10 @@ namespace RPGCore.FileManagement.SavingFramework
     {
         #region Fields
         /// <summary>
-        /// Hash of Save/Load Events listeners
+        /// Hash of Save/Load Events listeners. They are separated
+        /// between scenes(using scene build index as the int in the dictionary)
         /// </summary>
-        private Dictionary<string, Saveable> m_subscribersHash;
+        private Dictionary<int, Dictionary<string, Saveable>> m_subscribersHash;
 
         /// <summary>
         /// Cache of current save game.
@@ -63,7 +63,7 @@ namespace RPGCore.FileManagement.SavingFramework
         #endregion Singleton
         
         #region Properties
-        public Dictionary<string, Saveable> SubscribersHash => m_subscribersHash;
+        public Dictionary<int, Dictionary<string, Saveable>> SubscribersHash => m_subscribersHash;
         #endregion Properties
         
         
@@ -77,10 +77,13 @@ namespace RPGCore.FileManagement.SavingFramework
                 Destroy(gameObject);
 
             m_saveGameCache = new JObject();
-            m_subscribersHash = new Dictionary<string, Saveable>();
+            m_subscribersHash = new Dictionary<int, Dictionary<string, Saveable>>();
             m_jsonEncrypter = new NoEncryption();
             m_formatPolicy = new DefaultFormatter();
             m_prefabManager = GetComponent<IPrefabManager>();
+
+            string fullPath = Path.Combine(SAVE_PATH, FILE_NAME);
+            m_saveGameCache = m_jsonEncrypter.ReadFromDisk(fullPath);
         }
         #endregion MonoBehaviour Methods
         
@@ -98,13 +101,16 @@ namespace RPGCore.FileManagement.SavingFramework
         {
             Dictionary<Saveable, JObject> savedComponents = new Dictionary<Saveable, JObject>();
 
-            foreach (var subscriber in m_subscribersHash)
+            foreach (var scene in m_subscribersHash)
             {
-                var tuple = subscriber.Value.SaveComponents();
-                savedComponents.Add(tuple.Item1, tuple.Item2);
+                foreach (var subscriber in scene.Value)
+                {
+                    var tuple = subscriber.Value.SaveComponents();
+                    savedComponents.Add(tuple.Item1, tuple.Item2);
+                }
             }
 
-            JObject saveFileJson = m_formatPolicy.Format(savedComponents);
+            JObject saveFileJson = m_formatPolicy.Format(savedComponents, m_saveGameCache);
             m_jsonEncrypter.SaveToDisk(saveFileJson, SAVE_PATH, FILE_NAME);
         }
 
@@ -119,53 +125,60 @@ namespace RPGCore.FileManagement.SavingFramework
         {
             string fullPath = Path.Combine(SAVE_PATH, FILE_NAME);
             JObject saveFileObject = m_jsonEncrypter.ReadFromDisk(fullPath);
-            var savedGameObjects = m_formatPolicy.UndoFormatting(saveFileObject);
-
-            var loadedScenes = SceneUtils.GetLoadedScenesAndBuildIndex();
-            Scene activeScene = SceneManager.GetActiveScene();
-            
-            Dictionary<string, Saveable> newSubscribersHash = new Dictionary<string, Saveable>();
+            var savedGameObjects = m_formatPolicy.UndoFormatting(saveFileObject, m_saveGameCache);
             
             foreach (var savedGameObject in savedGameObjects)
             {
                 int currentSceneIndex = savedGameObject.Key;
-                foreach (var savedObject in savedGameObject.Value)
+                LoadScene(currentSceneIndex, savedGameObject.Value);
+            }
+        }
+
+        public virtual void LoadScene(int sceneIndex, List<SavedObject> savedGameObjects)
+        {
+            var loadedScenes = SceneUtils.GetLoadedScenesAndBuildIndex();
+            Scene activeScene = SceneManager.GetActiveScene();
+            var newSubscribersHash = new Dictionary<int, Dictionary<string, Saveable>>();
+
+            foreach (var savedObject in savedGameObjects)
+            {
+                if (!m_subscribersHash.ContainsKey(sceneIndex))
+                    m_subscribersHash.Add(sceneIndex, new Dictionary<string, Saveable>());            
+                if(!newSubscribersHash.ContainsKey(sceneIndex))
+                    newSubscribersHash.Add(sceneIndex, new Dictionary<string, Saveable>());
+                
+                if (m_subscribersHash[sceneIndex].ContainsKey(savedObject.id))
                 {
-                    if (m_subscribersHash.ContainsKey(savedObject.id))
-                    {
-                        string objectId = savedObject.id;
-                        m_subscribersHash[objectId].LoadComponents(savedObject.jsonRepresentation);
-                        // Add the updated object to the new subscriber hash and remove it from
-                        // the old one
-                        newSubscribersHash.Add(objectId, m_subscribersHash[objectId]);
-                        m_subscribersHash.Remove(objectId);
-                    }
-                    else
-                    {
-                        // Scene that contains this object is not open, do not try to instantiate object
-                        if (!loadedScenes.ContainsKey(currentSceneIndex))
-                            continue;
+                    string objectId = savedObject.id;
+                    m_subscribersHash[sceneIndex][objectId].LoadComponents(savedObject.jsonRepresentation);
+                    // Add the updated object to the new subscriber hash and remove it from
+                    // the old one
+                    newSubscribersHash[sceneIndex].Add(objectId, m_subscribersHash[sceneIndex][objectId]);
+                    m_subscribersHash[sceneIndex].Remove(objectId);
+                }
+                else
+                {
+                    // Scene that contains this object is not open, do not try to instantiate object
+                    if (!loadedScenes.ContainsKey(sceneIndex))
+                        continue;
                             
-                        var saveableGameObject = m_prefabManager.InstantiatePrefab(savedObject.id, savedObject.jsonRepresentation);
-                        if (saveableGameObject != null)
-                        {
-                            Saveable saveableComponent = saveableGameObject.GetComponent<Saveable>();
-                            newSubscribersHash.Add(saveableComponent.m_componentId, saveableComponent);
-                            if(currentSceneIndex == -1)
-                                SceneManager.MoveGameObjectToScene(saveableGameObject, activeScene);
-                            else
-                                SceneManager.MoveGameObjectToScene(saveableGameObject, loadedScenes[currentSceneIndex]);
-                        }
+                    var saveableGameObject = m_prefabManager.InstantiatePrefab(savedObject.id, savedObject.jsonRepresentation);
+                    if (saveableGameObject != null)
+                    {
+                        Saveable saveableComponent = saveableGameObject.GetComponent<Saveable>();
+                        newSubscribersHash[sceneIndex].Add(saveableComponent.m_componentId, saveableComponent);
+                        if(sceneIndex == -1)
+                            SceneManager.MoveGameObjectToScene(saveableGameObject, activeScene);
+                        else
+                            SceneManager.MoveGameObjectToScene(saveableGameObject, loadedScenes[sceneIndex]);
                     }
                 }
             }
             
-            // All subscribers that are still here are not present in the save file, so they must be
-            // deleted
-            foreach (var remainingSubscriber in m_subscribersHash)
+            // All subscribers that are still here are not present in the save file,
+            // so they must be deleted
+            foreach (var remainingSubscriber in m_subscribersHash[sceneIndex])
                 Destroy(remainingSubscriber.Value.gameObject);
-
-            m_subscribersHash = newSubscribersHash;
         }
         #endregion Savegame Events
         
@@ -173,14 +186,24 @@ namespace RPGCore.FileManagement.SavingFramework
         #region Methods
         public void AddSubscriber(Saveable subscriber)
         {
-            if(!m_subscribersHash.ContainsKey(subscriber.m_componentId))
-                m_subscribersHash.Add(subscriber.m_componentId, subscriber);
+            int sceneIndex = subscriber.m_saveableOptions == SaveableOptions.Global ? -1 : subscriber.gameObject.scene.buildIndex;
+
+            if(!m_subscribersHash.ContainsKey(sceneIndex))
+                m_subscribersHash.Add(sceneIndex, new Dictionary<string, Saveable>());
+            
+            if(!m_subscribersHash[sceneIndex].ContainsKey(subscriber.m_componentId))
+                m_subscribersHash[sceneIndex].Add(subscriber.m_componentId, subscriber);
         }
 
         public void RemoveSubscriber(Saveable subscriber)
         {
-            if(m_subscribersHash.ContainsKey(subscriber.m_componentId))
-                m_subscribersHash.Remove(subscriber.m_componentId);
+            int sceneIndex = subscriber.gameObject.scene.buildIndex;
+            
+            if (!m_subscribersHash.ContainsKey(sceneIndex))
+                return;
+            
+            if(m_subscribersHash[sceneIndex].ContainsKey(subscriber.m_componentId))
+                m_subscribersHash[sceneIndex].Remove(subscriber.m_componentId);
         }
         #endregion Methods
     }
