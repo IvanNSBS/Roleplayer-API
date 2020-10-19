@@ -12,7 +12,7 @@ namespace RPGCore.FileManagement.SavingFramework
         /// <summary>
         /// GameObject Unique Identifier
         /// </summary>
-        private string m_componentId;
+        [SerializeField] private string m_componentId;
 
         /// <summary>
         /// Saving Options
@@ -55,9 +55,6 @@ namespace RPGCore.FileManagement.SavingFramework
         /// </summary>
         private void Start()
         {
-            // if (String.IsNullOrEmpty(m_componentId))
-                // GenerateID();
-
             SaveManager.Instance.AddSubscriber(this);
         }
 
@@ -112,15 +109,5 @@ namespace RPGCore.FileManagement.SavingFramework
             return result;
         }
         #endregion Methods
-
-        
-        #region Utility Methods
-        [ContextMenu("Generate ID")]
-        private void GenerateID()
-        {
-            m_componentId = gameObject.name + "_" +Guid.NewGuid();
-        }
-        #endregion Utility Methods
-        
     }
 }

@@ -62,6 +62,7 @@ namespace Editors.RPGCore.SavingFramework
             {
                 EditorUtility.SetDirty(m_saveable);
                 EditorSceneManager.MarkSceneDirty(m_saveable.gameObject.scene);
+                serializedObject.ApplyModifiedProperties();
             }
         }
 
