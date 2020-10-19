@@ -12,7 +12,7 @@ namespace RPGCore.FileManagement.SavingFramework
         /// <summary>
         /// GameObject Unique Identifier
         /// </summary>
-        public string m_componentId;
+        private string m_componentId;
 
         /// <summary>
         /// Saving Options
@@ -33,9 +33,18 @@ namespace RPGCore.FileManagement.SavingFramework
 
         #region Properties
         /// <summary>
-        /// Getter for GameObject unique Identifier
+        /// Getter and Setter for GameObject unique Identifier
         /// </summary>
-        public string ComponentId => m_componentId;
+        public string ComponentId
+        {
+            get => m_componentId;
+            set => m_componentId = value;
+        }
+
+        /// <summary>
+        /// Getter for Gameobject Saveable Components
+        /// </summary>
+        public Dictionary<string, ISaveableData> SaveableComponents => m_saveableComponents; 
         #endregion Properties
         
         
@@ -46,11 +55,8 @@ namespace RPGCore.FileManagement.SavingFramework
         /// </summary>
         private void Start()
         {
-            int sceneIndex = gameObject.scene.buildIndex;
-            var subscriberHash = SaveManager.Instance.SubscribersHash;
-            
-            if (String.IsNullOrEmpty(m_componentId))
-                GenerateID();
+            // if (String.IsNullOrEmpty(m_componentId))
+                // GenerateID();
 
             SaveManager.Instance.AddSubscriber(this);
         }
@@ -58,7 +64,7 @@ namespace RPGCore.FileManagement.SavingFramework
         private void Awake()
         {
             if(m_saveableComponents == null)
-                m_saveableComponents = GetComponents<ISaveableData>().ToDictionary(x=>x.SurrogateName, x => x);
+                m_saveableComponents = GetComponentsInChildren<ISaveableData>().ToDictionary(x=>x.GetType().Name, x => x);
         }
 
         private void OnDestroy()
@@ -112,7 +118,7 @@ namespace RPGCore.FileManagement.SavingFramework
         [ContextMenu("Generate ID")]
         private void GenerateID()
         {
-            m_componentId = gameObject.name + "_" +Guid.NewGuid().ToString();
+            m_componentId = gameObject.name + "_" +Guid.NewGuid();
         }
         #endregion Utility Methods
         

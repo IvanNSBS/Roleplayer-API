@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using RPGCore.Utils.Extensions;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace RPGCore.FileManagement.SavingFramework.Formatters
 {
@@ -30,7 +29,7 @@ namespace RPGCore.FileManagement.SavingFramework.Formatters
                 switch (saveable.m_saveableOptions)
                 {
                     case SaveableOptions.Global:
-                        global.AddOrUpdate(saveable.m_componentId, saveableJson);
+                        global.AddOrUpdate(saveable.ComponentId, saveableJson);
                         break;
 
                     case SaveableOptions.Scenes:
@@ -38,14 +37,14 @@ namespace RPGCore.FileManagement.SavingFramework.Formatters
                         string sceneKey = sceneIndex+"_Scene_" + saveable.gameObject.scene.name;
 
                         JObject saveableObject = new JObject();
-                        saveableObject.AddOrUpdate(saveable.m_componentId, saveableJson);
+                        saveableObject.AddOrUpdate(saveable.ComponentId, saveableJson);
                         if (scene.ContainsKey(sceneKey))
-                            scene[sceneKey].Value<JObject>().AddOrUpdate(saveable.m_componentId, saveableJson);
+                            scene[sceneKey].Value<JObject>().AddOrUpdate(saveable.ComponentId, saveableJson);
                         else
                             scene.Add(sceneKey, saveableObject);
                         break;
                     default:
-                        global.AddOrUpdate(saveable.m_componentId, saveableJson);
+                        global.AddOrUpdate(saveable.ComponentId, saveableJson);
                         break;
                 }
             }

@@ -48,7 +48,7 @@ namespace RPGCore.FileManagement.SavingFramework.PrefabManager
             
             var saveable = Instantiate(m_prefabs[prefabIdName]).GetComponent<Saveable>();
             saveable.gameObject.name = jsonKey;
-            saveable.m_componentId = jsonKey;
+            saveable.ComponentId = jsonKey;
             saveable.LoadComponents(objectJson);
 
             return saveable.gameObject;

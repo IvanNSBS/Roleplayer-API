@@ -166,7 +166,7 @@ namespace RPGCore.FileManagement.SavingFramework
                     if (saveableGameObject != null)
                     {
                         Saveable saveableComponent = saveableGameObject.GetComponent<Saveable>();
-                        newSubscribersHash[sceneIndex].Add(saveableComponent.m_componentId, saveableComponent);
+                        newSubscribersHash[sceneIndex].Add(saveableComponent.ComponentId, saveableComponent);
                         if(sceneIndex == -1)
                             SceneManager.MoveGameObjectToScene(saveableGameObject, activeScene);
                         else
@@ -191,8 +191,8 @@ namespace RPGCore.FileManagement.SavingFramework
             if(!m_subscribersHash.ContainsKey(sceneIndex))
                 m_subscribersHash.Add(sceneIndex, new Dictionary<string, Saveable>());
             
-            if(!m_subscribersHash[sceneIndex].ContainsKey(subscriber.m_componentId))
-                m_subscribersHash[sceneIndex].Add(subscriber.m_componentId, subscriber);
+            if(!m_subscribersHash[sceneIndex].ContainsKey(subscriber.ComponentId))
+                m_subscribersHash[sceneIndex].Add(subscriber.ComponentId, subscriber);
         }
 
         public void RemoveSubscriber(Saveable subscriber)
@@ -202,8 +202,8 @@ namespace RPGCore.FileManagement.SavingFramework
             if (!m_subscribersHash.ContainsKey(sceneIndex))
                 return;
             
-            if(m_subscribersHash[sceneIndex].ContainsKey(subscriber.m_componentId))
-                m_subscribersHash[sceneIndex].Remove(subscriber.m_componentId);
+            if(m_subscribersHash[sceneIndex].ContainsKey(subscriber.ComponentId))
+                m_subscribersHash[sceneIndex].Remove(subscriber.ComponentId);
         }
         #endregion Methods
     }

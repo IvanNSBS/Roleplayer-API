@@ -9,12 +9,6 @@ namespace RPGCore.FileManagement.SavingFramework
     public interface ISaveableData
     {
         /// <summary>
-        /// Property containing the name of the surrogate. Will be used
-        /// to find it'sel in the json representation(JObject Key)
-        /// </summary>
-        string SurrogateName { get; }
-        
-        /// <summary>
         /// Bluerprint for the save method.
         /// Must define how the surrogate will gather it's component data
         /// and save it to a json representation

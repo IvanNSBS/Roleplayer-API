@@ -1,0 +1,15 @@
+{
+    "name": "GeckoStudios.RoleplayingAPI.Editor",
+    "references": [
+        "GUID:ba0df75aa668f1649857d3328c7030c3"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
