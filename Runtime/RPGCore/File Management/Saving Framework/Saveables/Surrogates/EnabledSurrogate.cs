@@ -5,10 +5,6 @@ namespace RPGCore.FileManagement.SavingFramework.Surrogates
 {
     public class EnabledSurrogate : MonoBehaviour, ISaveableData
     {
-        #region Properties
-        public string SurrogateName => "Enabled";
-        #endregion Properties
-        
         #region Surrogate Methods
         public JObject Save()
         {

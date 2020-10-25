@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using RPGCore.Utils.Extensions;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace RPGCore.FileManagement.SavingFramework.Formatters
 {
@@ -10,97 +12,110 @@ namespace RPGCore.FileManagement.SavingFramework.Formatters
     /// </summary>
     public class DefaultFormatter : IJsonFormatter
     {
-        public JObject Format(Dictionary<Saveable, JObject> componentsToSave, JObject saveGameCache)
-        {
-            JObject result = new JObject();
-            JObject global = new JObject();
-            JObject scene = new JObject();
+        #region Fields
+        private JObject saveCache;
+        #endregion Fields
 
-            if (saveGameCache != null && saveGameCache.ContainsKey(SaveableOptions.Global.ToString()))
-            {
-                global = saveGameCache[SaveableOptions.Global.ToString()].Value<JObject>();
-                scene = saveGameCache[SaveableOptions.Scenes.ToString()].Value<JObject>();
-            }
-            
+        #region JsonFormatter Properties
+        public JObject SaveGameCache { get => saveCache; set => saveCache = value; }
+        #endregion JsonFormatter Properties
+
+        
+        #region Constructor
+
+        public DefaultFormatter()
+        {
+            saveCache = new JObject();
+            saveCache.Add(SaveableOptions.Object.ToString(), new JObject());
+            saveCache.Add(SaveableOptions.GameObject.ToString(), new JObject());
+        }
+        #endregion Constructor
+        
+        
+        #region JsonFormatter Methods
+        public JObject Format(Dictionary<Saveable, JObject> componentsToSave)
+        {
             foreach (var saveComponent in componentsToSave)
             {
                 Saveable saveable = saveComponent.Key;
-                JObject saveableJson = saveComponent.Value;
                 switch (saveable.m_saveableOptions)
                 {
-                    case SaveableOptions.Global:
-                        global.AddOrUpdate(saveable.ComponentId, saveableJson);
+                    case SaveableOptions.Object:
+                        // TODO: Add C# Objects handling
+                        // SaveObject(saveComponent.Key, saveComponent.Value);
                         break;
 
-                    case SaveableOptions.Scenes:
-                        int sceneIndex = saveComponent.Key.gameObject.scene.buildIndex;
-                        string sceneKey = sceneIndex+"_Scene_" + saveable.gameObject.scene.name;
-
-                        JObject saveableObject = new JObject();
-                        saveableObject.AddOrUpdate(saveable.ComponentId, saveableJson);
-                        if (scene.ContainsKey(sceneKey))
-                            scene[sceneKey].Value<JObject>().AddOrUpdate(saveable.ComponentId, saveableJson);
-                        else
-                            scene.Add(sceneKey, saveableObject);
+                    case SaveableOptions.GameObject:
+                        SaveGameObject(saveComponent.Key, saveComponent.Value);
                         break;
                     default:
-                        global.AddOrUpdate(saveable.ComponentId, saveableJson);
+                        SaveGameObject(saveComponent.Key, saveComponent.Value);
                         break;
                 }
             }
             
-            result.Add(SaveableOptions.Global.ToString(), global);
-            result.Add(SaveableOptions.Scenes.ToString(), scene);
-            saveGameCache = result;
-            
-            return result;
+            return saveCache;
         }
-
-        public Dictionary<int, List<SavedObject>> UndoFormatting(JObject saveGameJson, JObject savegameCache)
+        
+        public List<SavedObject> GetSceneSavedGameObjects(int sceneBuildIndex)
         {
-            Dictionary<int, List<SavedObject>> result = new Dictionary<int, List<SavedObject>>();
-            JObject globalObjects = saveGameJson[SaveableOptions.Global.ToString()].Value<JObject>();
-            JObject sceneObjects = saveGameJson[SaveableOptions.Scenes.ToString()].Value<JObject>();
-            savegameCache = saveGameJson;
-            
-            foreach (var obj in globalObjects)
+            List<SavedObject> result = new List<SavedObject>();
+            JObject gameObjects = saveCache[SaveableOptions.GameObject.ToString()].Value<JObject>();
+
+            if (gameObjects.ContainsKey(sceneBuildIndex.ToString()))
             {
-                if (!result.ContainsKey(-1))
+                foreach (var gameObject in gameObjects[sceneBuildIndex.ToString()].Value<JObject>())
                 {
-                    SavedObject savedObject = new SavedObject(obj.Key, obj.Value as JObject);
-                    result.Add(-1, new List<SavedObject>() { savedObject });
-                }
-                else
-                {
-                    SavedObject savedObject = new SavedObject(obj.Key, obj.Value as JObject);
-                    result[-1].Add(savedObject);
+                    SavedObject savedObject = new SavedObject(gameObject.Key, gameObject.Value as JObject);
+                    result.Add(savedObject);
                 }
             }
 
-            foreach (var scene in sceneObjects)
-            {
-                string sceneBuildIndexString = scene.Key.Split('_')[0];
-                int sceneBuildIndex = int.Parse(sceneBuildIndexString);
-                JObject objects = scene.Value as JObject;
-                
-                if (objects == null)
-                    continue;    
-                
-                foreach (var obj in objects)
-                {
-                    if (!result.ContainsKey(sceneBuildIndex))
-                    {
-                        SavedObject savedObject = new SavedObject(obj.Key, obj.Value as JObject);
-                        result.Add(sceneBuildIndex, new List<SavedObject>() { savedObject });
-                    }
-                    else
-                    {
-                        SavedObject savedObject = new SavedObject(obj.Key, obj.Value as JObject);
-                        result[sceneBuildIndex].Add(savedObject);
-                    }
-                }
-            }
             return result;
         }
+        #endregion JsonFormatter Methods
+        
+        
+        #region Auxiliar Methods
+        public void SaveGameObject(Saveable saveable, JObject saveableJson)
+        {
+            string sceneIndex = saveable.gameObject.scene.buildIndex.ToString();
+            string gameObject = SaveableOptions.GameObject.ToString();
+            
+            saveCache[gameObject].TryAdd(sceneIndex, new JObject());
+            saveCache[gameObject][sceneIndex].AddOrUpdate(saveable.ComponentId, saveableJson);
+        }
+
+        public bool RemoveGameObject(Saveable saveable)
+        {
+            string gameObject = SaveableOptions.GameObject.ToString();
+            string sceneIndex = saveable.gameObject.scene.buildIndex.ToString();
+
+            Debug.Log($"Trying to remove at <<{sceneIndex}>>...");
+            Debug.Log(saveCache);
+
+            if (saveCache[gameObject].Value<JObject>().ContainsKey(sceneIndex))
+            {
+                Debug.Log($"Scene index <<{sceneIndex}>> exists!");
+                if (saveCache[gameObject][sceneIndex].Value<JObject>().ContainsKey(saveable.ComponentId))
+                {
+                    saveCache[gameObject][sceneIndex][saveable.ComponentId].Value<JObject>().Parent.Remove();
+                    Debug.Log("Removed object!");
+                }
+            }
+            return false;
+        }
+        
+        public JObject SaveObject(Saveable saveable, JObject saveableJson)
+        {
+            return null;
+            // objects.AddOrUpdate(saveable.ComponentId, saveableJson);
+        }
+
+        public bool RemoveObject()
+        {
+            return false;
+        }
+        #endregion Auxiliar Methods
     }
 }

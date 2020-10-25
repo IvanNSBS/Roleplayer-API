@@ -55,6 +55,7 @@ namespace RPGCore.FileManagement.SavingFramework
         /// </summary>
         private void Start()
         {
+            Debug.Log("Starting...");
             SaveManager.Instance.AddSubscriber(this);
         }
 

@@ -5,10 +5,6 @@ namespace RPGCore.FileManagement.SavingFramework.Surrogates
 {
     public class TransformSurrogate : MonoBehaviour, ISaveableData
     {
-        #region Properties
-        public string SurrogateName => "Transform";
-        #endregion Properties
-        
         #region Surrogate Methods
         public JObject Save()
         {
