@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Diagnostics;
+using RPGCore.Utils;
 
 namespace RPGCore.Persistence.Data
 {
@@ -76,19 +77,7 @@ namespace RPGCore.Persistence.Data
         
         public static PersistenceSettings GetPersistenceSettings()
         {
-            if (!Directory.Exists(settingsFolderPath))
-                Directory.CreateDirectory(settingsFolderPath);
-            
-            var settings = AssetDatabase.LoadAssetAtPath<PersistenceSettings>(settingsFilePath);
-            if (settings != null)
-                return settings;
-            
-            PersistenceSettings asset = CreateInstance<PersistenceSettings>();
-
-            AssetDatabase.CreateAsset(asset, settingsFilePath);
-            AssetDatabase.SaveAssets();
-
-            return asset;
+            return SettingsUtils.GetSettings<PersistenceSettings>(settingsFolderPath, settingsFilePath);
         }
         #endregion Methods
     }

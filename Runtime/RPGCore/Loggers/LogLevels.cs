@@ -7,6 +7,7 @@
     {
         Debug,
         Warning,
-        Error
+        Error,
+        Exception
     }
 }

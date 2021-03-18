@@ -3,66 +3,42 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace RPGCore.Loggers
 {
     /// <summary>
     /// LogPolicy that writes logs to a file
     /// </summary>
-    class FilePolicy : ILogPolicy
+    class FilePolicy : LogPolicy
     {
         #region Fields
-        private Dictionary<string, Action<LogLevels, string>> m_options;
-        private FileStream m_fileStream;
+        private readonly FileStream m_fileStream;
+        private readonly List<string> m_logEntries;
         #endregion Fields
         
         #region Constructors
         /// <summary>
-        /// Constructor for FileLog Policy
+        /// Constructor for FilePolicy
         /// </summary>
-        /// <param name="logFileFolder">Folder to create the file</param>
-        /// <param name="logFileName">File Name. Will remove extension and use .log if there's any</param>
-        public FilePolicy(string logFileFolder, string logFileName)
+        /// <param name="settings">Configuration file for log a policy</param>
+        public FilePolicy(LoggerSettings settings) : base(settings)
         {
-            int lastIndex = logFileName.IndexOf(".");
-            string fileName = logFileName;
-            if (lastIndex > 0)
-            {
-                string logFileWithoutExtension = fileName.Substring(0, lastIndex);
-                fileName = logFileWithoutExtension;
-            }
-            fileName = fileName + ".log";
-            var completePath = Path.Combine(logFileFolder, fileName);
-            
-            if(File.Exists(completePath))
-                File.Delete(completePath);
+            m_logEntries = new List<string>();
+            int lastFileIndex = GetLastFileIndex(settings.FolderPath);
 
+            string fileName = $"{settings.LogFileName}_{lastFileIndex}{settings.FileExtension}";
+            
+            var completePath = Path.Combine(settings.FolderPath, fileName);
+
+            if (!Directory.Exists(settings.FolderPath))
+                Directory.CreateDirectory(settings.FolderPath);
+            
             m_fileStream = File.Create(completePath);
-                
-            m_options = new Dictionary<string, Action<LogLevels, string>>();
-            m_options.Add("--debug", (logLevel, message) =>
-            {
-                switch (logLevel)
-                {
-                    case LogLevels.Debug:
-                        Debug.Log(message);
-                        break;
-                    case LogLevels.Warning:
-                        Debug.LogWarning(message);
-                        break;
-                    case LogLevels.Error:
-                        Debug.LogError(message);
-                        break;
-                    default:
-                        Debug.Log(message);
-                        break;
-                }
-            });
         }
         #endregion Constructors
 
         #region Destructor
-
         ~FilePolicy()
         {
             m_fileStream.Close();
@@ -75,32 +51,69 @@ namespace RPGCore.Loggers
         /// Utility method to add text to a file from a string
         /// </summary>
         /// <param name="value"></param>
-        private void AddText(string value)
+        private void AddLogEntry(string value)
         {
             byte[] info = new UTF8Encoding(true).GetBytes(value);
             m_fileStream.Write(info, 0, info.Length);
+            m_logEntries.Add(value);
+        }
+
+        private int GetLastFileIndex(string folderPath)
+        {
+            if (!Directory.Exists(folderPath)) return 0;
+            
+            string[] files = Directory.GetFiles(folderPath);
+            int lastIndex = 0;
+            string fileName = "";
+
+            foreach (string file in files)
+            {
+                fileName = Path.GetFileName(file);
+                
+                fileName = Regex.Match(fileName, @"\d+").Value;
+
+                int index = int.Parse(fileName);
+                if (index > lastIndex) lastIndex = index;
+            }
+
+            return lastIndex + 1;
+        }
+
+        private void LogToUnityConsole(LogLevels level, string logEntry)
+        {
+            switch (level)
+            {
+                case LogLevels.Debug:   
+                    Debug.Log(logEntry); 
+                    break;
+                case LogLevels.Warning: 
+                    Debug.LogWarning(logEntry); 
+                    break;
+                case LogLevels.Error:   
+                    Debug.LogError(logEntry);
+                    break;
+                case LogLevels.Exception:
+                    Debug.LogError(logEntry);
+                    break;
+                default:                
+                    Debug.Log(logEntry); 
+                    break;
+            }
         }
         #endregion Utility Methods
         
         
         #region LogPolicy Methods
-        /// <summary>
-        /// Effectively logs to a file
-        /// </summary>
-        /// <param name="level">the log level. Warning, Debug, etc</param>
-        /// <param name="message">The message to write</param>
-        /// <param name="args">additional arguments for the log command</param>
-        public void Log(LogLevels level, string message, params string[] args)
+        public override string Log(LogLevels level, string logEntry, bool fromUnityCallback = false)
         {
-            string formattedMsg = $"{DateTime.Now}  {level}\t\t:...{message}\n";
+            string formattedMsg = $"{DateTime.Now}  {level}\t:...{logEntry}\n";
+
+            AddLogEntry(formattedMsg);
             
-            AddText(formattedMsg);
-            
-            foreach (var arg in args)
-            {
-                if(m_options.ContainsKey(arg))
-                    m_options[arg].Invoke(level, formattedMsg);
-            }
+            if (loggerSettings.LogToUnityConsole && !fromUnityCallback)
+                LogToUnityConsole(level, logEntry);
+
+            return formattedMsg;
         }
         #endregion LogPolicy Methods
     }

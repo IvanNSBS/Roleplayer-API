@@ -1,14 +1,14 @@
 ﻿using System.IO;
-using UnityEditor;
 using UnityEngine;
+using RPGCore.Utils;
 
 namespace RPGCore.RPGConsole.Data
 {
     public class ConsoleSettings : ScriptableObject
     {
         #region Constants
-        private static string settingsFilePath = Path.Combine(Path.Combine("Assets", "Resources"), "Game Console Settings.asset");
-        private static string settingsFolderPath = Path.Combine("Assets", "Resources");
+        private static string s_settingsFilePath = Path.Combine(Path.Combine("Assets", "Resources"), "Game Console Settings.asset");
+        private static string s_settingsFolderPath = Path.Combine("Assets", "Resources");
         #endregion Constants
         
         #region Inspector Fields
@@ -50,19 +50,7 @@ namespace RPGCore.RPGConsole.Data
         
         public static ConsoleSettings GetConsoleSettings()
         {
-            if (!Directory.Exists(settingsFolderPath))
-                Directory.CreateDirectory(settingsFolderPath);
-            
-            var settings = AssetDatabase.LoadAssetAtPath<ConsoleSettings>(settingsFilePath);
-            if (settings != null)
-                return settings;
-            
-            ConsoleSettings asset = CreateInstance<ConsoleSettings>();
-
-            AssetDatabase.CreateAsset(asset, settingsFilePath);
-            AssetDatabase.SaveAssets();
-
-            return asset;
+            return SettingsUtils.GetSettings<ConsoleSettings>(s_settingsFolderPath, s_settingsFilePath);
         }
         #endregion Methods
     }
