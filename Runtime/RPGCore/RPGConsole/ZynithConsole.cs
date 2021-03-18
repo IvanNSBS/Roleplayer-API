@@ -1,8 +1,7 @@
 ﻿using RPGCore.RPGConsole.Data;
-using RPGCore.RPGConsole.View;
 using RPGCore.Utils.Extensions;
 using System.Collections.Generic;
-using RPGCore.RPGConsole.Commands.BuiltinCommands;
+using RPGCore.RPGConsole.View.Console;
 
 namespace RPGCore.RPGConsole
 {
@@ -33,7 +32,6 @@ namespace RPGCore.RPGConsole
             m_consoleSettings = consoleSettings;
             
             m_commandRegistry.InitializeZynithCommands();
-
         }
         #endregion Constructor
         
@@ -45,8 +43,11 @@ namespace RPGCore.RPGConsole
             
             m_consoleLogEntries.Enqueue(logEntry);
 
-            if (m_consoleLogEntries.Count >= m_consoleSettings.LogBufferSize)
-                m_consoleView.ConsoleEntryRemoved(m_consoleLogEntries.Dequeue());
+            if (m_consoleLogEntries.Count > m_consoleSettings.LogBufferSize)
+            {
+                m_consoleLogEntries.Dequeue();
+                m_consoleView.ConsoleQueueExceeded();
+            }
         }
         
         /// <summary>

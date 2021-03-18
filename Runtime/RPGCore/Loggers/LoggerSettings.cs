@@ -15,9 +15,6 @@ namespace RPGCore.Loggers
         #endregion Constants
         
         #region Fields
-        [Header("Unity Settings")] 
-        [SerializeField] private bool m_logToUnityConsole;
-        
         [Header("File Settings")]
         [SerializeField] private string m_logSubFolder = "Logs";
         [SerializeField] private string m_logFileName = "log";
@@ -25,7 +22,6 @@ namespace RPGCore.Loggers
         #endregion Fields
         
         #region Properties
-        public bool LogToUnityConsole => m_logToUnityConsole;
         public string FileExtension => m_logFileExtension;
         public string LogFileName => m_logFileName;
         public string FolderPath =>  String.IsNullOrEmpty(m_logSubFolder) ? 

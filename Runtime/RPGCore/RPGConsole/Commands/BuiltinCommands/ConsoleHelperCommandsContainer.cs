@@ -1,30 +1,38 @@
 ﻿using RPGCore.RPGConsole.Data;
+using RPGCore.RPGConsole.View.Debugger;
 
 namespace RPGCore.RPGConsole.Commands.BuiltinCommands
 {
     public class ConsoleHelperCommandsContainer : CommandsContainer
     {
         private ZynithConsole m_zynithConsole;
+        private DebuggerView m_debuggerView;
         
-        public ConsoleHelperCommandsContainer(ZynithConsole zynithConsole)
+        public ConsoleHelperCommandsContainer(ZynithConsole zynithConsole, DebuggerView debuggerView)
         {
             m_zynithConsole = zynithConsole;
+            m_debuggerView = debuggerView;
         }
         
-        [ConsoleCommand("close", "Close the console view")]
+        [ConsoleCommand("close", "Close the Debugger view")]
         public void CloseConsole()
         {
-            m_zynithConsole.View.CloseConsole();
+            m_debuggerView.CloseDebugger();
         }
         
-        
-        [ConsoleCommand("clear", "Clears every message logged to Zynith Console")]
+        [ConsoleCommand("clearConsole", "Clears every message logged to Debugger Console")]
         public void ClearConsole()
         {
             m_zynithConsole.ClearConsole();
         }
+        
+        [ConsoleCommand("clearLogger", "Clears every message logged to Debugger Logger View. Log file will not be cleared")]
+        public void ClearLogger()
+        {
+            m_debuggerView.LoggerView.ClearLog();
+        }
 
-        [ConsoleCommand("showall", "Shows every command registered to Zynith Console")]
+        [ConsoleCommand("showAll", "Shows every command registered to Zynith Console")]
         public void ShowAllCommands()
         {
             foreach (var command in m_zynithConsole.ConsoleCommands)

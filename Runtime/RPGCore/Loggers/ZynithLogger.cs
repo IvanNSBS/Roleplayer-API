@@ -35,6 +35,7 @@ namespace RPGCore.Loggers
         ~ZynithLogger()
         {
             Application.logMessageReceived -= AdaptLogCallback;
+            Application.quitting -= OnQuit;
         }
         #endregion Constructors
 
@@ -47,8 +48,14 @@ namespace RPGCore.Loggers
             {
                 s_instance = new ZynithLogger(LoggerSettings.GetLoggerSettings());
                 Application.logMessageReceived += AdaptLogCallback;
+                Application.quitting += OnQuit;
             }
         }
+
+        private static void OnQuit()
+        {
+            s_instance = null;
+        } 
 
         private static void AdaptLogCallback(string logString, string stackTrace, LogType type)
         {
@@ -65,6 +72,7 @@ namespace RPGCore.Loggers
                     break;
                 case LogType.Exception:
                     logLevels = LogLevels.Exception;
+                    stackTrace = stackTrace.Substring(0, stackTrace.Length - 2);
                     message = $"{logString}\nStack Trace: {stackTrace}";
                     break;
                 case LogType.Warning:
@@ -78,7 +86,7 @@ namespace RPGCore.Loggers
             Log(logLevels, message, true);
         }
         
-        public static void Log(LogLevels level, string msg, bool fromUnityCallback = false)
+        private static void Log(LogLevels level, string msg, bool fromUnityCallback = false)
         {
             string formattedMsg = s_instance.m_policy.Log(level, msg, fromUnityCallback);
             logMessageReceived?.Invoke(formattedMsg, level);

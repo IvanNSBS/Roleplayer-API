@@ -5,7 +5,6 @@ using UnityEngine.Events;
 using System.Diagnostics;
 using RPGCore.RPGConsole.Data;
 using System.Collections.Generic;
-using System.ComponentModel;
 using RPGCore.RPGConsole.Commands;
 using RPGCore.RPGConsole.Commands.BuiltinCommands;
 
@@ -88,9 +87,6 @@ namespace RPGCore.RPGConsole
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            m_zynithConsole.AddEntryToLog("Initializing Zynith Console...", ConsoleEntryType.ConsoleMessage);
-            
-            RegisterContainer(new ConsoleHelperCommandsContainer(m_zynithConsole));
             
             var type = typeof(CommandsContainer);
             Type[] commandTypes = AppDomain.CurrentDomain.GetAssemblies()
@@ -98,7 +94,6 @@ namespace RPGCore.RPGConsole
                 .Where(p => type.IsAssignableFrom(p) && !p.IsAbstract).ToArray();
 
             BindingFlags validMethodsFlags = BindingFlags.Public | BindingFlags.Instance;
-            object[] activatorArgs = { null };
 
             int amountOfRegisteredCommands = 0;
             
@@ -132,13 +127,13 @@ namespace RPGCore.RPGConsole
                 }
             }
             
-            if(amountOfRegisteredCommands > 0)
-                m_zynithConsole.AddEntryToLog($"Found {amountOfRegisteredCommands} commands " +
-                                              $"without dependencies and automatically added them.", ConsoleEntryType.ConsoleMessage);
-            
             stopWatch.Stop();
             string timeInSeconds = stopWatch.Elapsed.ToString("ss\\.ff");
-            m_zynithConsole.AddEntryToLog($"Initialization finished in {timeInSeconds} seconds.", ConsoleEntryType.ConsoleMessage);
+            
+            if(amountOfRegisteredCommands > 0)
+                m_zynithConsole.AddEntryToLog($"Found {amountOfRegisteredCommands} commands without dependencies" +
+                                              $" and automatically added them in {timeInSeconds} seconds.", ConsoleEntryType.ConsoleMessage);
+            
         }
         #endregion Methods
     }

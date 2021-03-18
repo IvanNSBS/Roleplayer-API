@@ -1,21 +1,20 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using RPGCore.RPGConsole.Data;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 
-namespace RPGCore.RPGConsole.View
+namespace RPGCore.RPGConsole.View.Debugger
 {
-    public class ConsoleResizer : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class DebuggerMover : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         #region Inspector Fields
-        [SerializeField] private RectTransform m_consoleContent;
+        [SerializeField] private RectTransform m_moveTarget;
         #endregion Inspector Fields
         
         #region Fields
-        private bool m_isResizing;
+        private bool m_isMoving;
         private Vector2 m_initialClickPosition;
-        private Vector2 m_initialSizeDelta;
+        private Vector2 m_initialPosition;
         private ConsoleSettings m_consoleSettings;
         #endregion Fields
 
@@ -25,39 +24,38 @@ namespace RPGCore.RPGConsole.View
         {
             m_consoleSettings = ConsoleSettings.GetConsoleSettings();
         }
-
+        
         private void Update()
         {
-            if (m_isResizing)
-                HandleResize();
+            if (m_isMoving)
+                HandleMove();
         }
 
         private void OnDisable()
         {
-            m_consoleSettings.OverwriteConsoleSize(m_consoleContent.sizeDelta);
+            m_consoleSettings.OverwriteConsolePosition(m_moveTarget.anchoredPosition);
         }
         #endregion MonoBehaviour Methods
         
         
         #region Methods
-        private void HandleResize()
+        private void HandleMove()
         {
             Vector2 mousePosition = Mouse.current.position.ReadValue();
-            m_consoleContent.sizeDelta = m_initialSizeDelta + (mousePosition - m_initialClickPosition);
+            m_moveTarget.anchoredPosition = m_initialPosition + (mousePosition - m_initialClickPosition);
         }
         
         public void OnPointerDown(PointerEventData eventData)
         {
-            m_isResizing = true;
+            m_isMoving = true;
             m_initialClickPosition = eventData.position;
-            m_initialSizeDelta = m_consoleContent.sizeDelta;
+            m_initialPosition = m_moveTarget.anchoredPosition;
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            m_isResizing = false;
+            m_isMoving = false;
         }
         #endregion Methods
-
     }
 }

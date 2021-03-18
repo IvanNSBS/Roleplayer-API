@@ -41,6 +41,7 @@ namespace RPGCore.Loggers
         #region Destructor
         ~FilePolicy()
         {
+            // Debug.Log("File Policy Destructor called....");
             m_fileStream.Close();
         }
         #endregion Destructor
@@ -106,13 +107,14 @@ namespace RPGCore.Loggers
         #region LogPolicy Methods
         public override string Log(LogLevels level, string logEntry, bool fromUnityCallback = false)
         {
-            string formattedMsg = $"{DateTime.Now}  {level}\t:...{logEntry}\n";
+            var now = DateTime.Now;
+            string hour = now.Hour.ToString("00");
+            string minute = now.Minute.ToString("00");
+            string second = now.Second.ToString("00");
+            string formattedMsg = $"[{hour}:{minute}:{second}] {level}: {logEntry}\n";
 
             AddLogEntry(formattedMsg);
             
-            if (loggerSettings.LogToUnityConsole && !fromUnityCallback)
-                LogToUnityConsole(level, logEntry);
-
             return formattedMsg;
         }
         #endregion LogPolicy Methods
