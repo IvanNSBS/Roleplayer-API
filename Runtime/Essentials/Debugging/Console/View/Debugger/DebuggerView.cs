@@ -52,13 +52,20 @@ namespace Essentials.Debugging.Console.View.Debugger
             UpdateViewFromSettings();
             FocusTab(m_viewTabs[0]);
             
+            CloseDebugger();
+            
             DontDestroyOnLoad(transform.parent.gameObject);
         }
 
         private void Update()
         {
-            if ( !m_debuggerIsOpen && Keyboard.current[OPEN_CONSOLE_KEY].wasPressedThisFrame )
-                OpenDebugger();
+            if (Keyboard.current[OPEN_CONSOLE_KEY].wasPressedThisFrame)
+            {
+                if(!m_debuggerIsOpen)
+                    OpenDebugger();
+                else
+                    CloseDebugger();
+            }
         }
         
         private void OnValidate()

@@ -1,5 +1,8 @@
 ﻿namespace Essentials.Debugging.Console.Data
 {
+    /// <summary>
+    /// The types of entry a console is expected to have
+    /// </summary>
     public enum ConsoleEntryType
     {
         ConsoleMessage,

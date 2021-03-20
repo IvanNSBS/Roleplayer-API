@@ -4,6 +4,10 @@ using Essentials.Debugging.Console.Commands;
 
 namespace Essentials.Debugging.Console.Data
 {
+    /// <summary>
+    /// Console command is the class that encapsulates the methodinfo and the dependency
+    /// to run a command. It's what the ZynithConsole stores to runs commands
+    /// </summary>
     public class ConsoleCommand
     {
         #region Fields
@@ -29,7 +33,11 @@ namespace Essentials.Debugging.Console.Data
         {
             return CommandMethod.Invoke(Instance, args);
         }
-
+        
+        /// <summary>
+        /// Gets the string that shows how to use a command
+        /// </summary>
+        /// <returns>String representing the correct command usage</returns>
         public string GetCommandUsage()
         {
             var parameters = CommandMethod.GetParameters();
