@@ -14,6 +14,8 @@ namespace Essentials.Debugging.Loggers
     class FilePolicy : LogPolicy
     {
         #region Fields
+
+        private DebugSettings m_settings;
         private readonly FileStream m_fileStream;
         private readonly List<string> m_logEntries;
         #endregion Fields
@@ -25,6 +27,7 @@ namespace Essentials.Debugging.Loggers
         /// <param name="settings">Configuration file for log a policy</param>
         public FilePolicy(DebugSettings settings) : base(settings)
         {
+            m_settings = settings;
             m_logEntries = new List<string>();
             int lastFileIndex = GetLastFileIndex(settings.FolderPath);
 
@@ -32,10 +35,13 @@ namespace Essentials.Debugging.Loggers
             
             var completePath = Path.Combine(settings.FolderPath, fileName);
 
-            if (!Directory.Exists(settings.FolderPath))
-                Directory.CreateDirectory(settings.FolderPath);
-            
-            m_fileStream = File.Create(completePath);
+            if (settings.CreateLogFile)
+            {
+                if (!Directory.Exists(settings.FolderPath))
+                    Directory.CreateDirectory(settings.FolderPath);
+                
+                m_fileStream = File.Create(completePath);
+            }
         }
         #endregion Constructors
 
@@ -55,8 +61,11 @@ namespace Essentials.Debugging.Loggers
         /// <param name="value"></param>
         private void AddLogEntry(string value)
         {
-            byte[] info = new UTF8Encoding(true).GetBytes(value);
-            m_fileStream.Write(info, 0, info.Length);
+            if (m_settings.CreateLogFile)
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(value);
+                m_fileStream.Write(info, 0, info.Length);
+            }
             m_logEntries.Add(value);
         }
 

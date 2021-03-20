@@ -51,6 +51,8 @@ namespace Essentials.Debugging.Console.View.Debugger
             m_loggerView = GetComponentInChildren<LoggerView>();
             UpdateViewFromSettings();
             FocusTab(m_viewTabs[0]);
+            
+            DontDestroyOnLoad(transform.parent.gameObject);
         }
 
         private void Update()
@@ -118,6 +120,7 @@ namespace Essentials.Debugging.Console.View.Debugger
             m_content.sizeDelta = m_debugSettings.ConsoleSize;
             m_content.anchoredPosition = m_debugSettings.ConsolePosition;
             m_consoleLogTextField.fontSize = m_debugSettings.FontSize;
+            m_zynithLogTextField.fontSize = m_debugSettings.FontSize;
         }
         #endregion Utility Methods
     }

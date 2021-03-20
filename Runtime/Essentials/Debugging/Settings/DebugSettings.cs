@@ -15,7 +15,9 @@ namespace Essentials.Debugging.Settings
         #endregion Constants
         
         #region Inspector Fields
-        [Header("Log File Settings")]
+
+        [Header("Log File Settings")] 
+        [SerializeField] private bool m_createLogFile = true;
         [SerializeField] private string m_logSubFolder = "Logs";
         [SerializeField] private string m_logFileName = "log";
         [SerializeField] private string m_logFileExtension = ".log";
@@ -38,6 +40,7 @@ namespace Essentials.Debugging.Settings
         #endregion Inspector Fields
 
         #region Properties
+        public bool CreateLogFile => m_createLogFile;
         public Color SelectedColor => m_selectedColor;
         public Color UnselectedColor => m_unselectedColor;
         public Vector2 ConsoleSize => m_consoleSize;
