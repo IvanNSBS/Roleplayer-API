@@ -1,10 +1,10 @@
-﻿using UnityEditor;
+﻿using Essentials.Common;
+using UnityEditor;
 using UnityEngine;
 using UnityEditor.Callbacks;
-using Editor.Essentials.Common;
 using Essentials.Debugging.Settings;
 
-namespace Editor.Essentials.Debugging
+namespace Essentials.Debugging
 {
     public class GameConsoleWindow : ExtendedEditorWindow
     {

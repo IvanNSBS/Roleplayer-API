@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
 using Essentials.Debugging.Loggers.Interfaces;
 using Essentials.Debugging.Settings;
 
@@ -19,7 +18,8 @@ namespace Essentials.Debugging.Loggers
         #endregion Singleton
         
         #region Events
-        public static UnityEvent<string, LogLevels> logMessageReceived;
+        public delegate void LogMessageReceived(string str, LogLevels lvl);
+        public static event LogMessageReceived logMessageReceived;
         #endregion Events
 
 
@@ -27,11 +27,6 @@ namespace Essentials.Debugging.Loggers
         private ZynithLogger(DebugSettings settings)
         {
             m_policy = new FilePolicy(settings);
-        }
-
-        static ZynithLogger()
-        {
-            logMessageReceived = new UnityEvent<string, LogLevels>();
         }
 
         ~ZynithLogger()

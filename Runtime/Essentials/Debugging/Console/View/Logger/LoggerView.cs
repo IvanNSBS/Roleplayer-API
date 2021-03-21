@@ -30,12 +30,12 @@ namespace Essentials.Debugging.Console.View.Logger
 
         private void OnEnable()
         {
-            ZynithLogger.logMessageReceived.AddListener(AddEntryToLogger);
+            ZynithLogger.logMessageReceived += AddEntryToLogger;
         }
 
         private void OnDisable()
         {
-            ZynithLogger.logMessageReceived.RemoveListener(AddEntryToLogger);
+            ZynithLogger.logMessageReceived += AddEntryToLogger;
         }
         #endregion MonoBehaviour Methods
         

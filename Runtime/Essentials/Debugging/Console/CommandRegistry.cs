@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using UnityEngine.Events;
 using System.Diagnostics;
 using System.Collections.Generic;
-using Essentials.Debugging.Console.Commands.BuiltinCommands;
 using Essentials.Debugging.Console.Commands;
 using Essentials.Debugging.Console.Data;
 
@@ -13,7 +11,8 @@ namespace Essentials.Debugging.Console
     public class CommandRegistry
     {
         #region Static Fields
-        private static readonly UnityEvent<CommandsContainer> OnCommandRegistered;
+        private delegate void RegisterCommand(CommandsContainer container);
+        private static event RegisterCommand OnCommandRegistered;
         #endregion Static Fields
         
         #region Fields
@@ -22,20 +21,15 @@ namespace Essentials.Debugging.Console
 
         
         #region Constructor
-        static CommandRegistry()
-        {
-            OnCommandRegistered = new UnityEvent<CommandsContainer>();
-        }
-        
         public CommandRegistry(ZynithConsole console)
         {
             m_zynithConsole = console;
-            OnCommandRegistered.AddListener(RegisterContainerCommands);
+            OnCommandRegistered += RegisterContainerCommands;
         }
 
         ~CommandRegistry()
         {
-            OnCommandRegistered.RemoveListener(RegisterContainerCommands);
+            OnCommandRegistered -= RegisterContainerCommands;
         }
         #endregion Constructor
 

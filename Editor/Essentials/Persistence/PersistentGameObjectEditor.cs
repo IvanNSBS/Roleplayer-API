@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEditor.SceneManagement;
 using Essentials.Persistence.GameObjects;
 
-namespace Editor.Essentials.Persistence
+namespace Essentials.Persistence
 {
     [CustomEditor(typeof(PersistentGameObject))]
     public class PersistentGameObjectEditor : UnityEditor.Editor
