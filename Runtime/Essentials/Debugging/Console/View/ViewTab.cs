@@ -22,7 +22,7 @@ namespace Essentials.Debugging.Console.View
         
         
         #region Inspector Fields
-        private void Awake()
+        public void InitializeTab()
         {
             m_settings = DebugSettings.GetDebugSettings();
             GetComponent<Button>().onClick.AddListener(() => m_debuggerView.FocusTab(this));

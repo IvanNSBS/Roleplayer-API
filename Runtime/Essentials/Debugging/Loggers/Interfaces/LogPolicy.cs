@@ -26,7 +26,7 @@ namespace Essentials.Debugging.Loggers.Interfaces
         /// <param name="logEntry">Log Message</param>
         /// <param name="fromUnityCallback">Whether or not the log message came from Application.onMessageReceived</param>
         /// <returns>The Log Entry Formatted by the log policy.</returns>
-        public abstract string Log(LogLevels level, string logEntry, bool fromUnityCallback = false);
+        public abstract string Log(LogLevels level, string logEntry);
         #endregion Methods
     }
 }

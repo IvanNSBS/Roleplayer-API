@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Essentials.Debugging.Console.View.Console;
 using Essentials.Debugging.Console.View.Logger;
 using Essentials.Debugging.Settings;
 using TMPro;
@@ -14,9 +15,18 @@ namespace Essentials.Debugging.Console.View.Debugger
         private const Key OPEN_CONSOLE_KEY = Key.F3;
         #endregion Constants
         
+        #region Singleton
+        private static DebuggerView s_instance;
+        #endregion Singleton
+        
         #region Inspector Fields
+
+        [Header("Dependencies")] 
+        [SerializeField] private LoggerView m_loggerView;
+        [SerializeField] private ConsoleView m_consoleView;
+        
         [Header("Tabs Buttons")] 
-        [SerializeField] private List<ViewTab> m_viewTabs;
+        [SerializeField] private List<GameObject> m_viewTabsGameObjects;
         
         [Header("Console Logger")] 
         [SerializeField] private TextMeshProUGUI m_consoleLogTextField;
@@ -35,7 +45,8 @@ namespace Essentials.Debugging.Console.View.Debugger
         #endregion Inspector Fields
         
         #region Fields
-        private LoggerView m_loggerView;
+
+        private List<ViewTab> m_viewTabs;
         private DebugSettings m_debugSettings;
         private bool m_debuggerIsOpen;
         #endregion Fields
@@ -48,9 +59,33 @@ namespace Essentials.Debugging.Console.View.Debugger
         #region MonoBehaviour Methods
         private void Awake()
         {
-            m_loggerView = GetComponentInChildren<LoggerView>();
+            if (s_instance != null && s_instance != this)
+            {
+                Destroy(transform.parent.gameObject);
+                return;
+            }
+
+            s_instance = this;
+            m_viewTabs = new List<ViewTab>();
+            
+            foreach (var tab in m_viewTabsGameObjects)
+            {
+                var viewTab = tab.GetComponent<ViewTab>();
+                if (viewTab != null)
+                {
+                    viewTab.InitializeTab();
+                    m_viewTabs.Add(tab.GetComponent<ViewTab>());
+                }
+            }
+            
             UpdateViewFromSettings();
-            FocusTab(m_viewTabs[0]);
+            
+            if(m_viewTabs.Count > 0)
+                FocusTab(m_viewTabs[0]);
+            else
+                Debug.LogWarning("Debugger View Tabs couldn't be initialized for some reason");
+            
+            m_consoleView.InitializeConsoleView();
             
             CloseDebugger();
             
@@ -106,8 +141,11 @@ namespace Essentials.Debugging.Console.View.Debugger
         #region Utility Methods
         public void ScrollToBottom()
         {
+            if (!m_consoleLogTextFitter || !m_zynithLogTextFitter || !m_logListFitter)
+                return;
+            
             LayoutRebuilder.ForceRebuildLayoutImmediate(m_consoleLogTextFitter.GetComponent<RectTransform>());
-            LayoutRebuilder.ForceRebuildLayoutImmediate(m_zynithLogTextField.GetComponent<RectTransform>());
+            LayoutRebuilder.ForceRebuildLayoutImmediate(m_zynithLogTextFitter.GetComponent<RectTransform>());
             LayoutRebuilder.ForceRebuildLayoutImmediate(m_logListFitter.GetComponent<RectTransform>());
             
             m_consoleLogTextFitter.enabled = false;

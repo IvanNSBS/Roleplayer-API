@@ -48,7 +48,6 @@ namespace Essentials.Debugging.Loggers
         #region Destructor
         ~FilePolicy()
         {
-            // Debug.Log("File Policy Destructor called....");
             m_fileStream.Close();
         }
         #endregion Destructor
@@ -89,33 +88,11 @@ namespace Essentials.Debugging.Loggers
 
             return lastIndex + 1;
         }
-
-        private void LogToUnityConsole(LogLevels level, string logEntry)
-        {
-            switch (level)
-            {
-                case LogLevels.Debug:   
-                    UnityEngine.Debug.Log(logEntry); 
-                    break;
-                case LogLevels.Warning: 
-                    UnityEngine.Debug.LogWarning(logEntry); 
-                    break;
-                case LogLevels.Error:   
-                    UnityEngine.Debug.LogError(logEntry);
-                    break;
-                case LogLevels.Exception:
-                    UnityEngine.Debug.LogError(logEntry);
-                    break;
-                default:                
-                    UnityEngine.Debug.Log(logEntry); 
-                    break;
-            }
-        }
         #endregion Utility Methods
         
         
         #region LogPolicy Methods
-        public override string Log(LogLevels level, string logEntry, bool fromUnityCallback = false)
+        public override string Log(LogLevels level, string logEntry)
         {
             var now = DateTime.Now;
             string hour = now.Hour.ToString("00");

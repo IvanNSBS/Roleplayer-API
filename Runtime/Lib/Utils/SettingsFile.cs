@@ -1,24 +1,33 @@
 ﻿using System.IO;
-using UnityEditor;
 using UnityEngine;
 
 namespace Lib.Utils
 {
     public static class SettingsUtils
     {
-        public static T GetSettings<T>(string folderPath, string filePath) where T : ScriptableObject
+        public static T GetSettings<T>(string resourcesSubFolder, string fileName) where T : ScriptableObject
         {
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
+            string filePath = fileName;
+            if (!string.IsNullOrEmpty(resourcesSubFolder))
+                filePath = Path.Combine(resourcesSubFolder, fileName);
             
-            var settings = AssetDatabase.LoadAssetAtPath<T>(filePath);
+            var settings = Resources.Load<T>(filePath);
             if (settings != null)
                 return settings;
             
             T asset = ScriptableObject.CreateInstance<T>();
 
-            AssetDatabase.CreateAsset(asset, filePath);
-            AssetDatabase.SaveAssets();
+            #if UNITY_EDITOR
+            string folderPath = "Assets\\Resources";
+            if (!string.IsNullOrEmpty(resourcesSubFolder))
+                folderPath = Path.Combine(folderPath, resourcesSubFolder);
+            
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            UnityEditor.AssetDatabase.CreateAsset(asset, Path.Combine(folderPath, fileName) + ".asset");
+            UnityEditor.AssetDatabase.SaveAssets();
+            #endif
 
             return asset;
         }

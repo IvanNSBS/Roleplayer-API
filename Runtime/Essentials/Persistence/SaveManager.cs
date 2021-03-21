@@ -55,23 +55,23 @@ namespace Essentials.Persistence
             m_settings = PersistenceSettings.GetPersistenceSettings();
             m_prefabManager = new PrefabManager(m_settings);
 
-            if(m_settings.RegisteredDataStores.Count == 0)
+
+            var registeredStores = DataStoreRegistry.GetRegisteredStores();
+            if(registeredStores.Count == 0)
                 Debug.LogWarning("There are no registered data stores in Save Manager. Nothing will be saved");
             
-            foreach (var dataStore in m_settings.RegisteredDataStores)
-            {
-                if (!m_dataStoreHash.ContainsKey(dataStore.FullName))
-                {
-                    object[] args = { Instance };
-                    Type type = Type.GetType(dataStore.FullName);
-                    var packageObject = (DataStore)Activator.CreateInstance(type, args);
-                    m_dataStoreHash.Add(dataStore.FullName, packageObject);
-                }
-                else
-                {
-                    Debug.LogWarning("There Are Duplicate Stores on Settings!!");
-                }
-            }
+            foreach (var dataStore in registeredStores)
+                RegisterType(dataStore.Value);
+        }
+
+        private void OnEnable()
+        {
+            DataStoreRegistry.OnStoreRegistered += OnStoreRegistered;
+        }
+
+        private void OnDisable()
+        {
+            DataStoreRegistry.OnStoreRegistered -= OnStoreRegistered;
         }
         #endregion MonoBehaviour Methods
         
@@ -92,7 +92,7 @@ namespace Essentials.Persistence
             m_jsonEncrypter.EncryptionMode = m_settings.m_encryptionMode;
 
             foreach (var dataStore in m_dataStoreHash)
-                saveFileResult.Add(TypeToString(dataStore.Value.GetType()), dataStore.Value.Serialize());
+                saveFileResult.Add(DataStoreRegistry.TypeToString(dataStore.Value.GetType()), dataStore.Value.Serialize());
             
             m_jsonEncrypter.SaveToDisk(saveFileResult, m_settings);
         }
@@ -144,12 +144,12 @@ namespace Essentials.Persistence
         {
             PostLoad -= onPostLoad;
         }
-
+        
         public T GetDataStore<T>(bool considerSubTypes = false) where T : DataStore
         {
             if (!considerSubTypes)
             {
-                string key = TypeToString(typeof(T));
+                string key = DataStoreRegistry.TypeToString(typeof(T));
                 if (m_dataStoreHash.ContainsKey(key))
                     return (T) m_dataStoreHash[key];
             }
@@ -167,9 +167,25 @@ namespace Essentials.Persistence
         
         
         #region Utility Methods
-        private string TypeToString(Type type)
+
+        private void RegisterType(Type type)
         {
-            return type.FullName + ", " + type.Assembly.GetName().Name;
+            string key = DataStoreRegistry.TypeToString(type);
+            if (!m_dataStoreHash.ContainsKey(key))
+            {
+                object[] args = { Instance };
+                var packageObject = (DataStore)Activator.CreateInstance(type, args);
+                m_dataStoreHash.Add(key, packageObject);
+            }
+            else
+            {
+                Debug.LogWarning("There Are Duplicate Stores on Settings!!");
+            }
+        }
+        
+        private void OnStoreRegistered(Type type)
+        {
+            RegisterType(type);
         }
         #endregion Utility Methods
     }

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using Lib.Utils;
-using UnityEditor;
 using UnityEngine;
 
 namespace Essentials.Debugging.Settings
@@ -10,14 +8,14 @@ namespace Essentials.Debugging.Settings
     public class DebugSettings : ScriptableObject
     {
         #region Constants
-        private static string s_settingsFilePath = Path.Combine(Path.Combine("Assets", "Resources"), "Zynith Debugging Settings.asset");
-        private static string s_settingsFolderPath = Path.Combine("Assets", "Resources");
+        private static string s_settingsFileName = "Zynith Debugging Settings";
+        private static string s_settingsSubFolderName = "Debugging";
         #endregion Constants
         
         #region Inspector Fields
 
         [Header("Log File Settings")] 
-        [SerializeField] private bool m_createLogFile = true;
+        [SerializeField] private bool m_createLogFile = false;
         [SerializeField] private string m_logSubFolder = "Logs";
         [SerializeField] private string m_logFileName = "log";
         [SerializeField] private string m_logFileExtension = ".log";
@@ -67,23 +65,10 @@ namespace Essentials.Debugging.Settings
         {
             m_consolePosition = newPosition;
         }
-        
-        [MenuItem("ZynithAPI/Debugging/Open Log Folder")]
-        public static void OpenSaveFolder()
-        {
-            var settings = GetDebugSettings();
-            ProcessStartInfo startInformation = new ProcessStartInfo();
-            
-            if(!Directory.Exists(settings.FolderPath))
-                Directory.CreateDirectory(settings.FolderPath);
-            
-            startInformation.FileName = settings.FolderPath;
-            Process.Start(startInformation);
-        }
-        
+
         public static DebugSettings GetDebugSettings()
         {
-            return SettingsUtils.GetSettings<DebugSettings>(s_settingsFolderPath, s_settingsFilePath);
+            return SettingsUtils.GetSettings<DebugSettings>(s_settingsSubFolderName, s_settingsFileName);
         }
         #endregion Methods
     }

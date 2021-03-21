@@ -1,4 +1,6 @@
-﻿using Essentials.Common;
+﻿using System.Diagnostics;
+using System.IO;
+using Essentials.Common;
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.Callbacks;
@@ -15,6 +17,19 @@ namespace Essentials.Debugging
         
         
         #region Methods
+        [MenuItem("ZynithAPI/Debugging/Open Log Folder")]
+        public static void OpenSaveFolder()
+        {
+            var settings = DebugSettings.GetDebugSettings();
+            ProcessStartInfo startInformation = new ProcessStartInfo();
+            
+            if(!Directory.Exists(settings.FolderPath))
+                Directory.CreateDirectory(settings.FolderPath);
+            
+            startInformation.FileName = settings.FolderPath;
+            Process.Start(startInformation);
+        }
+        
         [MenuItem("ZynithAPI/Debugging/Settings")]
         public static void OpenSettingsWindow()
         {

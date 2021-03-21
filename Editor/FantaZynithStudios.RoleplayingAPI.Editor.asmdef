@@ -1,10 +1,12 @@
 {
-    "name": "FantaZynithStudios.RoleplayingAPI.Editor",
+    "name": "FantaZynithStudios.RoleplayingAPI.Editoritor",
     "rootNamespace": "",
     "references": [
         "GUID:ba0df75aa668f1649857d3328c7030c3"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

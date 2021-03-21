@@ -80,12 +80,15 @@ namespace Essentials.Debugging.Loggers
                     break;
             }
             
-            Log(logLevels, message, true);
+            Log(logLevels, message);
         }
         
-        private static void Log(LogLevels level, string msg, bool fromUnityCallback = false)
+        private static void Log(LogLevels level, string msg)
         {
-            string formattedMsg = s_instance.m_policy.Log(level, msg, fromUnityCallback);
+            if(s_instance == null)
+                return;
+        
+            string formattedMsg = s_instance.m_policy.Log(level, msg);
             logMessageReceived?.Invoke(formattedMsg, level);
         }
         #endregion Methods

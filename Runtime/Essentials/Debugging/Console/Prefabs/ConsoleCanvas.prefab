@@ -93,8 +93,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 11.5
+  m_fontSizeBase: 11.5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1367,7 +1367,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 2.5, y: 1.5}
+  m_AnchoredPosition: {x: 2.5, y: 2.5}
   m_SizeDelta: {x: 400, y: 200}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &8455176671435269793
@@ -1559,8 +1559,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 11.5
+  m_fontSizeBase: 11.5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2065,9 +2065,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 616d80a45f444b24a54252530855692c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_viewTabs:
-  - {fileID: 8801245746707429138}
-  - {fileID: 7753311402807001058}
+  m_loggerView: {fileID: 150051399}
+  m_consoleView: {fileID: 150051398}
+  m_viewTabsGameObjects:
+  - {fileID: 8455176672738476569}
+  - {fileID: 8455176672075315339}
   m_consoleLogTextField: {fileID: 8455176671441097418}
   m_consoleLogTextFitter: {fileID: 8455176671441097412}
   m_zynithLogTextField: {fileID: 1689532660}

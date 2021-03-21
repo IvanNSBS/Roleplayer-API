@@ -37,7 +37,7 @@ namespace Essentials.Debugging.Console.View.Console
 
 
         #region MonoBehaviour Methods
-        private void Start()
+        public void InitializeConsoleView()
         {
             InputSystem.EnableDevice(Keyboard.current);
             

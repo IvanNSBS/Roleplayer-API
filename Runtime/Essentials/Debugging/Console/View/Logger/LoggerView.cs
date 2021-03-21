@@ -1,10 +1,9 @@
 ﻿using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
-using Essentials.Debugging.Console.Data;
-using Essentials.Debugging.Console.View.Debugger;
 using Essentials.Debugging.Loggers;
 using Essentials.Debugging.Settings;
+using Essentials.Debugging.Console.View.Debugger;
 
 namespace Essentials.Debugging.Console.View.Logger
 {
@@ -26,22 +25,18 @@ namespace Essentials.Debugging.Console.View.Logger
         {
             m_debugSettings = DebugSettings.GetDebugSettings();
             m_loggerEntries = new Queue<string>();
-        }
-
-        private void OnEnable()
-        {
             ZynithLogger.logMessageReceived += AddEntryToLogger;
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
-            ZynithLogger.logMessageReceived += AddEntryToLogger;
+            ZynithLogger.logMessageReceived -= AddEntryToLogger;
         }
         #endregion MonoBehaviour Methods
         
         
         #region Methods
-        public void AddEntryToLogger(string logMessage, LogLevels logLevel)
+        private void AddEntryToLogger(string logMessage, LogLevels logLevel)
         {
             string formattedMessage = FormatInputString(logLevel, logMessage);
             
