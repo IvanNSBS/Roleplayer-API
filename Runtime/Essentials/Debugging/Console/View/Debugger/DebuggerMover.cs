@@ -24,17 +24,13 @@ namespace Essentials.Debugging.Console.View.Debugger
         private void Awake()
         {
             m_debugSettings = DebugSettings.GetDebugSettings();
+            m_moveTarget.anchoredPosition = m_debugSettings.ConsolePosition;
         }
         
         private void Update()
         {
             if (m_isMoving)
                 HandleMove();
-        }
-
-        private void OnDisable()
-        {
-            m_debugSettings.OverwriteConsolePosition(m_moveTarget.anchoredPosition);
         }
         #endregion MonoBehaviour Methods
         
@@ -44,6 +40,7 @@ namespace Essentials.Debugging.Console.View.Debugger
         {
             Vector2 mousePosition = Mouse.current.position.ReadValue();
             m_moveTarget.anchoredPosition = m_initialPosition + (mousePosition - m_initialClickPosition);
+            m_debugSettings.OverwriteConsolePosition(m_moveTarget.anchoredPosition);
         }
         
         public void OnPointerDown(PointerEventData eventData)

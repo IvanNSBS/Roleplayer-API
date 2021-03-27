@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Essentials.Debugging.Console.Commands;
 
@@ -60,6 +61,21 @@ namespace Essentials.Debugging.Console.Data
             if (parameters.Any()) result += parameterInfo;
             
             return result;
+        }
+
+        public string GetNamedSignature()
+        {
+            var parameters = CommandMethod.GetParameters();
+            List<string> parameterNames = new List<string>();
+            for(int i = 0; i < parameters.Count(); i++)
+                parameterNames.Add(parameters[i].Name);
+
+            string signatures = string.Join(" ", parameterNames);
+            
+            if (string.IsNullOrEmpty(signatures))
+                return Id;
+            
+            return $"{Id} " + signatures;
         }
         #endregion Methods
     }

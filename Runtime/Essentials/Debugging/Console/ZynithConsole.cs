@@ -1,8 +1,10 @@
 ﻿using Lib.Utils.Extensions;
 using System.Collections.Generic;
+using System.Linq;
 using Essentials.Debugging.Console.Data;
 using Essentials.Debugging.Console.View.Console;
 using Essentials.Debugging.Settings;
+using UnityEngine;
 
 namespace Essentials.Debugging.Console
 {
@@ -11,13 +13,13 @@ namespace Essentials.Debugging.Console
         #region Fields
         private DebugSettings m_debugSettings;
         private Queue<string> m_consoleLogEntries;
-        private Dictionary<string, ConsoleCommand> m_consoleCommands;
+        private Dictionary<string, List<ConsoleCommand>> m_consoleCommands;
         private CommandRegistry m_commandRegistry;
         private IConsoleView m_consoleView;
         #endregion Fields
         
         #region Properties
-        public Dictionary<string, ConsoleCommand> ConsoleCommands => m_consoleCommands;
+        public Dictionary<string, List<ConsoleCommand>> ConsoleCommands => m_consoleCommands;
         public IConsoleView View => m_consoleView;
         #endregion Properties
         
@@ -25,12 +27,12 @@ namespace Essentials.Debugging.Console
         #region Constructor
         public ZynithConsole(DebugSettings debugSettings, IConsoleView consoleView)
         {
-            m_consoleLogEntries = new Queue<string>();
-            m_consoleCommands = new Dictionary<string, ConsoleCommand>();
-            m_commandRegistry = new CommandRegistry(this);
-            
             m_consoleView = consoleView;
             m_debugSettings = debugSettings;
+
+            m_consoleLogEntries = new Queue<string>();
+            m_consoleCommands = new Dictionary<string, List<ConsoleCommand>>();
+            m_commandRegistry = new CommandRegistry(this);
             
             m_commandRegistry.InitializeZynithCommands();
         }
@@ -63,23 +65,22 @@ namespace Essentials.Debugging.Console
                 return;
             }
             
-            string[] split = commandString .Split(' ');
+            string[] split = commandString.Split(' ');
             
             string commandId = split[0];
             string[] commandArgs = split.SubArray(1);
             
             AddEntryToLog(commandString, ConsoleEntryType.UserInput);
+            var command = FindCommandThatMatchesArgs(commandId, commandArgs);
             
-            if (m_consoleCommands.ContainsKey(commandId))
+            if (command != null)
             {
-                var command = m_consoleCommands[split[0]];
                 ConsoleEntry invokeMessage = CommandHandler.InvokeCommand(command, commandArgs, out bool argumentsWereHandled);
-
                 if(invokeMessage != null)
                     AddEntryToLog(invokeMessage.Description, invokeMessage.EntryType);
             }
             else
-                AddEntryToLog($"Unknown Command: {commandId}", ConsoleEntryType.Error);
+                AddEntryToLog("No command matches the given signature", ConsoleEntryType.Error);
 
             m_consoleView.OnEntrySubmitted();
         }
@@ -90,5 +91,33 @@ namespace Essentials.Debugging.Console
             m_consoleView.ConsoleCleared();
         }
         #endregion Methods
+        
+        
+        #region Utility Methods
+        private ConsoleCommand FindCommandThatMatchesArgs(string commandId, string[] args)
+        {
+            if (!m_consoleCommands.ContainsKey(commandId))
+                return null;
+
+            foreach (var command in m_consoleCommands[commandId])
+            {
+                var parameters = command.CommandMethod.GetParameters();
+                if(args.Count() != parameters.Count())
+                    continue;
+
+                bool success = true;
+                for(int i = 0; i < parameters.Count(); i++)
+                {
+                    CommandHandler.ParseArgument(args[i], parameters[i], out bool successfull);
+                    success &= successfull;
+                }
+                
+                if (success)
+                    return command;
+            }
+
+            return null;
+        }
+        #endregion Utility Methods
     }
 }

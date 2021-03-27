@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
@@ -11,6 +12,7 @@ namespace Essentials.Debugging.Console
     public class CommandRegistry
     {
         #region Static Fields
+        private static Queue<CommandsContainer> s_registeredContainers = new Queue<CommandsContainer>();
         private delegate void RegisterCommand(CommandsContainer container);
         private static event RegisterCommand OnCommandRegistered;
         #endregion Static Fields
@@ -24,6 +26,11 @@ namespace Essentials.Debugging.Console
         public CommandRegistry(ZynithConsole console)
         {
             m_zynithConsole = console;
+
+            for(int i = s_registeredContainers.Count()-1; i >= 0; i--)
+                RegisterContainerCommands(s_registeredContainers.Dequeue());
+            
+            s_registeredContainers.Clear();
             OnCommandRegistered += RegisterContainerCommands;
         }
 
@@ -37,7 +44,18 @@ namespace Essentials.Debugging.Console
         #region Static Metods
         public static void RegisterContainer(CommandsContainer commandsContainer)
         {
-            OnCommandRegistered.Invoke(commandsContainer);
+            s_registeredContainers.Enqueue(commandsContainer);
+            OnCommandRegistered?.Invoke(commandsContainer);
+        }
+        
+        public static string GetMethodSignature(MethodInfo methodInfo)
+        {
+            List<string> alias = new List<string>();
+            
+            foreach (var param in methodInfo.GetParameters())
+                alias.Add(TypeAlias.GetPrimitiveTypeAlias(param.ParameterType));
+
+            return string.Join(" ", alias);
         }
         #endregion Static Methods
         
@@ -45,7 +63,6 @@ namespace Essentials.Debugging.Console
         #region Methods
         private void RegisterContainerCommands(CommandsContainer container)
         {
-            Dictionary<string, ConsoleCommand> commands = new Dictionary<string, ConsoleCommand>();
             BindingFlags validMethodsFlags = BindingFlags.Public | BindingFlags.Instance;
 
             var commandClassType = container.GetType();
@@ -60,17 +77,10 @@ namespace Essentials.Debugging.Console
             int validCommands = 0;
             foreach (var validCommand in validCommandMethods)
             {
-                ConsoleCommand data = new ConsoleCommand(container, validCommand);
-
-                if (m_zynithConsole.ConsoleCommands.ContainsKey(data.Id))
-                {
-                    m_zynithConsole.AddEntryToLog($"Id Collision for {data.Id}. Latest Command will be ignored.",
-                        ConsoleEntryType.ConsoleMessage);
-                    continue;
-                }
-
-                validCommands++;
-                m_zynithConsole.ConsoleCommands.Add(data.Id, data);
+                ConsoleCommand consoleCommand = new ConsoleCommand(container, validCommand);
+                
+                if(ProcessCommand(consoleCommand))
+                    validCommands++;
             }
 
             string name = container.GetType().Name.Replace("Container", "");
@@ -108,16 +118,10 @@ namespace Essentials.Debugging.Console
                 foreach (var validMethod in validCommandMethods)
                 {
                     var instance = (CommandsContainer)Activator.CreateInstance(commandClassType);
-                    ConsoleCommand data = new ConsoleCommand(instance, validMethod);
-                    
-                    if (m_zynithConsole.ConsoleCommands.ContainsKey(data.Id))
-                    {
-                        m_zynithConsole.AddEntryToLog($"Id Collision for {data.Id}. Latest Command will be ignored.", ConsoleEntryType.ConsoleMessage);
-                        continue;
-                    }
+                    ConsoleCommand consoleCommand = new ConsoleCommand(instance, validMethod);
 
-                    amountOfRegisteredCommands++;
-                    m_zynithConsole.ConsoleCommands.Add(data.Id, data);
+                    if(ProcessCommand(consoleCommand))
+                        amountOfRegisteredCommands++;
                 }
             }
             
@@ -130,5 +134,37 @@ namespace Essentials.Debugging.Console
             
         }
         #endregion Methods
+        
+        
+        #region Helper Methods
+        /// <summary>
+        /// Process a console command and try to add it to the available console commands
+        /// </summary>
+        /// <param name="command">The command to be added</param>
+        /// <returns>True if the command was added to the list of console commands. False Otherwise</returns>
+        private bool ProcessCommand(ConsoleCommand command)
+        { 
+            if (!m_zynithConsole.ConsoleCommands.ContainsKey(command.Id))
+            {
+                m_zynithConsole.ConsoleCommands.Add(command.Id, new List<ConsoleCommand>{ command });
+                return true;
+            }
+
+            var commandsWithSameAlias = m_zynithConsole.ConsoleCommands[command.Id];
+            var newCommandSignature = GetMethodSignature(command.CommandMethod);
+
+            // no command with same signature
+            if (commandsWithSameAlias.All(x => GetMethodSignature(x.CommandMethod) != newCommandSignature))
+            {
+                m_zynithConsole.ConsoleCommands[command.Id].Add(command);
+                return true;
+            }
+            
+            m_zynithConsole.AddEntryToLog($"Command Signature Collision with Id: {command.Id}. " +
+                                          $"Latest Command will be ignored.", ConsoleEntryType.ConsoleMessage);
+
+            return false;
+        }
+        #endregion Helper Methods
     }
 }

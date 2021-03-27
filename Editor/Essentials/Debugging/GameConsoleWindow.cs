@@ -36,6 +36,13 @@ namespace Essentials.Debugging
             GetWindow<GameConsoleWindow>("Debug Settings");
         }
         
+        [MenuItem("ZynithAPI/Debugging/Clear Persistence File")]
+        public static void ClearSaveFile()
+        {
+            if(File.Exists(DebugSettingsPersistence.persistenceFilePath))
+                File.Delete(DebugSettingsPersistence.persistenceFilePath);
+        }
+        
         [OnOpenAsset]
         public static bool OnOpenAsset(int instanceId, int line)
         {

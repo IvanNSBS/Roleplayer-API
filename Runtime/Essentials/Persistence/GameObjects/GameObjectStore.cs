@@ -20,7 +20,6 @@ namespace Essentials.Persistence.GameObjects
         #region Constructor
         public GameObjectStore(SaveManager saveManager) : base(saveManager)
         {
-            Debug.Log("Created a GameObject Store!");
             m_listeners = new Dictionary<int, Dictionary<String, PersistentGameObject>>();
         }
         #endregion Constructor

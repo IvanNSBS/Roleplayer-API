@@ -1,4 +1,6 @@
-﻿using Essentials.Debugging.Console.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Essentials.Debugging.Console.Data;
 using Essentials.Debugging.Console.View.Debugger;
 
 namespace Essentials.Debugging.Console.Commands.BuiltinCommands
@@ -32,21 +34,29 @@ namespace Essentials.Debugging.Console.Commands.BuiltinCommands
             m_debuggerView.LoggerView.ClearLog();
         }
 
-        [ConsoleCommand("showAll", "Shows every command registered to Zynith Console")]
+        [ConsoleCommand("help", "Prints every command alias registered to the Console")]
         public void ShowAllCommands()
         {
-            foreach (var command in m_zynithConsole.ConsoleCommands)
-                m_zynithConsole.AddEntryToLog($"{command.Key} - {command.Value.Description}", ConsoleEntryType.ConsoleMessage);
+            foreach (var commandsWithSameId in m_zynithConsole.ConsoleCommands)
+            {
+                string entry = $"{commandsWithSameId.Key} [{commandsWithSameId.Value.Count()} available signatures]";
+                m_zynithConsole.AddEntryToLog(entry, ConsoleEntryType.ConsoleMessage);
+            }
         }
 
-        [ConsoleCommand("usage", "Show the usage of a command")]
+        [ConsoleCommand("help", "Show the usage of a command")]
         public ConsoleEntry GetCommandUsage(string commandId)
         {
             if (!m_zynithConsole.ConsoleCommands.ContainsKey(commandId))
-                return new ConsoleEntry($"Command <{commandId}> don't exist", ConsoleEntryType.Warning);
+                return new ConsoleEntry($"Command <{commandId}> does not exist", ConsoleEntryType.Warning);
 
-            var command = m_zynithConsole.ConsoleCommands[commandId];
-            return new ConsoleEntry(command.GetCommandUsage(), ConsoleEntryType.ConsoleMessage);
+            string result = $"Registered Signatures for {commandId}: \n";
+
+            List<string> signatures = new List<string>();
+            foreach (var command in m_zynithConsole.ConsoleCommands[commandId])
+                signatures.Add($"{command.GetNamedSignature()} - {command.Description}");
+
+            return new ConsoleEntry(result + string.Join("\n", signatures), ConsoleEntryType.ConsoleMessage);
         }
     }
 }

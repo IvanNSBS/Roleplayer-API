@@ -24,17 +24,13 @@ namespace Essentials.Debugging.Console.View.Debugger
         private void Awake()
         {
             m_debugSettings = DebugSettings.GetDebugSettings();
+            m_consoleContent.sizeDelta = m_debugSettings.ConsoleSize;
         }
 
         private void Update()
         {
             if (m_isResizing)
                 HandleResize();
-        }
-
-        private void OnDisable()
-        {
-            m_debugSettings.OverwriteConsoleSize(m_consoleContent.sizeDelta);
         }
         #endregion MonoBehaviour Methods
         
@@ -44,6 +40,7 @@ namespace Essentials.Debugging.Console.View.Debugger
         {
             Vector2 mousePosition = Mouse.current.position.ReadValue();
             m_consoleContent.sizeDelta = m_initialSizeDelta + (mousePosition - m_initialClickPosition);
+            m_debugSettings.OverwriteConsoleSize(m_consoleContent.sizeDelta);
         }
         
         public void OnPointerDown(PointerEventData eventData)

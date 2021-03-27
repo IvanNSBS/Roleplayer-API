@@ -67,7 +67,7 @@ namespace Essentials.Debugging.Console
 
         
         #region Utility Methods
-        private static object ParseArgument(string str, ParameterInfo parameterInfo, out bool parseSuccessful)
+        public static object ParseArgument(string str, ParameterInfo parameterInfo, out bool parseSuccessful)
         {
             if (parameterInfo.ParameterType == typeof(string))
             {
@@ -89,12 +89,6 @@ namespace Essentials.Debugging.Console
             if (parameterInfo.ParameterType == typeof(float))
             {
                 bool canParse = float.TryParse(str, NumberStyles.Float, CultureInfo.InvariantCulture, out float value);
-                parseSuccessful = canParse;
-                return value;
-            }
-            if (parameterInfo.ParameterType == typeof(double))
-            {
-                bool canParse = double.TryParse(str, out double value);
                 parseSuccessful = canParse;
                 return value;
             }

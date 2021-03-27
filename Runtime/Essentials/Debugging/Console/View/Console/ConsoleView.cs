@@ -67,8 +67,8 @@ namespace Essentials.Debugging.Console.View.Console
             m_sendButton.onClick.AddListener(() => m_zynithConsole.HandleLogInputCommand(m_consoleInputField.text));
             m_clearButton.onClick.AddListener(() =>
             {
-                m_zynithConsole.ConsoleCommands["clearConsole"].Invoke(null);
-                m_zynithConsole.ConsoleCommands["clearLogger"].Invoke(null);
+                m_zynithConsole.HandleLogInputCommand("clearLogger");
+                m_zynithConsole.HandleLogInputCommand("clearConsole");
             });
             m_closeButton.onClick.AddListener(m_debuggerView.CloseDebugger);
         }
