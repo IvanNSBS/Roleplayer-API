@@ -69,11 +69,6 @@ namespace Essentials.Persistence.GameObjects
         public void RegisterToDataStore<U>() where U : GameObjectStore
         {
             var saveManager = SaveManager.Instance;
-            if (!saveManager)
-            {
-                Debug.LogWarning($"Trying to register {gameObject.name} but Save Manager is not present in scene.");
-                return;
-            }
             var store = saveManager.GetDataStore<U>(true);
             if (store == null)
             {

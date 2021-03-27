@@ -10,11 +10,21 @@ namespace Essentials.Persistence
     /// <summary>
     /// Save manager handles Save game Load and Save Events.
     /// </summary>
-    public class SaveManager : MonoBehaviour
+    public class SaveManager
     {
         #region Singleton
         private static SaveManager s_instance;
-        public static SaveManager Instance => s_instance;
+
+        public static SaveManager Instance
+        {
+            get
+            {
+                if (s_instance == null)
+                    s_instance = new SaveManager();
+
+                return s_instance;
+            }
+        }
         #endregion Singleton
         
         #region Fields
@@ -39,22 +49,13 @@ namespace Essentials.Persistence
         #endregion Events
 
 
-        #region MonoBehaviour Methods
-        private void Awake()
+        #region Constuctor
+        private SaveManager()
         {
-            if (s_instance == null)
-                s_instance = this;
-            
-            if(s_instance != this)
-                Destroy(gameObject);
-
-            DontDestroyOnLoad(this);
-            
             m_jsonEncrypter = new JsonEncryption();
             m_dataStoreHash = new Dictionary<string, DataStore>();
             m_settings = PersistenceSettings.GetPersistenceSettings();
             m_prefabManager = new PrefabManager(m_settings);
-
 
             var registeredStores = DataStoreRegistry.GetRegisteredStores();
             if(registeredStores.Count == 0)
@@ -62,14 +63,11 @@ namespace Essentials.Persistence
             
             foreach (var dataStore in registeredStores)
                 RegisterType(dataStore.Value);
-        }
-
-        private void OnEnable()
-        {
+            
             DataStoreRegistry.OnStoreRegistered += OnStoreRegistered;
         }
 
-        private void OnDisable()
+        ~SaveManager()
         {
             DataStoreRegistry.OnStoreRegistered -= OnStoreRegistered;
         }
@@ -173,7 +171,7 @@ namespace Essentials.Persistence
             string key = DataStoreRegistry.TypeToString(type);
             if (!m_dataStoreHash.ContainsKey(key))
             {
-                object[] args = { Instance };
+                object[] args = { this };
                 var packageObject = (DataStore)Activator.CreateInstance(type, args);
                 m_dataStoreHash.Add(key, packageObject);
             }
