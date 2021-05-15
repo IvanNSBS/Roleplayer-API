@@ -22,16 +22,16 @@ namespace Essentials.Common
             {
                 if (prop.isArray && prop.propertyType == SerializedPropertyType.Generic)
                 {
-                    // EditorGUILayout.BeginHorizontal();
-                    // prop.isExpanded = EditorGUILayout.Foldout(prop.isExpanded, prop.displayName);
-                    // EditorGUILayout.EndHorizontal();
-                    //
-                    // if (prop.isExpanded)
-                    // {
-                    //     EditorGUI.indentLevel++;
-                    //     DrawProperties(prop, drawChildren);
-                    //     EditorGUI.indentLevel--;
-                    // }
+                    EditorGUILayout.BeginHorizontal();
+                    prop.isExpanded = EditorGUILayout.Foldout(prop.isExpanded, prop.displayName);
+                    EditorGUILayout.EndHorizontal();
+                    
+                    if (prop.isExpanded)
+                    {
+                        EditorGUI.indentLevel++;
+                        DrawProperties(prop, drawChildren);
+                        EditorGUI.indentLevel--;
+                    }
 
                     EditorGUILayout.PropertyField(prop, true);
                     
