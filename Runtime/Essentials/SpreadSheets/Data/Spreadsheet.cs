@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Text.RegularExpressions;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Networking;
+using System.Text.RegularExpressions;
 
 namespace Essentials.SpreadSheets
 {
@@ -15,8 +14,6 @@ namespace Essentials.SpreadSheets
 
         [Header("Object Data")]
         [SerializeField] private string m_data;
-        // [SerializeField] public SpreadsheetRow m_columns;
-        // [SerializeField] private List<string> m_rows;
         #endregion Fields
         
         #region Properties
@@ -25,13 +22,7 @@ namespace Essentials.SpreadSheets
         
         
         #region Methods
-        public override string ToString()
-        {
-            // string columns = string.Join(",", m_columns)+'\n';
-
-            // string result = columns;
-            return m_data;
-        }
+        public override string ToString() => m_data;
 
         public void DownloadFromDrive()
         {

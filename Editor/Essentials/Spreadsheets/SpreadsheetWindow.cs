@@ -1,10 +1,7 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using Essentials.Common;
 using Essentials.SpreadSheets;
-using System.Text.RegularExpressions;
-using UnityEditorInternal;
 
 namespace Essentials.Spreadsheets
 {
@@ -25,35 +22,11 @@ namespace Essentials.Spreadsheets
 
         private void OnGUI()
         {
-            serializedObject.Update();
-
-
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_driveLink"));
-            
             m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
-                
-            EditorGUI.BeginDisabledGroup(true);
-            var data = serializedObject.FindProperty("m_data");
-            EditorGUILayout.LabelField("CSV", EditorStyles.boldLabel);
-            EditorGUILayout.TextArea(data.stringValue);
+            var editor = Editor.CreateEditor(m_spreadsheet);
+            editor.OnInspectorGUI();
             EditorGUILayout.EndScrollView();
-                
-            EditorGUI.EndDisabledGroup();
-
-            
-            
-            EditorGUI.BeginDisabledGroup(String.IsNullOrEmpty(m_spreadsheet.DriveLink));
-            if (GUILayout.Button("Download File")) m_spreadsheet.DownloadFromDrive();
-
-            EditorGUI.EndDisabledGroup();
-
-            serializedObject.ApplyModifiedProperties();
         }
         #endregion Editor Methods
-        
-                
-        #region Methods
-        
-        #endregion Methods
     }
 }
