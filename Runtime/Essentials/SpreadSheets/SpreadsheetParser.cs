@@ -11,7 +11,7 @@ namespace Essentials.SpreadSheets
     {
         #region Fields
         public static string exampleCSV =  "id,name,weight,damage,canCrit\n"+
-                                            "wep_01,Iron Sword,10.3,20,TRUE\n"+
+                                            "wep_01,Iron Sword,10asdsa.3,20,TRUE\n"+
                                             "wep_02,Silver Sword,5.4,25,TRUE\n"+
                                             "wep_03,Gold Sword,9.3,29,TRUE\n"+
                                             "wep_04,Diamond Sword,13.7,34,TRUE\n"+
@@ -48,8 +48,12 @@ namespace Essentials.SpreadSheets
                     
                     rowColumn.Add(columns[j], col);
                 }
+
+                var entry = EntriesToClass<T>(rowColumn);
+                if (entry == null)
+                    return null;
                 
-                values.Add(EntriesToClass<T>(rowColumn));
+                values.Add(entry);
             }
             
             return values;
@@ -60,8 +64,7 @@ namespace Essentials.SpreadSheets
         #region Helper Methods
         private static T EntriesToClass<T>(Dictionary<string, string> entries) where T : class
         {
-            BindingFlags validFields = BindingFlags.Public | BindingFlags.NonPublic;
-
+            // BindingFlags validFields = BindingFlags.Public | BindingFlags.NonPublic;
             var fields = typeof(T).GetFields().
                 Where(x => x.GetCustomAttribute<CSVColumnAttribute>() != null);
 
@@ -69,13 +72,23 @@ namespace Essentials.SpreadSheets
             
             foreach (var field in fields)
             {
-                string columnName = field.GetCustomAttribute<CSVColumnAttribute>().name;
-                string finalName = string.IsNullOrEmpty(columnName) ? field.Name : columnName; 
-                Debug.Log($"Final Name: {finalName}");
+                CSVColumnAttribute attribute = field.GetCustomAttribute<CSVColumnAttribute>();
+                string columnName = attribute.name;
+                string finalName = string.IsNullOrEmpty(columnName) ? field.Name : columnName;
+                bool isImportantField = attribute.important;
 
-                if (entries.ContainsKey(finalName) && !string.IsNullOrEmpty(entries[finalName]))
-                {
-                    field.SetValue(result, Convert.ChangeType(entries[finalName], field.FieldType));
+                if (entries.ContainsKey(finalName) && !string.IsNullOrEmpty(entries[finalName])) {
+                    try {
+                        field.SetValue(result, Convert.ChangeType(entries[finalName], field.FieldType));
+                    }
+                    catch (Exception e) {
+                        Debug.LogError(e);
+                        return null;
+                    }
+                }
+                else if(isImportantField) {
+                    Debug.LogError($"CSV Field <{finalName}> is marked as important and wasn't found in CSV or couldn't be parsed");
+                    return null;
                 }
             }
 
