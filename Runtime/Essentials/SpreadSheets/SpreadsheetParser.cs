@@ -11,7 +11,7 @@ namespace Essentials.SpreadSheets
     {
         #region Fields
         public static string exampleCSV =  "id,name,weight,damage,canCrit\n"+
-                                            "wep_01,Iron Sword,10asdsa.3,20,TRUE\n"+
+                                            "wep_01,Iron Sword,10.3,20,TRUE\n"+
                                             "wep_02,Silver Sword,5.4,25,TRUE\n"+
                                             "wep_03,Gold Sword,9.3,29,TRUE\n"+
                                             "wep_04,Diamond Sword,13.7,34,TRUE\n"+
@@ -19,6 +19,14 @@ namespace Essentials.SpreadSheets
         #endregion Fields
         
         #region Methods
+        /// <summary>
+        /// Parses a CSV File String.
+        /// Note: Will Only parse fields marked with CSVColumn Attribute.
+        /// Will Return Null if a field is marked as Important and can't be parsed
+        /// </summary>
+        /// <param name="csvFile">CSV File String</param>
+        /// <typeparam name="T">Type that will be created</typeparam>
+        /// <returns>List of the Parsed T type</returns>
         public static List<T> ReadSheet<T>(string csvFile) where T : class
         {
             var lines = csvFile.Split('\n');
