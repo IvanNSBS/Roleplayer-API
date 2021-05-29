@@ -6,13 +6,13 @@ namespace Lib.Algorithms.FiniteStateMachine
     public class FSM<TEntity>
     {
         #region Fields
-        private TEntity m_entity;
-        private State<TEntity> m_currentState;
-        private State<TEntity> m_previousState;
+        protected TEntity entity;
+        protected State<TEntity> currentState;
+        protected State<TEntity> previousState;
 
-        private Dictionary<Type, List<Transition>> m_transitions = new Dictionary<Type, List<Transition>>();
-        private List<Transition> m_currentTransitions = new List<Transition>();
-        private List<Transition> m_anyTransitions = new List<Transition>();
+        protected Dictionary<Type, List<Transition>> transitions = new Dictionary<Type, List<Transition>>();
+        protected List<Transition> currentTransitions = new List<Transition>();
+        protected List<Transition> anyTransitions = new List<Transition>();
         #endregion Fields
 
         #region Static Fields
@@ -20,15 +20,15 @@ namespace Lib.Algorithms.FiniteStateMachine
         #endregion Static Feilds
 
         #region Properties
-        public State<TEntity> CurrentState { get => m_currentState; }
-        public State<TEntity> PreviousState { get => m_previousState; }
+        public State<TEntity> CurrentState { get => currentState; }
+        public State<TEntity> PreviousState { get => previousState; }
         #endregion Properties
 
 
         #region Constructors
         public FSM(TEntity entity)
         {
-            this.m_entity = entity;
+            this.entity = entity;
         }
         #endregion Constructors
 
@@ -40,32 +40,32 @@ namespace Lib.Algorithms.FiniteStateMachine
             if (transition != null)
                 ChangeState(transition.To);
 
-            m_currentState?.Update();
+            currentState?.Update();
         }
 
         public void ChangeState(State<TEntity> state)
         {
-            if (state == m_currentState)
+            if (state == currentState)
                 return;
 
-            m_currentState?.Exit();
-            m_previousState = m_currentState;
-            m_currentState = state;
+            currentState?.Exit();
+            previousState = currentState;
+            currentState = state;
             
-            m_currentState.Entity = m_entity;
-            m_currentState.FSM = this;
-            m_currentState.Enter();
+            currentState.Entity = entity;
+            currentState.FSM = this;
+            currentState.Enter();
 
-            m_transitions.TryGetValue(m_currentState.GetType(), out m_currentTransitions);
-            if (m_currentTransitions == null)
-                m_currentTransitions = EmptyTransitions;
+            transitions.TryGetValue(currentState.GetType(), out currentTransitions);
+            if (currentTransitions == null)
+                currentTransitions = EmptyTransitions;
         }
         public void AddTransition(State<TEntity> from, State<TEntity> to, Func<bool> predicate)
         {
-            if (m_transitions.TryGetValue(from.GetType(), out var newTransitions) == false)
+            if (transitions.TryGetValue(from.GetType(), out var newTransitions) == false)
             {
                 newTransitions = new List<Transition>();
-                m_transitions[from.GetType()] = newTransitions;
+                transitions[from.GetType()] = newTransitions;
             }
 
             newTransitions.Add(new Transition(to, predicate));
@@ -73,21 +73,21 @@ namespace Lib.Algorithms.FiniteStateMachine
 
         public void AddAnyTransition(State<TEntity> state, Func<bool> predicate)
         {
-            m_anyTransitions.Add(new Transition(state, predicate));
+            anyTransitions.Add(new Transition(state, predicate));
         }
 
         public string CurrentStateName()
         {
-            return m_currentState.GetType().Name;
+            return currentState.GetType().Name;
         }
 
         private Transition GetTransition()
         {
-            foreach (var transition in m_anyTransitions)
+            foreach (var transition in anyTransitions)
                 if (transition.Condition())
                     return transition;
 
-            foreach (var transition in m_currentTransitions)
+            foreach (var transition in currentTransitions)
                 if (transition.Condition())
                     return transition;
 
@@ -96,7 +96,7 @@ namespace Lib.Algorithms.FiniteStateMachine
         #endregion Methods
 
         #region Transition Class
-        private class Transition
+        protected class Transition
         {
             public Func<bool> Condition { get; }
             public State<TEntity> To { get; }
