@@ -7,6 +7,7 @@ using Essentials.Persistence.Interfaces;
 
 namespace Essentials.Persistence.GameObjects
 {
+    [DisallowMultipleComponent]
     public class PersistentGameObject : MonoBehaviour, IDataStoreElement<GameObjectStore>
     {
         #region Fields
@@ -38,21 +39,14 @@ namespace Essentials.Persistence.GameObjects
         }
 
         public GameObjectStore DataStore { get; private set; }
+        public int LevelIndex { get; protected set; }
         #endregion Properties
         
         
         #region MonoBehaviour Methods
-        /// <summary>
-        /// Unity Start Event guarantee that the Saveable ID is unique
-        /// and add it to the save manager subscriber list
-        /// </summary>
-        private void Start()
-        {
-            RegisterToDataStore<GameObjectStore>();
-        }
-
         private void Awake()
         {
+            LevelIndex = -1;
             if(m_saveableComponents == null)
                 m_saveableComponents = GetComponentsInChildren<GameObjectSurrogate>().
                     ToDictionary(x=>x.GetType().Name + $"_{x.Id}", x => x);
@@ -60,12 +54,26 @@ namespace Essentials.Persistence.GameObjects
 
         private void OnDestroy()
         {
-            RemoveFromDataStore();
+            // level Index has been set
+            if(LevelIndex >= 0)
+                RemoveFromDataStore();
         }
         #endregion MonoBehaviour Methods
     
     
         #region Methods
+        public void SetIndexAndRegisterToStore(int levelIndex)
+        {
+            if (levelIndex < 0)
+            {
+                Debug.LogError("Level Index must be positive");
+                return;
+            }
+            
+            LevelIndex = levelIndex;
+            RegisterToDataStore<GameObjectStore>();
+        }
+        
         public void RegisterToDataStore<U>() where U : GameObjectStore
         {
             var saveManager = SaveManager.Instance;
@@ -76,13 +84,13 @@ namespace Essentials.Persistence.GameObjects
                 return;
             }
             
-            store.AddGameObject(this);
+            store.AddGameObject(LevelIndex,this);
             DataStore = store;
         }
 
         public void RemoveFromDataStore()
         {
-            DataStore?.RemoveGameObject(this);
+            DataStore?.RemoveGameObject(LevelIndex,this);
         }
 
         /// <summary>

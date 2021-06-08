@@ -29,19 +29,19 @@ namespace Essentials.Persistence.GameObjects
         /// <summary>
         /// Adds a GameObject to the dictionary of listeners in the open scenes
         /// </summary>
+        /// <param name="levelIndex">Object's level Index</param>
         /// <param name="persistentGameObject">Object to be added to the listeners dictionary</param>
-        public void AddGameObject(PersistentGameObject persistentGameObject)
+        public void AddGameObject(int levelIndex, PersistentGameObject persistentGameObject)
         {
-            int sceneIndex = persistentGameObject.gameObject.scene.buildIndex;
             string objectId = persistentGameObject.ObjectId;
             
             // if there's no scene in Data Store, add id
-            if (!m_listeners.ContainsKey(sceneIndex))
-                m_listeners.Add(sceneIndex, new Dictionary<string, PersistentGameObject>());
+            if (!m_listeners.ContainsKey(levelIndex))
+                m_listeners.Add(levelIndex, new Dictionary<string, PersistentGameObject>());
             
             // Checks if the objects are different, but have the same ID. Create a new id
             // for the newer object to avoid collision.
-            if (m_listeners[sceneIndex].ContainsKey(objectId) && m_listeners[sceneIndex][objectId] != persistentGameObject)
+            if (m_listeners[levelIndex].ContainsKey(objectId) && m_listeners[levelIndex][objectId] != persistentGameObject)
             {
                 // TODO: This check is only necessary because the current GUID generation method is 
                 // manual. Remove this after GUID generation is fixed.
@@ -50,24 +50,24 @@ namespace Essentials.Persistence.GameObjects
             }
             
             // Add object to dictionary if it's not there already
-            if(!m_listeners[sceneIndex].ContainsKey(objectId))    
-                m_listeners[sceneIndex].Add(persistentGameObject.ObjectId, persistentGameObject);            
+            if(!m_listeners[levelIndex].ContainsKey(objectId))    
+                m_listeners[levelIndex].Add(persistentGameObject.ObjectId, persistentGameObject);            
         }
 
         /// <summary>
         /// Removes a gameobject from the scene listener dictionary.
         /// </summary>
+        /// <param name="levelIndex">Object's level Index</param>
         /// <param name="persistentGameObject">Object to be removed</param>
         /// <returns>True if it was removed. False otherwise</returns>
-        public bool RemoveGameObject(PersistentGameObject persistentGameObject)
+        public bool RemoveGameObject(int levelIndex, PersistentGameObject persistentGameObject)
         {
-            int sceneIndex = persistentGameObject.gameObject.scene.buildIndex;
-            if (m_listeners.ContainsKey(sceneIndex) &&
-                m_listeners[sceneIndex].ContainsKey(persistentGameObject.ObjectId))
+            if (m_listeners.ContainsKey(levelIndex) &&
+                m_listeners[levelIndex].ContainsKey(persistentGameObject.ObjectId))
             {
-                bool removed = m_listeners[sceneIndex].Remove(persistentGameObject.ObjectId);
-                if (m_listeners[sceneIndex].Count == 0)
-                    m_listeners.Remove(sceneIndex);
+                bool removed = m_listeners[levelIndex].Remove(persistentGameObject.ObjectId);
+                if (m_listeners[levelIndex].Count == 0)
+                    m_listeners.Remove(levelIndex);
                 
                 return removed;
             }
@@ -99,8 +99,6 @@ namespace Essentials.Persistence.GameObjects
         public override bool Deserialize(JObject objectJson)
         {
             dataStoreCache = objectJson;
-            
-            LoadOpenScenes();
             return true;
         }
         #endregion DataStore Methods
@@ -113,17 +111,17 @@ namespace Essentials.Persistence.GameObjects
         /// Instantiate and deserialize the ones present in save file but not in scene
         /// And destroy the ones that aren't present in save file.
         /// </summary>
-        /// <param name="sceneIndex"></param>
-        public bool LoadScene(int sceneIndex)
+        /// <param name="levelIndex"></param>
+        public bool LoadScene(int levelIndex, bool levelIndexIsSceneIndex = false)
         {
             var loadedScenes = SceneUtils.GetLoadedScenesAndBuildIndex();
-            Scene targetScene = loadedScenes[sceneIndex];
+            Scene targetScene = levelIndexIsSceneIndex ? loadedScenes[levelIndex] : SceneManager.GetActiveScene();
 
             JObject sceneSavedCache = null;
-            if(dataStoreCache.ContainsKey(sceneIndex.ToString()))
-                sceneSavedCache = dataStoreCache[sceneIndex.ToString()] as JObject;
+            if(dataStoreCache.ContainsKey(levelIndex.ToString()))
+                sceneSavedCache = dataStoreCache[levelIndex.ToString()] as JObject;
             
-            var sceneObjects = m_listeners[sceneIndex];
+            var sceneObjects = m_listeners[levelIndex];
             Dictionary<string, PersistentGameObject> newSceneObjects = new Dictionary<string, PersistentGameObject>();
             
             // If there were objects in the save file cache, load them
@@ -143,12 +141,12 @@ namespace Essentials.Persistence.GameObjects
                     // if not present in scene, instantiate and load it
                     else
                     {
-                        var saveableGameObject = saveManager.PrefabManager.InstantiatePrefab(objectId, objectJsonRepresentation);
-                        if (saveableGameObject != null)
+                        var persistentGO = saveManager.PrefabManager.InstantiatePrefab(objectId, objectJsonRepresentation);
+                        if (persistentGO != null)
                         {
-                            PersistentGameObject persistentGameObjectComponent = saveableGameObject.GetComponent<PersistentGameObject>();
-                            AddGameObject(persistentGameObjectComponent);
-                            SceneManager.MoveGameObjectToScene(saveableGameObject, targetScene);
+                            PersistentGameObject persistentGameObjectComponent = persistentGO.GetComponent<PersistentGameObject>();
+                            AddGameObject(levelIndex, persistentGameObjectComponent);
+                            SceneManager.MoveGameObjectToScene(persistentGO, targetScene);
                             
                             newSceneObjects.Add(persistentGameObjectComponent.ObjectId, persistentGameObjectComponent);
                         }
@@ -156,18 +154,21 @@ namespace Essentials.Persistence.GameObjects
 
                     sceneObjects.Remove(objectId);
                 }
+                
+                
+                // Objects left are not present in save file, so they must be deleted from scene
+                // and removed from save file
+                foreach (var sceneObject in sceneObjects)
+                {
+                    GameObject.Destroy(sceneObject.Value.gameObject);
+                }
+
+                m_listeners[levelIndex] = newSceneObjects;
+                return true;
+
             }
 
-            // Objects left are not present in save file, so they must be deleted from scene
-            // and removed from save file
-            foreach (var sceneObject in sceneObjects)
-            {
-                GameObject.Destroy(sceneObject.Value.gameObject);
-            }
-
-            m_listeners[sceneIndex] = newSceneObjects;
-            
-            return true;
+            return false;
         }
         #endregion Methods
         

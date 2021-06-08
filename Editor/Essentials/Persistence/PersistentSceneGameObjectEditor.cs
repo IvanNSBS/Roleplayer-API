@@ -9,8 +9,8 @@ using Essentials.Persistence.GameObjects;
 
 namespace Essentials.Persistence
 {
-    [CustomEditor(typeof(PersistentGameObject))]
-    public class PersistentGameObjectEditor : UnityEditor.Editor
+    [CustomEditor(typeof(PersistentSceneGameObject))]
+    public class PersistentSceneGameObjectEditor : UnityEditor.Editor
     {
         #region Fields
         private PersistentGameObject m_persistentGameObject;
