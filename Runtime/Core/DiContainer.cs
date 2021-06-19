@@ -7,12 +7,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Essentials.IoCContainer
+namespace Microsoft.MinIoC
 {
     /// <summary>
     /// Inversion of control container handles dependency injection for registered types
     /// </summary>
-    class Container : Container.IScope
+    public class DiContainer : DiContainer.IScope
     {
         #region Public interfaces
         /// <summary>
@@ -48,7 +48,7 @@ namespace Essentials.IoCContainer
         /// <summary>
         /// Creates a new instance of IoC Container
         /// </summary>
-        public Container() => _lifetime = new ContainerLifetime(t => _registeredTypes[t]);
+        public DiContainer() => _lifetime = new ContainerLifetime(t => _registeredTypes[t]);
 
         /// <summary>
         /// Registers a factory function which will be called to resolve the specified interface
@@ -221,47 +221,47 @@ namespace Essentials.IoCContainer
     /// <summary>
     /// Extension methods for Container
     /// </summary>
-    static class ContainerExtensions
+    public static class ContainerExtensions
     {
         /// <summary>
         /// Registers an implementation type for the specified interface
         /// </summary>
         /// <typeparam name="T">Interface to register</typeparam>
-        /// <param name="container">This container instance</param>
+        /// <param name="diContainer">This container instance</param>
         /// <param name="type">Implementing type</param>
         /// <returns>IRegisteredType object</returns>
-        public static Container.IRegisteredType Register<T>(this Container container, Type type)
-            => container.Register(typeof(T), type);
+        public static DiContainer.IRegisteredType Register<T>(this DiContainer diContainer, Type type)
+            => diContainer.Register(typeof(T), type);
 
         /// <summary>
         /// Registers an implementation type for the specified interface
         /// </summary>
         /// <typeparam name="TInterface">Interface to register</typeparam>
         /// <typeparam name="TImplementation">Implementing type</typeparam>
-        /// <param name="container">This container instance</param>
+        /// <param name="diContainer">This container instance</param>
         /// <returns>IRegisteredType object</returns>
-        public static Container.IRegisteredType Register<TInterface, TImplementation>(this Container container)
+        public static DiContainer.IRegisteredType Register<TInterface, TImplementation>(this DiContainer diContainer)
             where TImplementation : TInterface
-            => container.Register(typeof(TInterface), typeof(TImplementation));
+            => diContainer.Register(typeof(TInterface), typeof(TImplementation));
 
         /// <summary>
         /// Registers a factory function which will be called to resolve the specified interface
         /// </summary>
         /// <typeparam name="T">Interface to register</typeparam>
-        /// <param name="container">This container instance</param>
+        /// <param name="diContainer">This container instance</param>
         /// <param name="factory">Factory method</param>
         /// <returns>IRegisteredType object</returns>
-        public static Container.IRegisteredType Register<T>(this Container container, Func<T> factory)
-            => container.Register(typeof(T), () => factory());
+        public static DiContainer.IRegisteredType Register<T>(this DiContainer diContainer, Func<T> factory)
+            => diContainer.Register(typeof(T), () => factory());
 
         /// <summary>
         /// Registers a type
         /// </summary>
-        /// <param name="container">This container instance</param>
+        /// <param name="diContainer">This container instance</param>
         /// <typeparam name="T">Type to register</typeparam>
         /// <returns>IRegisteredType object</returns>
-        public static Container.IRegisteredType Register<T>(this Container container)
-            => container.Register(typeof(T), typeof(T));
+        public static DiContainer.IRegisteredType Register<T>(this DiContainer diContainer)
+            => diContainer.Register(typeof(T), typeof(T));
 
         /// <summary>
         /// Returns an implementation of the specified interface
@@ -269,6 +269,6 @@ namespace Essentials.IoCContainer
         /// <typeparam name="T">Interface type</typeparam>
         /// <param name="scope">This scope instance</param>
         /// <returns>Object implementing the interface</returns>
-        public static T Resolve<T>(this Container.IScope scope) => (T)scope.GetService(typeof(T));
+        public static T Resolve<T>(this DiContainer.IScope scope) => (T)scope.GetService(typeof(T));
     }
 }
