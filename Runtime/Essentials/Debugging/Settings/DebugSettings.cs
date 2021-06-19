@@ -21,7 +21,7 @@ namespace Essentials.Debugging.Settings
         
         #region Inspector Fields
         [Header("Log File Settings")] 
-        [SerializeField] private bool m_createLogFile = false;
+        [SerializeField] [Range(0, 20)] private int m_maxNumberOfLogFiles = 10;
         [SerializeField] private string m_logSubFolder = "Logs";
         [SerializeField] private string m_logFileName = "log";
         [SerializeField] private string m_logFileExtension = ".log";
@@ -47,7 +47,6 @@ namespace Essentials.Debugging.Settings
         #endregion Inspector Fields
 
         #region Properties
-        public bool CreateLogFile => m_createLogFile;
         public Color SelectedColor => m_selectedColor;
         public Color UnselectedColor => m_unselectedColor;
         public Vector2 ConsoleSize => m_consoleSize;
@@ -66,6 +65,7 @@ namespace Essentials.Debugging.Settings
         public string LogFileName => m_logFileName;
         public string FolderPath =>  String.IsNullOrEmpty(m_logSubFolder) ? 
             Application.persistentDataPath : Path.Combine(Application.persistentDataPath, m_logSubFolder);
+        public int MaxNumberOfLogFiles => m_maxNumberOfLogFiles;
         #endregion Properties
 
 

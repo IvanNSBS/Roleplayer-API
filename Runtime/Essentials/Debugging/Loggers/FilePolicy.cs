@@ -2,9 +2,11 @@
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Essentials.Debugging.Loggers.Interfaces;
 using Essentials.Debugging.Settings;
+using UnityEngine;
 
 namespace Essentials.Debugging.Loggers
 {
@@ -35,10 +37,23 @@ namespace Essentials.Debugging.Loggers
             
             var completePath = Path.Combine(settings.FolderPath, fileName);
 
-            if (settings.CreateLogFile)
+            if (settings.MaxNumberOfLogFiles > 0)
             {
                 if (!Directory.Exists(settings.FolderPath))
+                {
                     Directory.CreateDirectory(settings.FolderPath);
+                }
+                else
+                {
+                    List<string> files = Directory.GetFiles(settings.FolderPath).ToList();
+                    if (files.Count > 0 && files.Count >= settings.MaxNumberOfLogFiles)
+                    {
+                        files.Sort();
+                        int deleteCount = Mathf.Max(files.Count - settings.MaxNumberOfLogFiles + 1, 0);
+                        for(int i = 0; i < deleteCount; i++)
+                            File.Delete(files[i]);
+                    }
+                }
                 
                 m_fileStream = File.Create(completePath);
             }
@@ -60,7 +75,7 @@ namespace Essentials.Debugging.Loggers
         /// <param name="value"></param>
         private void AddLogEntry(string value)
         {
-            if (m_settings.CreateLogFile)
+            if (m_settings.MaxNumberOfLogFiles > 0)
             {
                 byte[] info = new UTF8Encoding(true).GetBytes(value);
                 m_fileStream.Write(info, 0, info.Length);
