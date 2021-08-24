@@ -75,7 +75,7 @@ namespace Essentials.Persistence.GameObjects
             return false;
         }
 
-        public override JObject Serialize()
+        public override JObject SerializeStoredData()
         {
             if(dataStoreCache == null)
                 dataStoreCache = new JObject();
@@ -89,18 +89,26 @@ namespace Essentials.Persistence.GameObjects
                     
                 foreach (var gameObject in scene.Value)
                 {
-                    dataStoreCache[sceneKey][gameObject.Key] = gameObject.Value.Serialize();
+                    dataStoreCache[sceneKey][gameObject.Key] = gameObject.Value.ToJson();
                 }
             }
 
             return dataStoreCache;
         }
 
-        public override bool Deserialize(JObject objectJson)
+        public override bool DeserializeStoredObjectsFromCache()
         {
-            dataStoreCache = objectJson;
+            LoadOpenScenes();
             return true;
         }
+
+        public override void ClearSaveStore()
+        {
+            dataStoreCache = new JObject();
+            m_listeners.Clear();
+        }
+
+        public override void RemoveStoredObjects() => m_listeners.Clear();
         #endregion DataStore Methods
         
         
@@ -135,7 +143,7 @@ namespace Essentials.Persistence.GameObjects
                     // if object is present in scene, deserialize it
                     if (sceneObjects.ContainsKey(objectId))
                     {
-                        sceneObjects[objectId].Deserialize(objectJsonRepresentation);
+                        sceneObjects[objectId].FromJson(objectJsonRepresentation);
                         newSceneObjects.Add(objectId, sceneObjects[objectId]);
                     }
                     // if not present in scene, instantiate and load it

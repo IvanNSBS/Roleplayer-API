@@ -42,7 +42,7 @@ namespace Essentials.Persistence.Data
             var saveable = GameObject.Instantiate(m_prefabHash[prefabIdName]).GetComponent<PersistentGameObject>();
             saveable.gameObject.name = jsonKey;
             saveable.ObjectId = jsonKey;
-            saveable.Deserialize(objectJson);
+            saveable.FromJson(objectJson);
 
             return saveable.gameObject;
         }

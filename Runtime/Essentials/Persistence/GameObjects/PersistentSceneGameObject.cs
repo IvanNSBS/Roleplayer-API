@@ -8,7 +8,7 @@ namespace Essentials.Persistence.GameObjects
         private void Start()
         {
             LevelIndex = gameObject.scene.buildIndex;
-            RegisterToDataStore<GameObjectStore>();
+            RegisterToDataStore();
         }
     }
 }

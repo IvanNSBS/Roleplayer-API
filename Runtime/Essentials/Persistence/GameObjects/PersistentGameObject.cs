@@ -8,7 +8,7 @@ using Essentials.Persistence.Interfaces;
 namespace Essentials.Persistence.GameObjects
 {
     [DisallowMultipleComponent]
-    public class PersistentGameObject : MonoBehaviour, IDataStoreElement<GameObjectStore>
+    public class PersistentGameObject : MonoBehaviour, IDataStoreElement
     {
         #region Fields
         /// <summary>
@@ -71,16 +71,16 @@ namespace Essentials.Persistence.GameObjects
             }
             
             LevelIndex = levelIndex;
-            RegisterToDataStore<GameObjectStore>();
+            RegisterToDataStore();
         }
         
-        public void RegisterToDataStore<U>() where U : GameObjectStore
+        public void RegisterToDataStore()
         {
             var saveManager = SaveManager.Instance;
-            var store = saveManager.GetDataStore<U>(true);
+            var store = saveManager.GetDataStoreFor<GameObjectStore>(true);
             if (store == null)
             {
-                Debug.LogWarning($"Trying to register {gameObject.name} to Data Store {typeof(U)} but that store hasn't been registered");
+                Debug.LogWarning($"Trying to register {gameObject.name} to Data Store {typeof(GameObjectStore)} but that store hasn't been registered");
                 return;
             }
             
@@ -99,7 +99,7 @@ namespace Essentials.Persistence.GameObjects
         /// and unify them in a single json string
         /// </summary>
         /// <returns>Tuple containing this Saveable and the json representation of all the objects</returns>
-        public JObject Serialize()
+        public JObject ToJson()
         {
             JObject jsonResult = new JObject();
             jsonResult.Add("prefabId", m_prefabManagerElement.Id);
@@ -118,18 +118,14 @@ namespace Essentials.Persistence.GameObjects
         /// </summary>
         /// <param name="componentJson">JObject containing the entire object json representation</param>
         /// <returns>True if all components were loaded. False otherwise</returns>
-        public bool Deserialize(JObject componentJson)
+        public void FromJson(JObject componentJson)
         {
-            bool result = true;
             // m_prefabReferenceId = componentJson["prefabId"]?.ToString();
             foreach (var saveable in m_saveableComponents)
             {
                 if (componentJson.ContainsKey(saveable.Key))
                     saveable.Value.Load(componentJson[saveable.Key] as JObject);
-                else
-                    result = false;
             }
-            return result;
         }
         #endregion Methods
     }

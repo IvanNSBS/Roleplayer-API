@@ -2,6 +2,7 @@
 using UnityEngine;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.IO;
 using Essentials.Persistence.Data;
 using Essentials.Persistence.Interfaces;
 
@@ -41,29 +42,13 @@ namespace Essentials.Persistence
         public PrefabManager PrefabManager => m_prefabManager;
         #endregion Properties
 
-        #region Events
-        public delegate void PreLoadEvent();
-        public delegate void PostLoadEvent(JObject dataStoreJson);
-        private event PreLoadEvent PreLoad;
-        private event PostLoadEvent PostLoad;
-        #endregion Events
-
 
         #region Constuctor
         private SaveManager()
         {
-            m_jsonEncrypter = new JsonEncryption();
-            m_dataStoreHash = new Dictionary<string, DataStore>();
-            m_settings = PersistenceSettings.GetPersistenceSettings();
-            m_prefabManager = new PrefabManager(m_settings);
+            InitializeVariables();
+            SetupRegisteredStores();
 
-            var registeredStores = DataStoreRegistry.GetRegisteredStores();
-            if(registeredStores.Count == 0)
-                Debug.LogWarning("There are no registered data stores in Save Manager. Nothing will be saved");
-            
-            foreach (var dataStore in registeredStores)
-                RegisterType(dataStore.Value);
-            
             DataStoreRegistry.OnStoreRegistered += OnStoreRegistered;
         }
 
@@ -76,12 +61,8 @@ namespace Essentials.Persistence
 
         #region Save Game Events
         /// <summary>
-        /// Save Game Event.
-        /// Calls the SaveComponents Method for every Saveable
-        /// that have been subscribed to the save manager and
-        /// unify them through the FormattingPolicy to be a
-        /// single json string and Binarize it through the
-        /// BinarizePolicy
+        /// Serializes every registered data store and store to disk
+        /// based on the encryption method an other persistence settings
         /// </summary>
         public void Save()
         {
@@ -90,23 +71,18 @@ namespace Essentials.Persistence
             m_jsonEncrypter.EncryptionMode = m_settings.m_encryptionMode;
 
             foreach (var dataStore in m_dataStoreHash)
-                saveFileResult.Add(DataStoreRegistry.TypeToString(dataStore.Value.GetType()), dataStore.Value.Serialize());
+                saveFileResult.Add(DataStoreRegistry.TypeToString(dataStore.Value.GetType()), dataStore.Value.SerializeStoredData());
             
             m_jsonEncrypter.SaveToDisk(saveFileResult, m_settings);
         }
 
         /// <summary>
-        /// Load Save Event.
-        /// Reads and undo binarizing through the BinarizePolicy
-        /// and undo the formating through the Formatting Policy
-        /// to prepare the json to be loadable from the object
-        /// Saveable Component.
+        /// Load All Registered DataStores cache.
         /// </summary>
+        /// <param name="deserializeAfter">Whether the DataStores should be immediately loaded from the save file</param>
         /// <returns>True if save was loaded. False Otherwise</returns>
-        public bool Load()
+        public bool LoadStoresCache(bool deserializeAfter = false)
         {
-            PreLoad?.Invoke();
-
             m_jsonEncrypter.EncryptionMode = m_settings.m_encryptionMode;
             JObject saveFileObject = m_jsonEncrypter.ReadFromDisk(m_settings);
 
@@ -114,36 +90,64 @@ namespace Essentials.Persistence
                 return false;
             
             foreach (var dataStore in saveFileObject)
-                m_dataStoreHash[dataStore.Key].Deserialize(dataStore.Value as JObject);
+                m_dataStoreHash[dataStore.Key].SetCache(dataStore.Value as JObject);
             
-            PostLoad?.Invoke(saveFileObject);
+            if(deserializeAfter)
+                LoadStoresFromCache();
+            
             return true;
+        }
+
+        /// <summary>
+        /// Loads a single Data Store from the save file
+        /// </summary>
+        /// <param name="deserializeAfter">Whether the DataStore should be immediately loaded from the save file</param>
+        /// <typeparam name="T">The Data Store to be loaded</typeparam>
+        /// <returns>True if Loaded. False otherwise or if the data store hasn't been registered</returns>
+        public bool LoadSingleStoreCache<T>(bool deserializeAfter = false) where T : DataStore
+        {
+            string key = DataStoreRegistry.TypeToString(typeof(T));
+            
+            m_jsonEncrypter.EncryptionMode = m_settings.m_encryptionMode;
+            JObject saveFileObject = m_jsonEncrypter.ReadFromDisk(m_settings);
+
+            if (saveFileObject == null)
+                return false;
+
+            if (saveFileObject.ContainsKey(key))
+                m_dataStoreHash[key].SetCache(saveFileObject[key] as JObject);
+
+            if (deserializeAfter)
+                m_dataStoreHash[key].DeserializeStoredObjectsFromCache();
+            
+            return true;
+        }
+
+        /// <summary>
+        /// Loads all stores from their current cache data
+        /// </summary>
+        /// <param name="excludeThose">Array of Stores that shouldn't be loaded</param>
+        public void LoadStoresFromCache(params Type[] excludeThose)
+        {
+            foreach (var hash in m_dataStoreHash)
+            {
+                if (Array.FindIndex(excludeThose, t => hash.Value.GetType() == t) != -1) 
+                    continue;
+
+                hash.Value.DeserializeStoredObjectsFromCache();
+            }
         }
         #endregion Save Game Events
         
         
         #region Methods
-        public void AddPreLoadEvent(PreLoadEvent onPreLoad)
-        {
-            PreLoad += onPreLoad;
-        }
-        
-        public void AddPostLoadEvent(PostLoadEvent onPostLoad)
-        {
-            PostLoad += onPostLoad;
-        }
-        
-        public void RemovePreLoadEvent(PreLoadEvent onPreLoad)
-        {
-            PreLoad -= onPreLoad;
-        }
-        
-        public void RemovePostLoadEvent(PostLoadEvent onPostLoad)
-        {
-            PostLoad -= onPostLoad;
-        }
-        
-        public T GetDataStore<T>(bool considerSubTypes = false) where T : DataStore
+        /// <summary>
+        /// Retrieves the Registered Data Store 
+        /// </summary>
+        /// <param name="considerSubTypes">If should consider child types on the search</param>
+        /// <typeparam name="T">The type of the data store</typeparam>
+        /// <returns>The DataStore of Type T. Null if the store is not registered</returns>
+        public T GetDataStoreFor<T>(bool considerSubTypes = false) where T : DataStore
         {
             if (!considerSubTypes)
             {
@@ -156,16 +160,39 @@ namespace Essentials.Persistence
                 foreach (var dataStore in m_dataStoreHash)
                 {
                     if (dataStore.Value.GetType().IsSubclassOf(typeof(T)) || typeof(T) == dataStore.Value.GetType())
-                        return (T)dataStore.Value;
+                        return (T) dataStore.Value;
                 }
             }
             return null;
+        }
+
+        public void DeleteSaveFileFromDisk()
+        {
+            if(File.Exists(m_settings.FilePath))
+                File.Delete(m_settings.FilePath);
         }
         #endregion Methods
         
         
         #region Utility Methods
+        private void InitializeVariables()
+        {
+            m_jsonEncrypter = new JsonEncryption();
+            m_dataStoreHash = new Dictionary<string, DataStore>();
+            m_settings = PersistenceSettings.GetPersistenceSettings();
+            m_prefabManager = new PrefabManager(m_settings);
+        }
+        
+        private void SetupRegisteredStores()
+        {
+            var registeredStores = DataStoreRegistry.GetRegisteredStores();
+            if (registeredStores.Count == 0)
+                Debug.LogWarning("There are no registered data stores in Save Manager. Nothing will be saved");
 
+            foreach (var dataStore in registeredStores)
+                RegisterType(dataStore.Value);
+        }
+        
         private void RegisterType(Type type)
         {
             string key = DataStoreRegistry.TypeToString(type);
