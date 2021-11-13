@@ -81,7 +81,7 @@ namespace Essentials.Persistence
         /// </summary>
         /// <param name="deserializeAfter">Whether the DataStores should be immediately loaded from the save file</param>
         /// <returns>True if save was loaded. False Otherwise</returns>
-        public bool LoadStoresCache(bool deserializeAfter = false)
+        public bool LoadStoresCacheFromSaveFile(bool deserializeAfter = false)
         {
             m_jsonEncrypter.EncryptionMode = m_settings.m_encryptionMode;
             JObject saveFileObject = m_jsonEncrypter.ReadFromDisk(m_settings);
@@ -104,7 +104,7 @@ namespace Essentials.Persistence
         /// <param name="deserializeAfter">Whether the DataStore should be immediately loaded from the save file</param>
         /// <typeparam name="T">The Data Store to be loaded</typeparam>
         /// <returns>True if Loaded. False otherwise or if the data store hasn't been registered</returns>
-        public bool LoadSingleStoreCache<T>(bool deserializeAfter = false) where T : DataStore
+        public bool LoadSingleStoreCacheFromSaveFile<T>(bool deserializeAfter = false) where T : DataStore
         {
             string key = DataStoreRegistry.TypeToString(typeof(T));
             
@@ -166,11 +166,30 @@ namespace Essentials.Persistence
             return null;
         }
 
-        public void DeleteSaveFileFromDisk()
+        public bool DeleteSaveFileFromDisk()
         {
-            if(File.Exists(m_settings.FilePath))
+            if (File.Exists(m_settings.FilePath))
+            {
                 File.Delete(m_settings.FilePath);
+                return true;
+            }
+
+            return false;
         }
+
+        // TODO: Integrate SaveManager with 
+        /// <summary>
+        /// Clears singleton. Mostly used on testing since SaveManager is a singleton
+        /// </summary>
+        public static void ResetDataStores()
+        {
+            if (s_instance != null)
+            {
+                if(s_instance.m_dataStoreHash != null)
+                    s_instance.m_dataStoreHash = new Dictionary<string, DataStore>();
+            }
+        }
+
         #endregion Methods
         
         

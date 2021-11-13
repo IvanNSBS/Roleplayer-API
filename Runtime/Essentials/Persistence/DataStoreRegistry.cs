@@ -23,9 +23,17 @@ namespace Essentials.Persistence
         
         public static void AddStoreToRegistry<T>() where T : DataStore
         {
+            if (m_registry.ContainsKey(TypeToString(typeof(T))))
+                return;
+            
             m_registry.Add(TypeToString(typeof(T)), typeof(T));
             OnStoreRegistered?.Invoke(typeof(T));
-        } 
+        }
+
+        public static void ClearRegistry()
+        {
+            m_registry = new Dictionary<string, Type>();
+        }
         #endregion Methods
         
         
