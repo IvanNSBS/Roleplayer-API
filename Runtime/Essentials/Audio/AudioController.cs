@@ -14,7 +14,7 @@ namespace Essentials.Audio
         #region Fields
         private IReadOnlyDictionary<string, AudioData> m_bgmHash;
         private IReadOnlyDictionary<string, AudioData> m_collectionsHash;
-
+        private GameObject m_soundsContainer;
         private AudioSource m_currentBgm;
         #endregion Fields
 
@@ -125,7 +125,14 @@ namespace Essentials.Audio
         
         private AudioSource CreateSound(AudioData data)
         {
+            if (!m_soundsContainer)
+            {
+                m_soundsContainer = new GameObject("Sounds Container");
+                m_soundsContainer.transform.position = Vector3.zero;
+            }
+            
             var soundGO = new GameObject($"Sound_{data.Id}");
+            soundGO.transform.parent = m_soundsContainer.transform;
             var source = soundGO.AddComponent<AudioSource>();
             source.playOnAwake = false;
             

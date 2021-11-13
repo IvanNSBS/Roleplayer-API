@@ -11,7 +11,7 @@ namespace Essentials.Audio
     public class AudioTrack : ScriptableObject
     {
         #region Inspector Fields
-        [SerializeField] private List<AudioData> m_audios;
+        [SerializeField] private List<AudioData> m_audios = new List<AudioData>();
         #endregion Inspector Fields
         
         #region Properties
