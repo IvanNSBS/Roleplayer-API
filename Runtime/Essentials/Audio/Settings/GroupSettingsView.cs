@@ -3,6 +3,9 @@ using UnityEngine.UI;
 
 namespace Essentials.Audio.Settings
 {
+    /// <summary>
+    /// Class responsible for controlling a toggle and a slider linked to a Unity AudioMixer channel
+    /// </summary>
     public class GroupSettingsView : MonoBehaviour
     {
         #region Inspector Fields

@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace Essentials.Audio.Settings
 {
+    /// <summary>
+    /// Unity AudioMixer configuration file for the RPG API
+    /// </summary>
     [CreateAssetMenu(fileName = "Audio Settings", menuName = "Zynith/Audio/Settings", order = 0)]
     public class AudioChannels : ScriptableObject
     {

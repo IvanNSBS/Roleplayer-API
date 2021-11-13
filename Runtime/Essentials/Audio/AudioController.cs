@@ -6,6 +6,9 @@ using Random = System.Random;
 
 namespace Essentials.Audio
 {
+    /// <summary>
+    /// AudioController is a class responsible to instantiate and manage all audio for a game made with the RPG API.
+    /// </summary>
     public class AudioController
     {
         #region Fields

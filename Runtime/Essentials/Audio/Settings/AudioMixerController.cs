@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 namespace Essentials.Audio.Settings
 {
+    /// <summary>
+    /// The AudioMixerController controls the Unity Audio Mixer through the MixerGroupData found inside the
+    /// AudioChannels configuration ScriptableObject file
+    /// </summary>
     public class AudioMixerController
     {
         #region Fields
@@ -32,6 +36,12 @@ namespace Essentials.Audio.Settings
             return m_hash[groupName];
         }
         
+        /// <summary>
+        /// Sets the volume of a AudioMixerGroup
+        /// </summary>
+        /// <param name="groupName">The name of the group</param>
+        /// <param name="volume">The new volume value</param>
+        /// <returns>True if the data wasn't muted, false otherwise</returns>
         public bool SetVolume(string groupName, float volume)
         {
             MixerGroupData data = m_hash[groupName];
@@ -43,6 +53,12 @@ namespace Essentials.Audio.Settings
             return false;
         }
 
+        /// <summary>
+        /// Mutes a given AudioMixerGroup
+        /// </summary>
+        /// <param name="groupName">The name of the group</param>
+        /// <param name="value">The boolean mute value</param>
+        /// <returns>True if the channel was muted. False otherwise</returns>
         public bool SetMute(string groupName, bool value)
         {
             MixerGroupData data = m_hash[groupName];

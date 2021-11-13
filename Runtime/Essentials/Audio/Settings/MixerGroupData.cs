@@ -4,10 +4,18 @@ using Newtonsoft.Json;
 
 namespace Essentials.Audio.Settings
 {
+    /// <summary>
+    /// MixerGroupData is a class responsible to store the Unity AudioMixer AudioMixerGroup data, so the game
+    /// audio can be configured by the Unity API through the RPGAPI. A MixerGroupData is configured by the
+    /// AudioMixerController class
+    /// </summary>
     [Serializable]
     public class MixerGroupData 
     {
         #region Fields
+        /// <summary>
+        /// Name of the AudioMixerGroup parameter
+        /// </summary>
         [JsonProperty("parameterName")]
         [SerializeField] private string m_parameterName;
         

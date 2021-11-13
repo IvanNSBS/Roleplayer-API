@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Essentials.Audio
 {
+    /// <summary>
+    /// AudioTrack is a container of a AudioData. It is supposed to be a container for
+    /// audio of a given category
+    /// </summary>
     [CreateAssetMenu(fileName = "Audio Collection", menuName = "Zynith/Audio/Audio Collection", order = 0)]
     public class AudioTrack : ScriptableObject
     {

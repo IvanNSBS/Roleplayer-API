@@ -4,6 +4,10 @@ using UnityEngine.Audio;
 
 namespace Essentials.Audio
 {
+    /// <summary>
+    /// AudioData contains all the data necessary to play an AudioClip in unity, as well as data for
+    /// the specific RPG API functionalities
+    /// </summary>
     [Serializable]
     public class AudioData
     {
