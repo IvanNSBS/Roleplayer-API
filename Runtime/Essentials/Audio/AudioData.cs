@@ -35,16 +35,16 @@ namespace Essentials.Audio
 
         
         #region Properties
-        public string Id => m_id;
-        public AudioClip Clips => m_clips;
-        public AudioMixerGroup MixerGroup => m_mixerGroup;
-        public float Volume => m_volume;
-        public float Pitch => m_pitch;
-        public Vector2 RandomPitch => m_randomPitch;
-        public bool Is3d => m_is3d;
-        public float MinDistance => m_minDistance;
-        public float MaxDistance => m_maxDistance;
-        public bool Loop => m_loop;
+        public virtual string Id => m_id;
+        public virtual AudioClip Clips => m_clips;
+        public virtual AudioMixerGroup MixerGroup => m_mixerGroup;
+        public virtual float Volume => m_volume;
+        public virtual float Pitch => m_pitch;
+        public virtual Vector2 RandomPitch => m_randomPitch;
+        public virtual bool Is3d => m_is3d;
+        public virtual float MinDistance => m_minDistance;
+        public virtual float MaxDistance => m_maxDistance;
+        public virtual bool Loop => m_loop;
         #endregion Properties
         
         

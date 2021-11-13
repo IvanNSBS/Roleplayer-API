@@ -16,8 +16,8 @@ namespace Essentials.Audio
         #endregion Inspector Fields
         
         #region Properties
-        public AudioTrack BackgroundMusics => m_backgroundMusics;
-        public IReadOnlyList<AudioTrack> Collections => m_collections;
+        public virtual AudioTrack BackgroundMusics => m_backgroundMusics;
+        public virtual IReadOnlyList<AudioTrack> Collections => m_collections;
         #endregion Properties
     }
 }

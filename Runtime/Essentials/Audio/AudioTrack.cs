@@ -15,7 +15,7 @@ namespace Essentials.Audio
         #endregion Inspector Fields
         
         #region Properties
-        public List<AudioData> Audios => m_audios;
+        public virtual IReadOnlyList<AudioData> Audios => m_audios;
         #endregion Properties
     }
 } 

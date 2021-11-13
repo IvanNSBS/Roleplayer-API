@@ -123,7 +123,7 @@ namespace Essentials.Audio
                 .ToDictionary(x => x.Key, y => y.Value);
         }
         
-        private AudioSource CreateSound(AudioData data)
+        protected virtual AudioSource CreateSound(AudioData data)
         {
             if (!m_soundsContainer)
             {
