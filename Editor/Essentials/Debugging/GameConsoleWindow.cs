@@ -17,7 +17,7 @@ namespace Essentials.Debugging
         
         
         #region Methods
-        [MenuItem("ZynithAPI/Debugging/Open Log Folder")]
+        [MenuItem("INU lib/Debugging/Open Log Folder")]
         public static void OpenSaveFolder()
         {
             var settings = DebugSettings.GetDebugSettings();
@@ -30,13 +30,13 @@ namespace Essentials.Debugging
             Process.Start(startInformation);
         }
         
-        [MenuItem("ZynithAPI/Debugging/Settings")]
+        [MenuItem("INU lib/Debugging/Settings")]
         public static void OpenSettingsWindow()
         {
             GetWindow<GameConsoleWindow>("Debug Settings");
         }
         
-        [MenuItem("ZynithAPI/Debugging/Clear Persistence File")]
+        [MenuItem("INU lib/Debugging/Clear Persistence File")]
         public static void ClearSaveFile()
         {
             if(File.Exists(DebugSettingsPersistence.persistenceFilePath))

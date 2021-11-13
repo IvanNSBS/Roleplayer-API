@@ -2,7 +2,7 @@
 
 namespace Essentials.Persistence.Data
 {
-    [CreateAssetMenu(fileName = "Prefab Element", menuName = "Persistence/Prefab Manager Element", order = 0)]
+    [CreateAssetMenu(fileName = "Prefab Element", menuName = "INU lib/Persistence/Prefab Manager Element", order = 0)]
     public class PrefabManagerElement : ScriptableObject
     {
         #region Fields

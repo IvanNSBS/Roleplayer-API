@@ -7,7 +7,7 @@ namespace Essentials.Audio
     /// Game tracks is the container of all the game AudioTracks, aswell as the specific audiotrack for
     /// background musics 
     /// </summary>
-    [CreateAssetMenu(fileName = "Audio Collection", menuName = "Zynith/Audio/Game Tracks", order = 0)]
+    [CreateAssetMenu(fileName = "Audio Collection", menuName = "INU lib/Audio/Game Tracks", order = 0)]
     public class GameTracks : ScriptableObject
     {
         #region Inspector Fields

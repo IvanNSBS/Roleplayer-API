@@ -1,10 +1,10 @@
 {
-    "name": "FantaZynithStudios.RoleplayingAPI.Tests",
+    "name": "IvanNeves.INUlib.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "FantaZynithStudios.RoleplayingAPI"
+        "IvanNeves.INUlib"
     ],
     "includePlatforms": [
         "Editor"

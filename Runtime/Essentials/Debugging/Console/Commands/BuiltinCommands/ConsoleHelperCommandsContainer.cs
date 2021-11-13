@@ -7,12 +7,12 @@ namespace Essentials.Debugging.Console.Commands.BuiltinCommands
 {
     public class ConsoleHelperCommandsContainer : CommandsContainer
     {
-        private ZynithConsole m_zynithConsole;
+        private CheatConsole m_console;
         private DebuggerView m_debuggerView;
         
-        public ConsoleHelperCommandsContainer(ZynithConsole zynithConsole, DebuggerView debuggerView)
+        public ConsoleHelperCommandsContainer(CheatConsole console, DebuggerView debuggerView)
         {
-            m_zynithConsole = zynithConsole;
+            m_console = console;
             m_debuggerView = debuggerView;
         }
         
@@ -25,7 +25,7 @@ namespace Essentials.Debugging.Console.Commands.BuiltinCommands
         [ConsoleCommand("clearConsole", "Clears every message logged to Debugger Console")]
         public void ClearConsole()
         {
-            m_zynithConsole.ClearConsole();
+            m_console.ClearConsole();
         }
         
         [ConsoleCommand("clearLogger", "Clears every message logged to Debugger Logger View. Log file will not be cleared")]
@@ -37,23 +37,23 @@ namespace Essentials.Debugging.Console.Commands.BuiltinCommands
         [ConsoleCommand("help", "Prints every command alias registered to the Console")]
         public void ShowAllCommands()
         {
-            foreach (var commandsWithSameId in m_zynithConsole.ConsoleCommands)
+            foreach (var commandsWithSameId in m_console.ConsoleCommands)
             {
                 string entry = $"{commandsWithSameId.Key} [{commandsWithSameId.Value.Count()} available signatures]";
-                m_zynithConsole.AddEntryToLog(entry, ConsoleEntryType.ConsoleMessage);
+                m_console.AddEntryToLog(entry, ConsoleEntryType.ConsoleMessage);
             }
         }
 
         [ConsoleCommand("help", "Show the usage of a command")]
         public ConsoleEntry GetCommandUsage(string commandId)
         {
-            if (!m_zynithConsole.ConsoleCommands.ContainsKey(commandId))
+            if (!m_console.ConsoleCommands.ContainsKey(commandId))
                 return new ConsoleEntry($"Command <{commandId}> does not exist", ConsoleEntryType.Warning);
 
             string result = $"Registered Signatures for {commandId}: \n";
 
             List<string> signatures = new List<string>();
-            foreach (var command in m_zynithConsole.ConsoleCommands[commandId])
+            foreach (var command in m_console.ConsoleCommands[commandId])
                 signatures.Add($"{command.GetNamedSignature()} - {command.Description}");
 
             return new ConsoleEntry(result + string.Join("\n", signatures), ConsoleEntryType.ConsoleMessage);

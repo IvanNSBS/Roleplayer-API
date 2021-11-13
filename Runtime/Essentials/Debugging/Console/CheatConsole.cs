@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Essentials.Debugging.Console
 {
-    public class ZynithConsole
+    public class CheatConsole
     {
         #region Fields
         private DebugSettings m_debugSettings;
@@ -25,7 +25,7 @@ namespace Essentials.Debugging.Console
         
         
         #region Constructor
-        public ZynithConsole(DebugSettings debugSettings, IConsoleView consoleView)
+        public CheatConsole(DebugSettings debugSettings, IConsoleView consoleView)
         {
             m_consoleView = consoleView;
             m_debugSettings = debugSettings;
@@ -34,7 +34,7 @@ namespace Essentials.Debugging.Console
             m_consoleCommands = new Dictionary<string, List<ConsoleCommand>>();
             m_commandRegistry = new CommandRegistry(this);
             
-            m_commandRegistry.InitializeZynithCommands();
+            m_commandRegistry.InitializeConsoleCommands();
         }
         #endregion Constructor
         

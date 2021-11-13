@@ -7,14 +7,14 @@ namespace Essentials.Debugging.Loggers
     /// <summary>
     /// Logger wrapper that encapsulates a single log policy
     /// </summary>
-    public class ZynithLogger
+    public class ConsoleLogger
     {
         #region Fields
         private LogPolicy m_policy;
         #endregion Fields
 
         #region Singleton
-        private static ZynithLogger s_instance;
+        private static ConsoleLogger s_instance;
         #endregion Singleton
         
         #region Events
@@ -24,12 +24,12 @@ namespace Essentials.Debugging.Loggers
 
 
         #region Constructors
-        private ZynithLogger(DebugSettings settings)
+        private ConsoleLogger(DebugSettings settings)
         {
             m_policy = new FilePolicy(settings);
         }
 
-        ~ZynithLogger()
+        ~ConsoleLogger()
         {
             Application.logMessageReceived -= AdaptLogCallback;
             Application.quitting -= OnQuit;
@@ -43,7 +43,7 @@ namespace Essentials.Debugging.Loggers
         {
             if (s_instance == null)
             {
-                s_instance = new ZynithLogger(DebugSettings.GetDebugSettings());
+                s_instance = new ConsoleLogger(DebugSettings.GetDebugSettings());
                 Application.logMessageReceived += AdaptLogCallback;
                 Application.quitting += OnQuit;
             }

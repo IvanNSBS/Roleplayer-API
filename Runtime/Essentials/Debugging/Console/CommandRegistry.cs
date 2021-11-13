@@ -18,14 +18,14 @@ namespace Essentials.Debugging.Console
         #endregion Static Fields
         
         #region Fields
-        private ZynithConsole m_zynithConsole;
+        private CheatConsole m_console;
         #endregion Fields
 
         
         #region Constructor
-        public CommandRegistry(ZynithConsole console)
+        public CommandRegistry(CheatConsole console)
         {
-            m_zynithConsole = console;
+            m_console = console;
 
             for(int i = s_registeredContainers.Count()-1; i >= 0; i--)
                 RegisterContainerCommands(s_registeredContainers.Dequeue());
@@ -84,10 +84,10 @@ namespace Essentials.Debugging.Console
             }
 
             string name = container.GetType().Name.Replace("Container", "");
-            m_zynithConsole.AddEntryToLog($"Registered {validCommands} commands for container {name}.", ConsoleEntryType.ConsoleMessage);
+            m_console.AddEntryToLog($"Registered {validCommands} commands for container {name}.", ConsoleEntryType.ConsoleMessage);
         }
         
-        public void InitializeZynithCommands()
+        public void InitializeConsoleCommands()
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -129,7 +129,7 @@ namespace Essentials.Debugging.Console
             string timeInSeconds = stopWatch.Elapsed.ToString("ss\\.ff");
             
             if(amountOfRegisteredCommands > 0)
-                m_zynithConsole.AddEntryToLog($"Found {amountOfRegisteredCommands} commands without dependencies" +
+                m_console.AddEntryToLog($"Found {amountOfRegisteredCommands} commands without dependencies" +
                                               $" and automatically added them in {timeInSeconds} seconds.", ConsoleEntryType.ConsoleMessage);
             
         }
@@ -144,23 +144,23 @@ namespace Essentials.Debugging.Console
         /// <returns>True if the command was added to the list of console commands. False Otherwise</returns>
         private bool ProcessCommand(ConsoleCommand command)
         { 
-            if (!m_zynithConsole.ConsoleCommands.ContainsKey(command.Id))
+            if (!m_console.ConsoleCommands.ContainsKey(command.Id))
             {
-                m_zynithConsole.ConsoleCommands.Add(command.Id, new List<ConsoleCommand>{ command });
+                m_console.ConsoleCommands.Add(command.Id, new List<ConsoleCommand>{ command });
                 return true;
             }
 
-            var commandsWithSameAlias = m_zynithConsole.ConsoleCommands[command.Id];
+            var commandsWithSameAlias = m_console.ConsoleCommands[command.Id];
             var newCommandSignature = GetMethodSignature(command.CommandMethod);
 
             // no command with same signature
             if (commandsWithSameAlias.All(x => GetMethodSignature(x.CommandMethod) != newCommandSignature))
             {
-                m_zynithConsole.ConsoleCommands[command.Id].Add(command);
+                m_console.ConsoleCommands[command.Id].Add(command);
                 return true;
             }
             
-            m_zynithConsole.AddEntryToLog($"Command Signature Collision with Id: {command.Id}. " +
+            m_console.AddEntryToLog($"Command Signature Collision with Id: {command.Id}. " +
                                           $"Latest Command will be ignored.", ConsoleEntryType.ConsoleMessage);
 
             return false;

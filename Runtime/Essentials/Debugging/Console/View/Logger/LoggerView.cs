@@ -25,12 +25,12 @@ namespace Essentials.Debugging.Console.View.Logger
         {
             m_debugSettings = DebugSettings.GetDebugSettings();
             m_loggerEntries = new Queue<string>();
-            ZynithLogger.logMessageReceived += AddEntryToLogger;
+            ConsoleLogger.logMessageReceived += AddEntryToLogger;
         }
 
         private void OnDestroy()
         {
-            ZynithLogger.logMessageReceived -= AddEntryToLogger;
+            ConsoleLogger.logMessageReceived -= AddEntryToLogger;
         }
         #endregion MonoBehaviour Methods
         

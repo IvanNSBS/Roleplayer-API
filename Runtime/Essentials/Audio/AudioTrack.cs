@@ -7,7 +7,7 @@ namespace Essentials.Audio
     /// AudioTrack is a container of a AudioData. It is supposed to be a container for
     /// audio of a given category
     /// </summary>
-    [CreateAssetMenu(fileName = "Audio Collection", menuName = "Zynith/Audio/Audio Collection", order = 0)]
+    [CreateAssetMenu(fileName = "Audio Collection", menuName = "INU lib/Audio/Audio Collection", order = 0)]
     public class AudioTrack : ScriptableObject
     {
         #region Inspector Fields

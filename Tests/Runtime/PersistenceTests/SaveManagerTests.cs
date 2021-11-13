@@ -4,7 +4,6 @@ using NUnit.Framework;
 using Newtonsoft.Json.Linq;
 using Essentials.Persistence;
 using Essentials.Persistence.Interfaces;
-using UnityEngine;
 
 namespace Tests.Runtime.PersistenceTests
 {

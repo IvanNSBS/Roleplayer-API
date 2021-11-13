@@ -28,13 +28,13 @@ namespace Essentials.Debugging.Console.View.Debugger
         [Header("Tabs Buttons")] 
         [SerializeField] private List<GameObject> m_viewTabsGameObjects;
         
-        [Header("Console Logger")] 
+        [Header("Cheat Console")] 
         [SerializeField] private TextMeshProUGUI m_consoleLogTextField;
         [SerializeField] private ContentSizeFitter m_consoleLogTextFitter;
         
-        [Header("Zynith Logger")] 
-        [SerializeField] private TextMeshProUGUI m_zynithLogTextField;
-        [SerializeField] private ContentSizeFitter m_zynithLogTextFitter;
+        [Header("Game Logger")] 
+        [SerializeField] private TextMeshProUGUI m_gameLoggerTextField;
+        [SerializeField] private ContentSizeFitter m_gameLoggerTextFitter;
         
         [Header("Logger View")]
         [SerializeField] private ContentSizeFitter m_logListFitter;
@@ -103,10 +103,12 @@ namespace Essentials.Debugging.Console.View.Debugger
             }
         }
         
+        #if UNITY_EDITOR
         private void OnValidate()
         {
             UpdateViewFromSettings();            
         }
+        #endif
         #endregion MonoBehaviour Methods
         
         
@@ -141,20 +143,20 @@ namespace Essentials.Debugging.Console.View.Debugger
         #region Utility Methods
         public void ScrollToBottom()
         {
-            if (!m_consoleLogTextFitter || !m_zynithLogTextFitter || !m_logListFitter)
+            if (!m_consoleLogTextFitter || !m_gameLoggerTextFitter || !m_logListFitter)
                 return;
             
             LayoutRebuilder.ForceRebuildLayoutImmediate(m_consoleLogTextFitter.GetComponent<RectTransform>());
-            LayoutRebuilder.ForceRebuildLayoutImmediate(m_zynithLogTextFitter.GetComponent<RectTransform>());
+            LayoutRebuilder.ForceRebuildLayoutImmediate(m_gameLoggerTextFitter.GetComponent<RectTransform>());
             LayoutRebuilder.ForceRebuildLayoutImmediate(m_logListFitter.GetComponent<RectTransform>());
             
             m_consoleLogTextFitter.enabled = false;
             m_logListFitter.enabled = false;
-            m_zynithLogTextFitter.enabled = false;
+            m_gameLoggerTextFitter.enabled = false;
             
             m_consoleLogTextFitter.enabled = true;
             m_logListFitter.enabled = true;
-            m_zynithLogTextFitter.enabled = true;
+            m_gameLoggerTextFitter.enabled = true;
 
             m_scrollRect.normalizedPosition = Vector2.zero;
         }
@@ -165,7 +167,7 @@ namespace Essentials.Debugging.Console.View.Debugger
             m_content.sizeDelta = m_debugSettings.ConsoleSize;
             m_content.anchoredPosition = m_debugSettings.ConsolePosition;
             m_consoleLogTextField.fontSize = m_debugSettings.FontSize;
-            m_zynithLogTextField.fontSize = m_debugSettings.FontSize;
+            m_gameLoggerTextField.fontSize = m_debugSettings.FontSize;
         }
         #endregion Utility Methods
     }

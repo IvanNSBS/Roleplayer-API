@@ -32,7 +32,7 @@ namespace Essentials.Debugging.Console.View.Console
         #region Fields
         private Queue<string> m_formattedMessagesQueue;
         private DebugSettings m_debugSettings;
-        private ZynithConsole m_zynithConsole;
+        private CheatConsole m_cheatConsole;
         #endregion Fields
 
 
@@ -44,10 +44,10 @@ namespace Essentials.Debugging.Console.View.Console
             m_formattedMessagesQueue = new Queue<string>();
             m_logTextField.text = "";
             m_debugSettings = DebugSettings.GetDebugSettings();
-            m_zynithConsole = new ZynithConsole(m_debugSettings, this);
-            m_consoleInputField.onSubmit.AddListener(m_zynithConsole.HandleLogInputCommand);
+            m_cheatConsole = new CheatConsole(m_debugSettings, this);
+            m_consoleInputField.onSubmit.AddListener(m_cheatConsole.HandleLogInputCommand);
 
-            CommandRegistry.RegisterContainer(new ConsoleHelperCommandsContainer(m_zynithConsole, m_debuggerView));
+            CommandRegistry.RegisterContainer(new ConsoleHelperCommandsContainer(m_cheatConsole, m_debuggerView));
             SetupButtons();
         }
 
@@ -64,11 +64,11 @@ namespace Essentials.Debugging.Console.View.Console
             m_consoleInputField.onSelect.AddListener(str => InputSystem.DisableDevice(Keyboard.current));
             m_consoleInputField.onDeselect.AddListener(str => InputSystem.EnableDevice(Keyboard.current));
             
-            m_sendButton.onClick.AddListener(() => m_zynithConsole.HandleLogInputCommand(m_consoleInputField.text));
+            m_sendButton.onClick.AddListener(() => m_cheatConsole.HandleLogInputCommand(m_consoleInputField.text));
             m_clearButton.onClick.AddListener(() =>
             {
-                m_zynithConsole.HandleLogInputCommand("clearLogger");
-                m_zynithConsole.HandleLogInputCommand("clearConsole");
+                m_cheatConsole.HandleLogInputCommand("clearLogger");
+                m_cheatConsole.HandleLogInputCommand("clearConsole");
             });
             m_closeButton.onClick.AddListener(m_debuggerView.CloseDebugger);
         }

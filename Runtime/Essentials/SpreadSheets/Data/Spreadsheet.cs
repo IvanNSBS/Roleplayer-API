@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Essentials.SpreadSheets
 {
-    [CreateAssetMenu(fileName = "Spreadsheet", menuName = "Zynith/Spreadsheet", order = 0)]
+    [CreateAssetMenu(fileName = "Spreadsheet", menuName = "INU lib/Spreadsheet", order = 0)]
     public class Spreadsheet : ScriptableObject
     {
         #region Fields

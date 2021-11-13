@@ -24,7 +24,7 @@ namespace Essentials.Persistence.Windows
         
         
         #region Methods
-        [MenuItem("ZynithAPI/Persistence/Open Save Folder")]
+        [MenuItem("INU lib/Persistence/Open Save Folder")]
         public static void OpenSaveFolder()
         {
             var settings = PersistenceSettings.GetPersistenceSettings();
@@ -37,7 +37,7 @@ namespace Essentials.Persistence.Windows
             Process.Start(startInformation);
         }
 
-        [MenuItem("ZynithAPI/Persistence/Clear Save File")]
+        [MenuItem("INU lib/Persistence/Clear Save File")]
         public static void ClearSaveFile()
         {
             var settings = PersistenceSettings.GetPersistenceSettings();
@@ -45,7 +45,7 @@ namespace Essentials.Persistence.Windows
                 File.Delete(settings.FilePath);
         }
         
-        [MenuItem("ZynithAPI/Persistence/Settings")]
+        [MenuItem("INU lib/Persistence/Settings")]
         public static void OpenSettingsWindow()
         {
             GetWindow<PersistenceSettingsWindow>("Persistence Settings");
