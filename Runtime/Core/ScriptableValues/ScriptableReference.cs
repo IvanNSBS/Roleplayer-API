@@ -19,6 +19,8 @@ namespace Core.ScriptableValues
         }
 
         public bool HasScriptable => m_scriptable != null;
+        public void AddOnValueChanged(Action<TVal> func) => m_scriptable.AddOnValueChanged(func);
+        public void RemoveOnValueChanged(Action<TVal> func) => m_scriptable.RemoveOnValueChanged(func);
         #endregion Properties
     }
 }
