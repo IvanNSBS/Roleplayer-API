@@ -1,9 +1,9 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using Essentials.Common;
-using Essentials.SpreadSheets;
+using INUlib.Essentials.Common;
+using INUlib.Common.SpreadSheets;
 
-namespace Essentials.Spreadsheets
+namespace INUlib.Essentials.Spreadsheets
 {
     public class SpreadsheetWindow : ExtendedEditorWindow
     {

@@ -3,7 +3,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace Core.Meta
+namespace INUlib.Core.Meta
 {
     public class MetaUtils
     {

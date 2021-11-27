@@ -3,11 +3,11 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using Essentials.Persistence.Data;
+using INUlib.Core.Persistence.Data;
 using UnityEditor.SceneManagement;
-using Essentials.Persistence.GameObjects;
+using INUlib.Core.Persistence.GameObjects;
 
-namespace Essentials.Persistence
+namespace INUlib.Core.Persistence
 {
     [CustomEditor(typeof(PersistentSceneGameObject))]
     public class PersistentSceneGameObjectEditor : UnityEditor.Editor

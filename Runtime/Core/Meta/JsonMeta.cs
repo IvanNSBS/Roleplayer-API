@@ -2,7 +2,7 @@
 using UnityEngine;
 using Newtonsoft.Json;
 
-namespace Core.Meta
+namespace INUlib.Core.Meta
 {
     public abstract class JsonMeta<T> : IMetaFile<T> where T : class
     {

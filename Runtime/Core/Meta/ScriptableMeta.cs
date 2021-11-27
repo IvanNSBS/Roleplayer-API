@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Core.Meta
+namespace INUlib.Core.Meta
 {
     public abstract class ScriptableMeta<T> : IMetaFile<T> where T : ScriptableObject
     {

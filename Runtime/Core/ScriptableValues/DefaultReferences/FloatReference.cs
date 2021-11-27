@@ -1,7 +1,7 @@
 using System;
-using Core.ScriptableValues.DefaultValues;
+using INUlib.Core.ScriptableValues.DefaultValues;
 
-namespace Core.ScriptableValues.DefaultReferences
+namespace INUlib.Core.ScriptableValues.DefaultReferences
 {
     [Serializable]
     public class FloatReference : ScriptableReference<float, FloatValue>

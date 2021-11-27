@@ -2,8 +2,8 @@
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Newtonsoft.Json.Linq;
-using Essentials.Persistence;
-using Essentials.Persistence.Interfaces;
+using INUlib.Core.Persistence;
+using INUlib.Core.Persistence.Interfaces;
 
 namespace Tests.Runtime.PersistenceTests
 {

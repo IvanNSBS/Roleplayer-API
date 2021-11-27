@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Core
+namespace INUlib.Core
 {
     public interface IGameEvent { }
 

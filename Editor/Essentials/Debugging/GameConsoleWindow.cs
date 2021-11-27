@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using Essentials.Common;
+using INUlib.Essentials.Common;
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.Callbacks;
-using Essentials.Debugging.Settings;
+using INUlib.Common.Debugging.Settings;
 
-namespace Essentials.Debugging
+namespace INUlib.Common.Debugging
 {
     public class GameConsoleWindow : ExtendedEditorWindow
     {

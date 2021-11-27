@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace RoleplayerAPI.Editor.Core
+namespace RoleplayerAPI.Editor.INUlib.Core
 {
     public abstract class ScriptableReferenceDrawer : PropertyDrawer
     {

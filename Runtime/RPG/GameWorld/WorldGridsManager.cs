@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
-using Lib.Grids.Algorithms;
-using Lib.Grids.Algorithms.Interfaces;
+using INUlib.Common.Grids.Algorithms;
+using INUlib.Common.Grids.Algorithms.Interfaces;
 
 namespace RPG.GameWorld
 {

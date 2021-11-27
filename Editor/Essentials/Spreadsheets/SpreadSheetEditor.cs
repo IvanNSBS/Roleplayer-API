@@ -4,9 +4,9 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using Essentials.SpreadSheets;
+using INUlib.Common.SpreadSheets;
 
-namespace Essentials.Spreadsheets
+namespace INUlib.Essentials.Spreadsheets
 {
     [CustomEditor(typeof(Spreadsheet))]
     public class SpreadSheetEditor : Editor

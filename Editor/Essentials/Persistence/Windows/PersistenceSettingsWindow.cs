@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using Essentials.Common;
+using INUlib.Essentials.Common;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using Essentials.Persistence.Data;
+using INUlib.Core.Persistence.Data;
 using UnityEngine;
 
-namespace Essentials.Persistence.Windows
+namespace INUlib.Core.Persistence.Windows
 {
     public class PersistenceSettingsWindow : ExtendedEditorWindow
     {

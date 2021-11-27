@@ -1,7 +1,7 @@
 using UnityEditor;
-using Core.ScriptableValues.DefaultReferences;
+using INUlib.Core.ScriptableValues.DefaultReferences;
 
-namespace RoleplayerAPI.Editor.Core
+namespace RoleplayerAPI.Editor.INUlib.Core
 {
     [CustomPropertyDrawer(typeof(FloatReference))]
     public class FloatReferenceDrawer : ScriptableReferenceDrawer { }

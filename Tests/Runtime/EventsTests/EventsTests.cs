@@ -1,5 +1,5 @@
 ﻿using System;
-using Core;
+using INUlib.Core;
 using NUnit.Framework;
 
 namespace Tests.Runtime

@@ -4,12 +4,12 @@ using UnityEngine;
 namespace Editors
 {
 
-    [CustomPropertyDrawer(typeof(Essentials.MinMax))]
+    [CustomPropertyDrawer(typeof(INUlib.Core.MinMax))]
     public class MinMaxDrawer : PropertyDrawer 
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label){
 
-            var minMaxAttribute = (Essentials.MinMax)attribute;
+            var minMaxAttribute = (INUlib.Core.MinMax)attribute;
             var propertyType = property.propertyType;
 
             label.tooltip = minMaxAttribute.min.ToString("F2") + " to " + minMaxAttribute.max.ToString("F2");
@@ -77,7 +77,7 @@ namespace Editors
         {
             Rect[] rects = new Rect[n];
 
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < n; i++) 
             {
                 rects[i] = new Rect(rectToSplit.position.x + (i * rectToSplit.width / n), rectToSplit.position.y, 
                     rectToSplit.width / n, rectToSplit.height);

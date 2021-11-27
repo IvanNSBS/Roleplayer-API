@@ -1,4 +1,4 @@
-﻿namespace Core.Meta
+﻿namespace INUlib.Core.Meta
 {
     public interface IMetaFile<T> where T : class
     {

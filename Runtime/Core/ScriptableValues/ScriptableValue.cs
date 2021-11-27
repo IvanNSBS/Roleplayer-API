@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Core.ScriptableValues
+namespace INUlib.Core.ScriptableValues
 {
     public abstract class ScriptableValue<T> : ScriptableObject
     {

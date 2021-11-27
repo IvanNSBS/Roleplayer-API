@@ -1,5 +1,5 @@
 ﻿using System;
-using Lib.Grids.Algorithms.Interfaces;
+using INUlib.Common.Grids.Algorithms.Interfaces;
 using UnityEngine;
 
 namespace RPG.GameWorld

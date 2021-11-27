@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Core.ScriptableValues
+namespace INUlib.Core.ScriptableValues
 {
     [Serializable]
     public class ScriptableReference<TVal, TScriptable> where TScriptable : ScriptableValue<TVal>
