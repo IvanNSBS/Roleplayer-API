@@ -4,7 +4,7 @@ using INUlib.RPG.AI.Movement.Steering.Behaviour;
 namespace INUlib.RPG.AI.Movement.Steering.Components
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class INUEntityMover : MonoBehaviour
+    public class AISteeringMover : MonoBehaviour
     {
         #region Inspector Fields
         [SerializeField] private Transform _target;
