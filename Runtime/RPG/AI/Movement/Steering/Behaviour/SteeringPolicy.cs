@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
-using INUlib.RPG.AI.Movement.Steering;
+using INUlib.RPG.AI.Movement;
 
 namespace INUlib.RPG.AI.Movement.Steering.Behaviour
 {
-    public abstract class SteeringPolicy : IMovementPolicy
+    public abstract class SteeringPolicy : IMovementBehaviour
     {
         #region Fields
         protected float _acceptDistance;

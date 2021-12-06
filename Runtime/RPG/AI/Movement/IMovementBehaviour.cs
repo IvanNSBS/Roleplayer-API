@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-namespace INUlib.RPG.AI.Movement.Steering
+namespace INUlib.RPG.AI.Movement
 {
-    interface IMovementPolicy 
+    interface IMovementBehaviour 
     {
         bool HasTarget { get; }
         bool HasReachedTarget { get; }
