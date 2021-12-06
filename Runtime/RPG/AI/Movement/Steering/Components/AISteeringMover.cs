@@ -1,4 +1,5 @@
 using UnityEngine;
+using INUlib.RPG.AI.Movement.Steering;
 using INUlib.RPG.AI.Movement.Steering.Behaviour;
 
 namespace INUlib.RPG.AI.Movement.Steering.Components
@@ -7,6 +8,7 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
     public class AISteeringMover : MonoBehaviour
     {
         #region Inspector Fields
+        [SerializeField] private MovementType _type;
         [SerializeField] private Transform _target;
         [SerializeField] private float _sightRadius;
         [SerializeField] private float _acceptDistance;
@@ -16,7 +18,7 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
 
         #region Fields
         private Rigidbody2D _rb;
-        private FleePolicy _followBehaviour;
+        private SteeringPolicy _followBehaviour;
         #endregion Fields
         
         
@@ -24,7 +26,8 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
-            _followBehaviour = new FleePolicy(_acceptDistance, _target);
+
+            SetMovementType(_type);
         }
 
         private void Update()
@@ -63,5 +66,26 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
             }
             #endif
         #endregion MonoBehaviour Methods
+
+
+        #region Methods
+        public void SetMovementType(MovementType type)
+        {
+            switch(type)
+            {
+                case MovementType.Wander:
+                    break;
+                case MovementType.Follow:
+                    _followBehaviour = new FollowPolicy(_acceptDistance, _target);
+                    break;
+                case MovementType.Flee:
+                    _followBehaviour = new FleePolicy(_acceptDistance, _target);
+                    break;
+                
+                default:
+                    break;
+            }
+        }
+        #endregion
     }
 }
