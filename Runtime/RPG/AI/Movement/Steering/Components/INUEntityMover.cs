@@ -16,7 +16,7 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
 
         #region Fields
         private Rigidbody2D _rb;
-        private FollowPolicy _followBehaviour;
+        private FleePolicy _followBehaviour;
         #endregion Fields
         
         
@@ -24,7 +24,7 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
-            _followBehaviour = new FollowPolicy(_target, _acceptDistance);
+            _followBehaviour = new FleePolicy(_acceptDistance, _target);
         }
 
         private void Update()
