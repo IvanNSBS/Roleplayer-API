@@ -17,7 +17,7 @@ namespace Tests.Runtime.RPG.AI
             FollowPolicy pol = new FollowPolicy(0.2f, targetPos);
             pol.OnUpdate(selfPos);
 
-            Assert.IsTrue(pol.CurrentMoveDirection == new Vector3(-1.0f, 0.0f, 0.0f));
+            Assert.IsTrue(pol.CurrentDesiredDirection == new Vector3(-1.0f, 0.0f, 0.0f));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace Tests.Runtime.RPG.AI
             pol.OnUpdate(selfPos);
             pol.SetTarget(null);
 
-            Assert.IsTrue(pol.CurrentMoveDirection == new Vector3(0.0f, 0.0f, 0.0f));
+            Assert.IsTrue(pol.CurrentDesiredDirection == new Vector3(0.0f, 0.0f, 0.0f));
         }
 
         [Test]

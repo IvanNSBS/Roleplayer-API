@@ -14,7 +14,7 @@ namespace INUlib.RPG.AI.Movement.Steering.Behaviour
 
         #region Properties
         public bool HasTarget => UsingFixedTarget ? _fixedPos.HasValue : _target;
-        public Vector3 CurrentMoveDirection { get; protected set; }
+        public Vector3 CurrentDesiredDirection { get; protected set; }
         public Vector3 CurrentTargetPos => UsingFixedTarget ? _fixedPos.Value : _target.position;
         public bool UsingFixedTarget { get; set; }
         public bool HasReachedTarget { get; set; }

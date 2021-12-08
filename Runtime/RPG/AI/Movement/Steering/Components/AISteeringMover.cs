@@ -46,7 +46,7 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
                 return;
             }
 
-            var desired = _followBehaviour.CurrentMoveDirection.normalized * _maxSteering;
+            var desired = _followBehaviour.CurrentDesiredDirection.normalized * _maxSteering;
 
             var steer = (Vector2)desired - _rb.velocity;
             if(steer.sqrMagnitude > _maxSteerForce * _maxSteering)
@@ -69,13 +69,13 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
 
                 if(_followBehaviour != null)
                 {
-                    var dir = _followBehaviour.CurrentMoveDirection.normalized * _maxSteering * Time.fixedDeltaTime;
+                    var dir = _followBehaviour.CurrentDesiredDirection.normalized * _maxSteering * Time.fixedDeltaTime;
                     Gizmos.DrawLine(transform.position, transform.position + dir);
 
                     Gizmos.color = Color.cyan;
                     Gizmos.DrawLine(transform.position, transform.position + (Vector3)_rb.velocity);
                     
-                    var vec = SteerDirection.AverageVector(transform.position, _followBehaviour.CurrentMoveDirection, _acceptDistance, 24, 0, true);
+                    var vec = SteerDirection.AverageVector(transform.position, _followBehaviour.CurrentDesiredDirection, _acceptDistance, 24, 0, true);
                 }
                 
             }
