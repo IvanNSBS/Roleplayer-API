@@ -18,8 +18,9 @@ namespace INUlib.RPG.AI.Movement.Steering.Behaviour
             if(!HasTarget)
                 return;
 
-            CurrentMoveDirection = (CurrentTargetPos - selfPosition).normalized;
-            CurrentMoveDirection = SteerDirection.AverageVector(selfPosition, CurrentMoveDirection, _acceptDistance, 24, 0);
+            // TODO: Rename this to Steer Direction
+            CurrentMoveDirection = (CurrentTargetPos - selfPosition);
+            // CurrentMoveDirection = SteerDirection.AverageVector(selfPosition, CurrentMoveDirection, _acceptDistance, 24, 0);
 
             HasReachedTarget = Vector3.Distance(CurrentTargetPos, selfPosition) <= _acceptDistance;
         }

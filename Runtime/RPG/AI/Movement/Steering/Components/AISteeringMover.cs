@@ -10,9 +10,12 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
         #region Inspector Fields
         [SerializeField] private MovementType _type;
         [SerializeField] private Transform _target;
+
+        [Header("Steering")]
+        [SerializeField] private float _maxSteering;
+        [SerializeField][Range(0, 1)] private float _maxSteerForce;
         [SerializeField] private float _sightRadius;
         [SerializeField] private float _acceptDistance;
-        [SerializeField] private float _speed;
         #endregion
 
 
@@ -43,8 +46,16 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
                 return;
             }
 
-            var dir = _followBehaviour.CurrentMoveDirection;
-            _rb.velocity = dir*_speed*Time.fixedDeltaTime;
+            var desired = _followBehaviour.CurrentMoveDirection.normalized * _maxSteering;
+
+            var steer = (Vector2)desired - _rb.velocity;
+            if(steer.sqrMagnitude > _maxSteerForce * _maxSteering)
+                steer = steer.normalized * _maxSteerForce * _maxSteering;
+
+            _rb.AddForce(steer);
+
+            if(_rb.velocity.sqrMagnitude > _maxSteering*Time.fixedDeltaTime)
+                _rb.velocity = _rb.velocity.normalized*(_maxSteering*Time.fixedDeltaTime);
         }
 
             #if UNITY_EDITOR
@@ -58,8 +69,12 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
 
                 if(_followBehaviour != null)
                 {
-                    var dir = _followBehaviour.CurrentMoveDirection;
-                    Gizmos.DrawLine(transform.position, transform.position + dir*_speed*Time.fixedDeltaTime);
+                    var dir = _followBehaviour.CurrentMoveDirection.normalized * _maxSteering * Time.fixedDeltaTime;
+                    Gizmos.DrawLine(transform.position, transform.position + dir);
+
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawLine(transform.position, transform.position + (Vector3)_rb.velocity);
+                    
                     var vec = SteerDirection.AverageVector(transform.position, _followBehaviour.CurrentMoveDirection, _acceptDistance, 24, 0, true);
                 }
                 
