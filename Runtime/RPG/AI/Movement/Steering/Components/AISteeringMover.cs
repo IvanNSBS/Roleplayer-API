@@ -45,13 +45,10 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
         Vector3 _desired;
         private void FixedUpdate()
         {
-            if(_followBehaviour.HasReachedTarget)
-            {
-                _rb.velocity = Vector3.zero;
-                return;
-            }
+            float factor = SteerDirection.ArriveFactor(_colPos, _target.position, _acceptDistance, _maxSteerForce);
+            float finalDesired = factor * _desiredSpeed;
 
-            _desired = _followBehaviour.CurrentDesiredDirection.normalized * _desiredSpeed;
+            _desired = _followBehaviour.CurrentDesiredDirection.normalized * finalDesired;
             _desired = SteerDirection.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, false);
 
             var steer = (Vector2)_desired - _rb.velocity;
@@ -60,29 +57,30 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
 
             _rb.AddForce(steer);
 
-            if(_rb.velocity.magnitude > _desiredSpeed*Time.fixedDeltaTime)
-                _rb.velocity = _rb.velocity.normalized*(_desiredSpeed*Time.fixedDeltaTime);
+            if(_rb.velocity.magnitude > finalDesired*Time.fixedDeltaTime)
+                _rb.velocity = _rb.velocity.normalized*(finalDesired*Time.fixedDeltaTime);
         }
 
-            #if UNITY_EDITOR
-            private void OnDrawGizmos()
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(_colPos, _sightRadius);
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(_colPos, _acceptDistance);
+        #if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(_colPos, _sightRadius);
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(_colPos, _acceptDistance);
 
-                if(_followBehaviour != null)
-                {
-                    var dir = _desired * Time.fixedDeltaTime;
-                    var vec = SteerDirection.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, true);
-                    
-                    Gizmos.color = Color.magenta;
-                    Gizmos.DrawLine(_colPos, _colPos + dir);
-                }
+            if(_followBehaviour != null)
+            {
+                var dir = _desired * Time.fixedDeltaTime;
+                var vec = SteerDirection.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, true);
                 
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawLine(_colPos, _colPos + dir);
             }
-            #endif
+            
+        }
+        #endif
+
         #endregion MonoBehaviour Methods
 
 

@@ -51,5 +51,21 @@ namespace INUlib.RPG.AI.Movement.Steering.Behaviour
 
             return result.normalized * desiredLenght;
         }
+
+        public static float ArriveFactor(Vector3 from, Vector3 at, float acceptDst, float scalingFactor)
+        {
+            float distance = Vector3.Distance(from, at);
+            float acceptTwo = acceptDst * 2;
+
+            float factor = 1;
+            if(distance <= acceptTwo)
+            {
+                float dst = distance - acceptDst;
+                factor = dst / acceptDst;
+                factor = Mathf.Clamp01(factor*scalingFactor);
+            }
+
+            return factor;
+        }
     }
 }
