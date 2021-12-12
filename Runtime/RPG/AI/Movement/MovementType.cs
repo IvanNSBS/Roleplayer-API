@@ -1,6 +1,6 @@
 using System;
 
-namespace INUlib.RPG.AI.Movement.Steering.Components
+namespace INUlib.RPG.AI.Movement
 {
     [Serializable]
     public enum MovementType

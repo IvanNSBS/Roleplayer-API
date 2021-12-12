@@ -1,8 +1,8 @@
 using UnityEngine;
-using INUlib.RPG.AI.Movement.Steering;
-using INUlib.RPG.AI.Movement.Steering.Behaviour;
+using INUlib.RPG.AI.Movement;
+using INUlib.RPG.AI.Movement.Behaviour;
 
-namespace INUlib.RPG.AI.Movement.Steering.Components
+namespace INUlib.RPG.AI.Movement.Components
 {
     [RequireComponent(typeof(Rigidbody2D))]
     public class AISteeringMover : MonoBehaviour
@@ -22,7 +22,7 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
 
         #region Fields
         private Rigidbody2D _rb;
-        private SteeringPolicy _followBehaviour;
+        private SteeringBehaviour _followBehaviour;
         private float _colliderSize = 1;
         private Vector3 _colPos => GetComponent<Collider2D>().bounds.center;
         #endregion Fields
@@ -33,22 +33,20 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
         {
             _rb = GetComponent<Rigidbody2D>();
             _colliderSize = GetComponent<Collider2D>().bounds.extents.x;
+            _followBehaviour = new SteeringBehaviour(_acceptDistance, _desiredSpeed, _maxSteerForce);
             SetMovementType(_type);
         }
 
         private void Update()
         {
-            _followBehaviour.OnUpdate(transform.position);
+            _followBehaviour.CalculateDesiredSpeed(transform.position);
         }
 
 
         Vector3 _desired;
         private void FixedUpdate()
         {
-            float factor = SteerDirection.ArriveFactor(_colPos, _target.position, _acceptDistance, _maxSteerForce);
-            float finalDesired = factor * _desiredSpeed;
-
-            _desired = _followBehaviour.CurrentDesiredDirection.normalized * finalDesired;
+            _desired = _followBehaviour.DesiredSpeed;
             _desired = SteerDirection.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, false);
 
             var steer = (Vector2)_desired - _rb.velocity;
@@ -57,8 +55,9 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
 
             _rb.AddForce(steer);
 
-            if(_rb.velocity.magnitude > finalDesired*Time.fixedDeltaTime)
-                _rb.velocity = _rb.velocity.normalized*(finalDesired*Time.fixedDeltaTime);
+            float finalDesired = _followBehaviour.DesiredSpeed.magnitude*Time.fixedDeltaTime;
+            if(_rb.velocity.magnitude > finalDesired)
+                _rb.velocity = _rb.velocity.normalized*finalDesired;
         }
 
         #if UNITY_EDITOR
@@ -87,20 +86,7 @@ namespace INUlib.RPG.AI.Movement.Steering.Components
         #region Methods
         public void SetMovementType(MovementType type)
         {
-            switch(type)
-            {
-                case MovementType.Wander:
-                    break;
-                case MovementType.Follow:
-                    _followBehaviour = new FollowPolicy(_acceptDistance, _target);
-                    break;
-                case MovementType.Flee:
-                    _followBehaviour = new FleePolicy(_acceptDistance, _target);
-                    break;
-                
-                default:
-                    break;
-            }
+            _followBehaviour.SetMovementType(type);
         }
         #endregion
     }

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace INUlib.RPG.AI.Movement.Steering.Behaviour
+namespace INUlib.RPG.AI.Movement.Behaviour
 {
     public static class SteerDirection
     {
@@ -10,6 +10,16 @@ namespace INUlib.RPG.AI.Movement.Steering.Behaviour
             float cos = Mathf.Cos(angle);
             float sin = Mathf.Sin(angle);
             return new Vector2(cos * target.x - sin * target.y, sin * target.x + cos * target.y);
+        }
+
+        public static Vector3 Follow()
+        {
+            return Vector3.zero;
+        }
+
+        public static Vector3 Flee()
+        {
+            return Vector3.zero;
         }
 
         public static Vector3 Avoid(Vector3 from, Vector3 desiredVel, float radius, int rayNumber, int collisionMask, bool debug=false)
