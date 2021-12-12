@@ -1,7 +1,4 @@
-using System;
 using UnityEngine;
-using INUlib.RPG.AI.Movement;
-using INUlib.RPG.AI.Movement.Components;
 
 namespace INUlib.RPG.AI.Movement.Behaviour
 {

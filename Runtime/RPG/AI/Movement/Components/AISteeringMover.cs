@@ -34,12 +34,13 @@ namespace INUlib.RPG.AI.Movement.Components
             _rb = GetComponent<Rigidbody2D>();
             _colliderSize = GetComponent<Collider2D>().bounds.extents.x;
             _followBehaviour = new SteeringBehaviour(_acceptDistance, _desiredSpeed, _maxSteerForce);
+            _followBehaviour.SetTarget(_target);
             SetMovementType(_type);
         }
 
         private void Update()
         {
-            _followBehaviour.CalculateDesiredSpeed(transform.position);
+            _followBehaviour.CalculateDesiredSpeed(_colPos);
         }
 
 
