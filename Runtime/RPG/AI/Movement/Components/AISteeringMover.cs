@@ -48,7 +48,7 @@ namespace INUlib.RPG.AI.Movement.Components
         private void FixedUpdate()
         {
             _desired = _followBehaviour.DesiredSpeed;
-            _desired = SteerDirection.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, false);
+            _desired = SteeringBehaviour.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, false);
 
             var steer = (Vector2)_desired - _rb.velocity;
             if(steer.magnitude > _maxSteerForce)
@@ -72,7 +72,7 @@ namespace INUlib.RPG.AI.Movement.Components
             if(_followBehaviour != null)
             {
                 var dir = _desired * Time.fixedDeltaTime;
-                var vec = SteerDirection.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, true);
+                var vec = SteeringBehaviour.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, true);
                 
                 Gizmos.color = Color.magenta;
                 Gizmos.DrawLine(_colPos, _colPos + dir);
