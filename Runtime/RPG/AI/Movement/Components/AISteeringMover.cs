@@ -1,5 +1,6 @@
 using UnityEngine;
 using INUlib.RPG.AI.Movement.Behaviour;
+using System;
 
 namespace INUlib.RPG.AI.Movement.Components
 {
@@ -7,41 +8,52 @@ namespace INUlib.RPG.AI.Movement.Components
     public class AISteeringMover : MonoBehaviour
     {
         #region Inspector Fields
-        [SerializeField] private MovementType _type;
-        [SerializeField] private Transform _target;
+        [Header("Config")]
+        [SerializeField] private bool _autoInitialize;
+        [SerializeField] private bool _debugAvoid;
 
         [Header("Steering")]
+        [SerializeField] private Transform _target;
+        [SerializeField] private MovementType _type;
         [SerializeField] private SteeringData _steeringData;
         [SerializeField] private float _sightRadius;
-        [SerializeField] private bool _debugAvoid;
         #endregion
 
 
         #region Fields
+        private bool _moveActive;
         private Rigidbody2D _rb;
         private SteeringBehaviour _followBehaviour;
         private Vector3 _colPos => GetComponent<Collider2D>().bounds.center;
         #endregion Fields
 
 
+        #region Properties
+        public Transform Target => _target;
+        public bool MoveActive => _moveActive;
+        #endregion
+
+
         #region MonoBehaviour Methods
         private void Awake()
         {
-            _rb = GetComponent<Rigidbody2D>();
-            _followBehaviour = new SteeringBehaviour(_rb, _steeringData);
-            SetMovementType(_type);
+            if(_autoInitialize)
+                Initialize();
         }
 
         private void Update()
         {
-            _followBehaviour.OnUpdate(_colPos, _target ? _target.position : null);
-            _followBehaviour.DebugAvoid = _debugAvoid;
+            if(_followBehaviour != null && _moveActive) {
+                _followBehaviour.OnUpdate(_colPos, _target ? _target.position : null);
+                _followBehaviour.DebugAvoid = _debugAvoid;
+            }
         }
 
 
         private void FixedUpdate()
         {
-            _followBehaviour.OnFixedUpdate(_colPos, _target ? _target.position : null);
+            if(_moveActive)
+                _followBehaviour?.OnFixedUpdate(_colPos, _target ? _target.position : null);
         }
 
         #if UNITY_EDITOR
@@ -58,6 +70,14 @@ namespace INUlib.RPG.AI.Movement.Components
 
 
         #region Methods
+        public void Initialize()
+        {
+            _rb = GetComponent<Rigidbody2D>();
+            _followBehaviour = new SteeringBehaviour(_rb, _steeringData);
+            _moveActive = true;
+            SetMovementType(_type);
+        }
+
         public void SetSteeringData(SteeringData data)
         {
             _steeringData = data;
@@ -66,7 +86,23 @@ namespace INUlib.RPG.AI.Movement.Components
 
         public void SetMovementType(MovementType type)
         {
+            _type = type;
             _followBehaviour.SetMovementType(type);
+        }
+
+        public void SetTarget(Transform target)
+        {
+            _target = target;
+        }
+
+        public void AddOnMoveFinished(Action onFinish) => _followBehaviour.OnMoveFinished += onFinish;
+        public void RemoveOnMoveFinished(Action onFinish) => _followBehaviour.OnMoveFinished -= onFinish;
+
+        public void ToggleMovement(bool active)
+        {
+            _moveActive = active;
+            if(!active)
+                _rb.velocity = Vector3.zero;
         }
         #endregion
     }
