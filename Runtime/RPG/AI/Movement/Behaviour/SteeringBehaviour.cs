@@ -105,7 +105,7 @@ namespace INUlib.RPG.AI.Movement.Behaviour
             float factor = ArriveFactor(selfPosition, targetPos, SteeringData.AcceptDistance, SteeringData.MaxSteerForce);
             DesiredSpeed = (targetPos - selfPosition).normalized * factor * SteeringData.DesiredSpeed;
             
-            bool hasReachedTarget = Vector3.Distance(targetPos, selfPosition) <= SteeringData.AcceptDistance;
+            bool hasReachedTarget = factor <= 0.005f;
             if(hasReachedTarget)
                 OnMoveFinished?.Invoke();
         }
@@ -115,7 +115,7 @@ namespace INUlib.RPG.AI.Movement.Behaviour
             float factor = ArriveFactor(selfPosition, targetPos, SteeringData.AcceptDistance, SteeringData.MaxSteerForce);
             DesiredSpeed = (selfPosition - targetPos).normalized * factor * SteeringData.DesiredSpeed;
             
-            bool hasReachedTarget = Vector3.Distance(targetPos, selfPosition) >= SteeringData.AcceptDistance;
+            bool hasReachedTarget = factor <= 0.005f;
             if(hasReachedTarget)
                 OnMoveFinished?.Invoke();
         }
