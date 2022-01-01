@@ -1,5 +1,4 @@
 using UnityEngine;
-using INUlib.RPG.AI.Movement;
 using INUlib.RPG.AI.Movement.Behaviour;
 
 namespace INUlib.RPG.AI.Movement.Components
@@ -12,18 +11,15 @@ namespace INUlib.RPG.AI.Movement.Components
         [SerializeField] private Transform _target;
 
         [Header("Steering")]
-        [SerializeField] private float _desiredSpeed;
-        [SerializeField] private float _maxSteerForce;
+        [SerializeField] private SteeringData _steeringData;
         [SerializeField] private float _sightRadius;
-        [SerializeField] private float _acceptDistance;
-        [SerializeField] [Range(4, 24)] int _rays = 12;
+        [SerializeField] private bool _debugAvoid;
         #endregion
 
 
         #region Fields
         private Rigidbody2D _rb;
         private SteeringBehaviour _followBehaviour;
-        private float _colliderSize = 1;
         private Vector3 _colPos => GetComponent<Collider2D>().bounds.center;
         #endregion Fields
 
@@ -32,33 +28,20 @@ namespace INUlib.RPG.AI.Movement.Components
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
-            _colliderSize = GetComponent<Collider2D>().bounds.extents.x;
-            _followBehaviour = new SteeringBehaviour(_acceptDistance, _desiredSpeed, _maxSteerForce);
-            _followBehaviour.SetTarget(_target);
+            _followBehaviour = new SteeringBehaviour(_rb, _steeringData);
             SetMovementType(_type);
         }
 
         private void Update()
         {
-            _followBehaviour.CalculateDesiredSpeed(_colPos);
+            _followBehaviour.OnUpdate(_colPos, _target ? _target.position : null);
+            _followBehaviour.DebugAvoid = _debugAvoid;
         }
 
 
-        Vector3 _desired;
         private void FixedUpdate()
         {
-            _desired = _followBehaviour.DesiredSpeed;
-            _desired = SteeringBehaviour.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, false);
-
-            var steer = (Vector2)_desired - _rb.velocity;
-            if(steer.magnitude > _maxSteerForce)
-                steer = steer.normalized * _maxSteerForce;
-
-            _rb.AddForce(steer);
-
-            float finalDesired = _followBehaviour.DesiredSpeed.magnitude*Time.fixedDeltaTime;
-            if(_rb.velocity.magnitude > finalDesired)
-                _rb.velocity = _rb.velocity.normalized*finalDesired;
+            _followBehaviour.OnFixedUpdate(_colPos, _target ? _target.position : null);
         }
 
         #if UNITY_EDITOR
@@ -67,17 +50,7 @@ namespace INUlib.RPG.AI.Movement.Components
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(_colPos, _sightRadius);
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(_colPos, _acceptDistance);
-
-            if(_followBehaviour != null)
-            {
-                var dir = _desired * Time.fixedDeltaTime;
-                var vec = SteeringBehaviour.Avoid(_colPos, _desired, _colliderSize*2f, _rays, 0, true);
-                
-                Gizmos.color = Color.magenta;
-                Gizmos.DrawLine(_colPos, _colPos + dir);
-            }
-            
+            Gizmos.DrawWireSphere(_colPos, _steeringData.AcceptDistance);
         }
         #endif
 
@@ -85,6 +58,12 @@ namespace INUlib.RPG.AI.Movement.Components
 
 
         #region Methods
+        public void SetSteeringData(SteeringData data)
+        {
+            _steeringData = data;
+            _followBehaviour.SetSteeringData(_steeringData);
+        }
+
         public void SetMovementType(MovementType type)
         {
             _followBehaviour.SetMovementType(type);

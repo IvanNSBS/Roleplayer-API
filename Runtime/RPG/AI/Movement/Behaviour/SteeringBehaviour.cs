@@ -1,63 +1,79 @@
 using UnityEngine;
 using Common.Utils.Extensions;
+using System;
 
 namespace INUlib.RPG.AI.Movement.Behaviour
 {
-    public class SteeringBehaviour
+    public class SteeringBehaviour : IMovement
     {
         #region Fields
-        protected float _acceptDistance;
-        protected float _desiredSpeed;
-        protected float _maxSteerForce;
-        protected Transform _target;
-        protected MovementType _type;
+        public event Action OnMoveFinished;
+        protected SteeringData _steeringData;
+        protected Rigidbody2D _rb;
         #endregion
 
         #region Properties
-        public virtual bool HasTarget => _target;
+        public virtual SteeringData SteeringData => _steeringData;
         public virtual Vector3 DesiredSpeed { get; protected set; }
-        public virtual Vector3 TargetPos => _target.position;
-        public virtual bool HasReachedTarget { get; set; }
+        public virtual bool DebugAvoid {get; set;}
         #endregion
 
 
         #region Constructor
-        public SteeringBehaviour(float acceptDst, float desiredSpeed, float maxForce)
+        public SteeringBehaviour(Rigidbody2D rb, SteeringData data)
         {
-            _maxSteerForce = maxForce;
-            _acceptDistance = acceptDst;
-            _desiredSpeed = desiredSpeed;
-            _target = null;
+            _rb = rb;
+            _steeringData = data;
         }
-        
-        public SteeringBehaviour(float acceptDst, float desiredSpeed, Transform tgt)
+
+        public SteeringBehaviour(Rigidbody2D rb, float acceptDst, float desiredSpeed, float maxForce, AvoidData avoid = null)
         {
-            _target = tgt;
-            _acceptDistance = acceptDst;
+            _rb = rb;
+            _steeringData = new SteeringData(acceptDst, desiredSpeed, maxForce, avoid);
         }
         #endregion
 
 
         #region Methods
-        public void SetTarget(Transform target) => _target = target;
+        public void SetMovementType(MovementType type) => SteeringData.SetMovementType(type);
+        public void SetSteeringData(SteeringData data) => _steeringData = data; 
 
-        public void SetMovementType(MovementType type) => _type = type;
-
-        public virtual void CalculateDesiredSpeed(Vector3 selfPosition)
+        public void OnUpdate(Vector3 selfPos, Vector3? targetPos)
         {
-            switch (_type)
+            if(!targetPos.HasValue)
+            {
+                DesiredSpeed = Vector3.zero;
+                return;
+            }
+
+            CalculateDesiredSpeed(selfPos, targetPos.Value);
+        }
+
+        public void OnFixedUpdate(Vector3 selfPos, Vector3? targetPos)
+        {
+            if(!targetPos.HasValue)
+                return;
+
+            ApplyForces();
+        }
+
+        public virtual void CalculateDesiredSpeed(Vector3 selfPosition, Vector3 targetPos)
+        {
+            switch (SteeringData.MoveType)
             {
                 case MovementType.Follow:
                 {
-                    Follow(selfPosition);
-                    //Decorate Follow here
-                    // DesiredSpeed = SteerDirection.Avoid(selfPosition, _desired, _colliderSize*2f, _rays, 0, false);
+                    Follow(selfPosition, targetPos);
+                    if(SteeringData.AvoidData != null)
+                        DesiredSpeed = Avoid(selfPosition, DesiredSpeed, 
+                            SteeringData.AvoidData.RayLength, SteeringData.AvoidData.RayAmount, 
+                            SteeringData.AvoidData.LayerMask, DebugAvoid);
 
                     break;
                 }
                 case MovementType.Flee:
                 {
-                    Flee(selfPosition);
+                    Flee(selfPosition, targetPos);
                     break;
                 }
                 default:
@@ -67,36 +83,41 @@ namespace INUlib.RPG.AI.Movement.Behaviour
                 }
             }
         }
+
+        protected void ApplyForces()
+        {
+            var steer = (Vector2)DesiredSpeed - _rb.velocity;
+            if(steer.magnitude > _steeringData.MaxSteerForce)
+                steer = steer.normalized * _steeringData.MaxSteerForce;
+
+            _rb.AddForce(steer);
+
+            float finalDesired = DesiredSpeed.magnitude*Time.fixedDeltaTime;
+            if(_rb.velocity.magnitude > finalDesired)
+                _rb.velocity = _rb.velocity.normalized*finalDesired;
+        }
         #endregion
 
 
         #region Behaviour Methods
-        private void Follow(Vector3 selfPosition)
+        private void Follow(Vector3 selfPosition, Vector3 targetPos)
         {
-            if(!HasTarget)
-            {
-                DesiredSpeed = Vector3.zero;
-                HasReachedTarget = false;
-                return;
-            }
-
-            float factor = ArriveFactor(selfPosition, TargetPos, _acceptDistance, _maxSteerForce);
-            DesiredSpeed = (TargetPos - selfPosition).normalized * factor * _desiredSpeed;
-            HasReachedTarget = Vector3.Distance(TargetPos, selfPosition) <= _acceptDistance;
+            float factor = ArriveFactor(selfPosition, targetPos, SteeringData.AcceptDistance, SteeringData.MaxSteerForce);
+            DesiredSpeed = (targetPos - selfPosition).normalized * factor * SteeringData.DesiredSpeed;
+            
+            bool hasReachedTarget = Vector3.Distance(targetPos, selfPosition) <= SteeringData.AcceptDistance;
+            if(hasReachedTarget)
+                OnMoveFinished?.Invoke();
         }
 
-        private void Flee(Vector3 selfPosition)
+        private void Flee(Vector3 selfPosition, Vector3 targetPos)
         {
-            if(!HasTarget)
-            {
-                DesiredSpeed = Vector3.zero;
-                HasReachedTarget = false;
-                return;
-            }
-
-            float factor = ArriveFactor(selfPosition, TargetPos, _acceptDistance, _maxSteerForce);
-            DesiredSpeed = (selfPosition - TargetPos).normalized * factor * _desiredSpeed;
-            HasReachedTarget = Vector3.Distance(TargetPos, selfPosition) >= _acceptDistance;
+            float factor = ArriveFactor(selfPosition, targetPos, SteeringData.AcceptDistance, SteeringData.MaxSteerForce);
+            DesiredSpeed = (selfPosition - targetPos).normalized * factor * SteeringData.DesiredSpeed;
+            
+            bool hasReachedTarget = Vector3.Distance(targetPos, selfPosition) >= SteeringData.AcceptDistance;
+            if(hasReachedTarget)
+                OnMoveFinished?.Invoke();
         }
         #endregion
 
@@ -108,8 +129,9 @@ namespace INUlib.RPG.AI.Movement.Behaviour
             increment *= Mathf.Deg2Rad;
 
             float desiredLenght = desiredVel.magnitude;
+            Vector2 dir = desiredVel.normalized;
+
             Vector3 result = desiredVel;
-            int hits = 1;
             float length = radius;
 
             for (int i = 0; i < rayNumber; i++)
@@ -127,14 +149,13 @@ namespace INUlib.RPG.AI.Movement.Behaviour
 
                     Vector3 desiredRay = -direction * finalLength; // dont need to normalize, Vector3.right is a unit vector
                     result += desiredRay;
-                    hits++;
                 }
 
                 #if UNITY_EDITOR
                 if(debug)
                 {
-                    Gizmos.color = hit.collider ? Color.red : Color.white;
-                    Gizmos.DrawLine(from, from + direction*length);
+                    var color = hit.collider ? Color.red : Color.white;
+                    Debug.DrawLine(from, from + direction * length, color, Time.deltaTime);
                 }
                 #endif
             }
