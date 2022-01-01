@@ -32,6 +32,7 @@ namespace INUlib.RPG.AI.Movement.Behaviour
         }
 
         public void SetMovementType(MovementType tp) => _type = tp;
+        public void SetSpeed(float speed) => _desiredSpeed = speed;
         public void SetAvoidData(AvoidData avoid) => _avoidData = avoid; 
     }
 

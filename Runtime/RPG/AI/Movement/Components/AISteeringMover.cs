@@ -90,11 +90,8 @@ namespace INUlib.RPG.AI.Movement.Components
             _followBehaviour.SetMovementType(type);
         }
 
-        public void SetTarget(Transform target)
-        {
-            _target = target;
-        }
-
+        public void SetTarget(Transform target) => _target = target;
+        public void SetSpeed(float speed) => _followBehaviour.SteeringData.SetSpeed(speed);
         public void AddOnMoveFinished(Action onFinish) => _followBehaviour.OnMoveFinished += onFinish;
         public void RemoveOnMoveFinished(Action onFinish) => _followBehaviour.OnMoveFinished -= onFinish;
 
