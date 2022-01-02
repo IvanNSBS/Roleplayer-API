@@ -13,7 +13,7 @@ namespace INUlib.Core.ManagedTweens
         #endregion
 
         #region Properties
-        public bool IsPlaying => _seq.IsActive();
+        public bool IsPlaying => _seq.IsPlaying();
         public Transform Target => _target;
         public bool ShouldResetPosition {get; set;}
 
@@ -42,6 +42,8 @@ namespace INUlib.Core.ManagedTweens
         {
             _target = target;
             _seq = DOTween.Sequence();
+            _seq.SetAutoKill(false);
+         
             _seq.Restart();
             _seq.Pause();
         }
@@ -67,11 +69,9 @@ namespace INUlib.Core.ManagedTweens
 
         public virtual void Play()
         {
-            if(IsPlaying) {
-                Reset();
-                _seq.Restart();
-            }
-            else
+            Reset();
+            _seq.Restart();
+            if(!IsPlaying)
                 _seq.Play();
         }
         public virtual void Pause() => _seq.Pause();
