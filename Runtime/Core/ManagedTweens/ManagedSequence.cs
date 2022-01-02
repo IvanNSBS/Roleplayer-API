@@ -55,6 +55,8 @@ namespace INUlib.Core.ManagedTweens
             _seq.Restart();
             _seq.Pause();
         }
+
+        ~ManagedSequence() => _seq = null;
         #endregion
 
         #region Methods
