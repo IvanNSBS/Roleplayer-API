@@ -6,10 +6,11 @@ using System.Collections.Generic;
 namespace INUlib.Core.ManagedTweens
 {
     /// <summary>
-    /// Managed sequences are DoTween sequences that needs to be played
-    /// over and over again, and thus needs to be managed to make sure
-    /// the sequence can be played repeatedly, sometimes even before 
-    /// finishing, and the animation won't break 
+    /// Managed sequences are complete Animations made with
+    /// DoTween sequences that needs to be played over and 
+    /// over again, and thus needs to be managed to make sure
+    /// the sequence can be played repeatedly, sometimes even 
+    /// before finishing, and the animation won't break .
     /// </summary>
     public class ManagedSequence
     {
