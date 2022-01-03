@@ -1,21 +1,26 @@
 
-using System;
 using DG.Tweening;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace INUlib.Core.ManagedTweens
 {
+    /// <summary>
+    /// Managed sequences are DoTween sequences that needs to be played
+    /// over and over again, and thus needs to be managed to make sure
+    /// the sequence can be played repeatedly, sometimes even before 
+    /// finishing, and the animation won't break 
+    /// </summary>
     public class ManagedSequence
     {
         #region Fields
         private Sequence _seq;
-        private Transform _target;
+        private List<IManagedTarget> _targets;
         #endregion
 
         #region Properties
         public bool IsPlaying => _seq.IsPlaying();
-        public Transform Target => _target;
-        public bool ShouldResetPosition {get; set;}
+        public IReadOnlyList<IManagedTarget> Targets => _targets;
 
         public TweenCallback OnPause
         {
@@ -37,42 +42,71 @@ namespace INUlib.Core.ManagedTweens
         #endregion
 
 
-        #region Constructor
+        #region Constructors
         public ManagedSequence(Transform target)
         {
-            _target = target;
-            _seq = DOTween.Sequence();
-            _seq.SetAutoKill(false);
-         
-            _seq.Restart();
-            _seq.Pause();
-        }
+            _targets = new List<IManagedTarget>();
+            _targets.Add(new ManagedTransform(target));
 
+            InitializeSequence();
+        }
+        
         public ManagedSequence(Transform target, Sequence seq)
         {
-            _target = target;
-            _seq = seq;
-            _seq.Restart();
-            _seq.Pause();
+            _targets = new List<IManagedTarget>();
+            _targets.Add(new ManagedTransform(target));
+
+            InitializeSequence(seq);
+        }
+
+        public ManagedSequence(Transform[] targets)
+        {
+            _targets = new List<IManagedTarget>();
+            foreach(var tgt in targets)
+                _targets.Add(new ManagedTransform(tgt));
+
+            InitializeSequence();
+        }
+
+        public ManagedSequence(IManagedTarget target)
+        {
+            _targets = new List<IManagedTarget>();
+            _targets.Add(target);
+
+            InitializeSequence();
+        }
+
+        public ManagedSequence(IManagedTarget[] targets)
+        {
+            _targets = new List<IManagedTarget>();
+            _targets.AddRange(targets);
+
+            InitializeSequence();
         }
 
         ~ManagedSequence() => _seq = null;
         #endregion
 
+
         #region Methods
-        public virtual void SetTarget(Transform tgt) => _target = tgt;
+        public virtual void AddTarget(IManagedTarget tgt) => _targets.Add(tgt);
+        public virtual void AddTarget(List<IManagedTarget> tgts) => _targets.AddRange(tgts);
+        public virtual void RemoveTarget(IManagedTarget tgt) => _targets.Remove(tgt);
         protected virtual void Reset()
         {
-            _target.transform.localScale = Vector3.one;
-            _target.transform.rotation = Quaternion.identity;
-            if(ShouldResetPosition)
-                _target.transform.position = Vector3.zero;
+            foreach(var tgt in _targets)
+                tgt.Reset();
         }
 
+        /// <summary>
+        /// Plays the sequence, resetting and restarting if necessary
+        /// to make sure the animation won't break
+        /// </summary>
         public virtual void Play()
         {
             Reset();
             _seq.Restart();
+
             if(!IsPlaying)
                 _seq.Play();
         }
@@ -84,6 +118,25 @@ namespace INUlib.Core.ManagedTweens
         public void Append(Tween tween) => _seq.Append(tween);
         public void Join(Tween tween) => _seq.Join(tween);
         public void Insert(float at, Tween tween) => _seq.Insert(at, tween);
+        #endregion
+
+
+        #region Helper Methods
+        private void InitializeSequence()
+        {
+            _seq = DOTween.Sequence();
+            _seq.SetAutoKill(false);
+            _seq.Restart();
+            _seq.Pause();
+        }
+
+        private void InitializeSequence(Sequence seq)
+        {
+            _seq = seq;
+            _seq.SetAutoKill(false);
+            _seq.Restart();
+            _seq.Pause();
+        }
         #endregion
     }
 }
