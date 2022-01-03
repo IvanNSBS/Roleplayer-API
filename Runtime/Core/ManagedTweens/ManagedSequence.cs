@@ -89,9 +89,34 @@ namespace INUlib.Core.ManagedTweens
 
 
         #region Methods
+        /// <summary>
+        /// Adds a IManagedTarget to the target list 
+        /// </summary>
+        /// <param name="tgt">The target to be added</param>
         public virtual void AddTarget(IManagedTarget tgt) => _targets.Add(tgt);
+        
+        /// <summary>
+        /// Adds a transform to the target list, creating a ManagedTransform with
+        /// the default constructor for it
+        /// </summary>
+        /// <param name="tgt">The transform to create the ManagedTranform</param>
+        public virtual void AddTarget(Transform tgt) => _targets.Add(new ManagedTransform(tgt));
+        
+        /// <summary>
+        /// Appends a list of IManagedTarget to the target list
+        /// </summary>
+        /// <param name="tgts">The list of IManagedTargets to insert to the target list</param>
         public virtual void AddTarget(List<IManagedTarget> tgts) => _targets.AddRange(tgts);
+
+        /// <summary>
+        /// Removes a target from the target list
+        /// </summary>
+        /// <param name="tgt">The target to remmove</param>
         public virtual void RemoveTarget(IManagedTarget tgt) => _targets.Remove(tgt);
+
+        /// <summary>
+        /// Resets
+        /// </summary>
         protected virtual void Reset()
         {
             foreach(var tgt in _targets)
@@ -112,17 +137,55 @@ namespace INUlib.Core.ManagedTweens
         }
         public virtual void Pause() => _seq.Pause();
 
+        /// <summary>
+        /// Appends a callback to the end of the managed sequence
+        /// </summary>
+        /// <param name="clbk">The callback to be appended</param>
         public void AppendCallback(TweenCallback clbk) => _seq.AppendCallback(clbk);
+
+        /// <summary>
+        /// Inserts a callback to the managed sequence at the given time in the timeline
+        /// </summary>
+        /// <param name="at">The position to insert the callback</param>
+        /// <param name="clbk">The callback to be inserted</param>
         public void InsertCallback(float at, TweenCallback clbk) => _seq.InsertCallback(at, clbk);
+
+        /// <summary>
+        /// Appends a interval to the end of the managed sequence
+        /// </summary>
+        /// <param name="interval">How much time to wait</param>
         public void AppendInterval(float interval) => _seq.AppendInterval(interval);
+
+        /// <summary>
+        /// Appends a tween to the end of the managed sequence
+        /// </summary>
+        /// <param name="tween">The tween to be added</param>
         public void Append(Tween tween) => _seq.Append(tween);
+
+        /// <summary>
+        /// Inserts a tween at the same time as the position in the timeline
+        /// as the last tween, callback or interval added to the managed sequence.
+        /// Note that, in case of a Join after an interval, 
+        /// the insertion time will be the time where the interval starts, 
+        /// not where it finishes.
+        /// </summary>
+        /// <param name="tween"></param>
         public void Join(Tween tween) => _seq.Join(tween);
+
+        /// <summary>
+        /// Inserts a tween to the managed sequence at the given time in the timeline
+        /// </summary>
+        /// <param name="at">The position to insert the tween</param>
+        /// <param name="tween">The tween to be inserted</param>
         public void Insert(float at, Tween tween) => _seq.Insert(at, tween);
         #endregion
 
 
         #region Helper Methods
-        private void InitializeSequence()
+        /// <summary>
+        /// Helper method to initialize the DoTween sequence
+        /// </summary>
+        protected void InitializeSequence()
         {
             _seq = DOTween.Sequence();
             _seq.SetAutoKill(false);
@@ -130,7 +193,12 @@ namespace INUlib.Core.ManagedTweens
             _seq.Pause();
         }
 
-        private void InitializeSequence(Sequence seq)
+        /// <summary>
+        /// Helper method to initialize the DoTween sequence
+        /// Makes the ManagedSequence be the same as the given Sequence
+        /// </summary>
+        /// <param name="seq"></param>
+        protected void InitializeSequence(Sequence seq)
         {
             _seq = seq;
             _seq.SetAutoKill(false);
