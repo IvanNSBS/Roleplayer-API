@@ -17,6 +17,7 @@ namespace INUlib.Core.ManagedTweens
         #region Fields
         private Sequence _seq;
         private List<IManagedTarget> _targets;
+        private bool _disableUnfinishedPlay;
         #endregion
 
         #region Properties
@@ -97,6 +98,15 @@ namespace INUlib.Core.ManagedTweens
 
         #region Methods
         /// <summary>
+        /// Disables or enables playing the sequence before it finishes.
+        /// If set to true, calling Play while the animation is playing
+        /// will have no effect. 
+        /// The default behavior is allowing Unfinished Play 
+        /// </summary>
+        /// <param name="disable">The disable value</param>
+        public void DisableUnfinishedPlay(bool disable) => _disableUnfinishedPlay = disable;
+
+        /// <summary>
         /// Adds a IManagedTarget to the target list 
         /// </summary>
         /// <param name="tgt">The target to be added</param>
@@ -136,6 +146,9 @@ namespace INUlib.Core.ManagedTweens
         /// </summary>
         public virtual void Play()
         {
+            if(IsPlaying && _disableUnfinishedPlay)
+                return;
+                
             Reset();
             _seq.Restart();
 
