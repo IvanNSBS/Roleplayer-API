@@ -43,6 +43,12 @@ namespace INUlib.Core.ManagedTweens
 
 
         #region Constructors
+        public ManagedSequence()
+        {
+            _targets = new List<IManagedTarget>();
+            InitializeSequence();
+        }
+        
         public ManagedSequence(Transform target)
         {
             _targets = new List<IManagedTarget>();
