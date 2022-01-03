@@ -178,6 +178,14 @@ namespace INUlib.Core.ManagedTweens
         /// <param name="at">The position to insert the tween</param>
         /// <param name="tween">The tween to be inserted</param>
         public void Insert(float at, Tween tween) => _seq.Insert(at, tween);
+
+        /// <summary>
+        /// Implicit operator to cast ManagedSequence to the DoTween.Sequence
+        /// it manages. Useful for nesting ManagedSequences when creating custom
+        /// ones
+        /// </summary>
+        /// <param name="ms">The target ManagedSequence</param>
+        public static implicit operator Sequence(ManagedSequence ms) => ms._seq;
         #endregion
 
 
