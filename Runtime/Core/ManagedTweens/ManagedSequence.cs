@@ -50,6 +50,12 @@ namespace INUlib.Core.ManagedTweens
             _targets = new List<IManagedTarget>();
             InitializeSequence();
         }
+
+        public ManagedSequence(Sequence seq)
+        {
+            _targets = new List<IManagedTarget>();
+            InitializeSequence(seq);
+        }
         
         public ManagedSequence(Transform target)
         {
@@ -57,14 +63,6 @@ namespace INUlib.Core.ManagedTweens
             _targets.Add(new ManagedTransform(target));
 
             InitializeSequence();
-        }
-        
-        public ManagedSequence(Transform target, Sequence seq)
-        {
-            _targets = new List<IManagedTarget>();
-            _targets.Add(new ManagedTransform(target));
-
-            InitializeSequence(seq);
         }
 
         public ManagedSequence(Transform[] targets)
