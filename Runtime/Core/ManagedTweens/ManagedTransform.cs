@@ -2,6 +2,11 @@ using UnityEngine;
 
 namespace INUlib.Core.ManagedTweens
 {
+    /// <summary>
+    /// ManagedTarget for a Unity Transform
+    /// Resets the transform scale, location and rotation
+    /// to the given values
+    /// </summary>
     public class ManagedTransform : IManagedTarget
     {
         #region Fields
