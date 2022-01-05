@@ -25,7 +25,7 @@ namespace INUlib.Core.ManagedTweens
         public ManagedTransform(Transform t) {
             _t = t;
             _defaultScale = t.localScale;
-            _defaultPosition = t.position;
+            _defaultPosition = t.localPosition;
             _defaultRotation = t.rotation;
         }
 
