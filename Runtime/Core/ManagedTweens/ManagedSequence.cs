@@ -90,7 +90,10 @@ namespace INUlib.Core.ManagedTweens
             InitializeSequence();
         }
 
-        ~ManagedSequence() => _seq = null;
+        ~ManagedSequence() {
+            _seq.Kill();
+            _seq = null;
+        } 
         #endregion
 
 
