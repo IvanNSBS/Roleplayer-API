@@ -16,9 +16,19 @@ namespace INUlib.Core.ManagedTweens
         private Quaternion _defaultRotation = Quaternion.identity;
         #endregion
 
+        #region Properties
+        public Transform Transform => _t;
+        #endregion
+
 
         #region Constructors
-        public ManagedTransform(Transform t) => _t = t;
+        public ManagedTransform(Transform t) {
+            _t = t;
+            _defaultScale = t.localScale;
+            _defaultPosition = t.position;
+            _defaultRotation = t.rotation;
+        }
+
         public ManagedTransform(Transform t, Vector3 dfScale, Vector3 dfPos, Quaternion dfRotation)
         {
             _t = t;

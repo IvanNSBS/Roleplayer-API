@@ -16,6 +16,24 @@ namespace INUlib.Core.ManagedTweens
 
         #region Constructor
         /// <summary>
+        /// Creates a Squash and Stretch animation from a ManagedTransform.
+        /// How much energy the squash and stretch will lose will be calculated
+        /// from the (initial) strength and bounces parameter
+        /// </summary>
+        /// <param name="tgt">Squash and Stretch Transform from ManagedTransform</param>
+        /// <param name="bounces">How many bounces. A bounce is squash+stretch</param>
+        /// <param name="strength">How strong the first bounce is.</param>
+        /// <param name="falloff">How much strength, in percent, is lost with each squash or stretch</param>
+        /// <param name="overshoot">Outback Ease overshoot</param>
+        /// <param name="stretchFirst">Whether or not to stretch or squash first</param>
+        public SquashAndStretch(ManagedTransform tgt, uint bounces, float bounceDuration, float strength, 
+                                float falloff=0.1f, bool stretchFirst=false, Ease ease=Ease.OutBack,
+                                float overshoot=2.3f):base(tgt)
+        {
+            Initialize(tgt.Transform, bounces, bounceDuration, strength, falloff, stretchFirst, ease, overshoot);
+        }
+
+        /// <summary>
         /// Creates a Squash and Stretch animation.
         /// How much energy the squash and stretch will lose will be calculated
         /// from the (initial) strength and bounces parameter
@@ -29,6 +47,15 @@ namespace INUlib.Core.ManagedTweens
         public SquashAndStretch(Transform tgt, uint bounces, float bounceDuration, float strength, 
                                 float falloff=0.1f, bool stretchFirst=false, Ease ease=Ease.OutBack,
                                 float overshoot=2.3f):base(tgt)
+        {
+            Initialize(tgt, bounces, bounceDuration, strength, falloff, stretchFirst, ease, overshoot);
+        }
+        #endregion
+
+
+        #region Helper Methods
+        private void Initialize(Transform tgt, uint bounces, float bounceDuration, float strength, 
+                                float falloff, bool stretchFirst, Ease ease, float overshoot)
         {
             float currentStr = strength;
             for(int i = 0; i < bounces*2; i++)
