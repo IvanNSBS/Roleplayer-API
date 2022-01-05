@@ -7,7 +7,7 @@ namespace INUlib.Common.Debugging.Console.Data
 {
     /// <summary>
     /// Console command is the class that encapsulates the methodinfo and the dependency
-    /// to run a command. It's what the ZynithConsole stores to runs commands
+    /// to run a command. It's what the Console stores to runs commands
     /// </summary>
     public class ConsoleCommand
     {

@@ -15,7 +15,7 @@ namespace INUlib.Common.Debugging.Settings
     public class DebugSettings : ScriptableObject
     {
         #region Constants
-        private static string s_settingsFileName = "Zynith Debugging Settings";
+        private static string s_settingsFileName = "INUlib Debugging Settings";
         private static string s_settingsSubFolderName = "Debugging";
         #endregion Constants
         
