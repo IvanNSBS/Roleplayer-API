@@ -6,9 +6,12 @@ namespace INUlib.RPG.AbilitiesSystem
     {
         #region Fields
         protected IAbility[] _abilities;
+        protected IAbility _casting;
+        protected float _elapsedCasting;
         #endregion
 
         #region Properties
+        public float ElapsedCastingTime => _elapsedCasting;
         #endregion
 
 
@@ -16,6 +19,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public AbilitiesController(uint slotAmnt)
         {
             _abilities = new IAbility[slotAmnt];
+            _casting = null;
         }
         #endregion
 
@@ -30,8 +34,15 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             foreach(var ability in _abilities)
             {
-                if(ability != null)
+                if(ability != null && ability.CurrentCooldown >= 0.0f && ability != _casting)
                     ability.CurrentCooldown -= deltaTime;
+            }
+
+            if(_casting != null)
+            {
+                _elapsedCasting += deltaTime;
+                if(_elapsedCasting >= _casting.CastTime)
+                    UnleashAbility();
             }
         }
 
@@ -39,15 +50,16 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Casts the ability in the given slot
         /// </summary>
         /// <param name="slot"></param>
-        public virtual void Cast(uint slot)
+        public virtual void StartCast(uint slot)
         {
-            if(HasAbilityInSlot(slot) && !IsAbilityOnCd(0))
+            if(HasAbilityInSlot(slot) && !IsAbilityOnCd(0) && _casting == null)
             {
-                var ability = _abilities[slot];
-                ability.Cast();
-                ability.CurrentCooldown = ability.Cooldown;
+                _casting = _abilities[slot];
+                _elapsedCasting = 0f;
             }
         }
+
+        public virtual void CancelCast() => _casting = null;
 
         /// <summary>
         /// Sets the ability on the given index
@@ -59,6 +71,17 @@ namespace INUlib.RPG.AbilitiesSystem
         public IAbility GetAbility(int slot) => _abilities[slot];
         public bool IsAbilityOnCd(uint slot) => HasAbilityInSlot(slot) && _abilities[slot].CurrentCooldown > 0;
         public bool HasAbilityInSlot(uint slot) => _abilities.Length > slot && _abilities[slot] != null;
+        public IAbility GetCastingAbility() => _casting;
+        #endregion
+
+
+        #region Helper Methods
+        protected void UnleashAbility()
+        {
+            _casting.Cast();
+            _casting.CurrentCooldown = _casting.Cooldown;
+            _casting = null;
+        }
         #endregion
     }
 }
