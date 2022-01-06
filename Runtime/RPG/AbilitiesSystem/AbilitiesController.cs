@@ -34,8 +34,10 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             foreach(var ability in _abilities)
             {
-                if(ability != null && ability.CurrentCooldown >= 0.0f && ability != _casting)
+                if(ability != null && ability.CurrentCooldown >= 0.0f && ability != _casting) {
                     ability.CurrentCooldown -= deltaTime;
+                    ability.CurrentCooldown = Mathf.Clamp(ability.CurrentCooldown, 0, ability.Cooldown);
+                }
             }
 
             if(_casting != null)
