@@ -8,7 +8,7 @@ namespace Tests.Runtime.RPG.Abilities
     public class AbilitiesControllerTests
     {
         #region Mock Tests
-        private AbilitiesController _controller;
+        private AbilitiesController<IAbility> _controller;
         private IAbility _mockSpell;
         private bool _casted;
         private float _cd = 5;
@@ -17,7 +17,7 @@ namespace Tests.Runtime.RPG.Abilities
         [SetUp]
         public void Setup() {
             _casted = false;
-            _controller = new AbilitiesController(2);
+            _controller = new AbilitiesController<IAbility>(2);
             _mockSpell = Substitute.For<IAbility>();
             _mockSpell.Cooldown.Returns(_cd);
             _mockSpell.CastTime.Returns(_castTime);

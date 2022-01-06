@@ -6,11 +6,11 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Default controller for agents that can use the ability system
     /// Fully manages the abilities cooldown and their casting process
     /// </summary>
-    public class AbilitiesController
+    public class AbilitiesController<TAbility> where TAbility : class, IAbility
     {
         #region Fields
-        protected IAbility[] _abilities;
-        protected IAbility _casting;
+        protected TAbility[] _abilities;
+        protected TAbility _casting;
         protected float _elapsedCasting;
         #endregion
 
@@ -26,7 +26,7 @@ namespace INUlib.RPG.AbilitiesSystem
         #region Constructor
         public AbilitiesController(uint slotAmnt)
         {
-            _abilities = new IAbility[slotAmnt];
+            _abilities = new TAbility[slotAmnt];
             _casting = null;
         }
         #endregion
@@ -86,14 +86,14 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="slot">Slot to set the ability</param>
         /// <param name="ability">The ability that is being added</param>
-        public void SetAbility(uint slot, IAbility ability) => _abilities[slot] = ability;
+        public void SetAbility(uint slot, TAbility ability) => _abilities[slot] = ability;
 
         /// <summary>
         /// Retrieves an ability from the abilities slots
         /// </summary>
         /// <param name="slot">slot index</param>
         /// <returns>The ability in the slot. Null if no spell in slot or slot have invalid index</returns>
-        public IAbility GetAbility(uint slot) 
+        public TAbility GetAbility(uint slot) 
         {
             if(HasAbilityInSlot(0))
                 return _abilities[slot];
@@ -119,7 +119,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Gets the ability that is currently being cast
         /// </summary>
         /// <returns>The ability being cast. Null if no ability is being cast</returns>
-        public IAbility GetCastingAbility() => _casting;
+        public TAbility GetCastingAbility() => _casting;
         #endregion
 
 
