@@ -2,6 +2,10 @@ using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
+    /// <summary>
+    /// Default controller for agents that can use the ability system
+    /// Fully manages the abilities cooldown and their casting process
+    /// </summary>
     public class AbilitiesController
     {
         #region Fields
@@ -11,6 +15,10 @@ namespace INUlib.RPG.AbilitiesSystem
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets the elapsed cast time for the spell being charged.
+        /// Will return 0 if no spell is being cast;
+        /// </summary>
         public float ElapsedCastingTime => _elapsedCasting;
         #endregion
 
@@ -64,7 +72,14 @@ namespace INUlib.RPG.AbilitiesSystem
             }
         }
 
-        public virtual void CancelCast() => _casting = null;
+        /// <summary>
+        /// Cancels the cast charge for the current spell,
+        /// reseting the ElapsedCasting timer and setting the casting spell to null
+        /// </summary>
+        public virtual void CancelCast() {
+            _elapsedCasting = 0f;
+            _casting = null;
+        } 
 
         /// <summary>
         /// Sets the ability on the given index
@@ -73,14 +88,45 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="ability">The ability that is being added</param>
         public void SetAbility(uint slot, IAbility ability) => _abilities[slot] = ability;
 
-        public IAbility GetAbility(int slot) => _abilities[slot];
+        /// <summary>
+        /// Retrieves an ability from the abilities slots
+        /// </summary>
+        /// <param name="slot">slot index</param>
+        /// <returns>The ability in the slot. Null if no spell in slot or slot have invalid index</returns>
+        public IAbility GetAbility(int slot) 
+        {
+            if(HasAbilityInSlot(0))
+                return _abilities[slot];
+        
+            return null;
+        }
+
+        /// <summary>
+        /// Checks if the ability in the given slot is on cooldown right now
+        /// </summary>
+        /// <param name="slot">Slot for the ability</param>
+        /// <returns>True if on cooldown. False if spell is on cooldown or slot is invalid</returns>
         public bool IsAbilityOnCd(uint slot) => HasAbilityInSlot(slot) && _abilities[slot].CurrentCooldown > 0;
+
+        /// <summary>
+        /// Helper method to check if there's an ability in the given slot
+        /// </summary>
+        /// <param name="slot">The slot index</param>
+        /// <returns>True if there's an ability in the slot. False othwerwise</returns>
         public bool HasAbilityInSlot(uint slot) => _abilities.Length > slot && _abilities[slot] != null;
+
+        /// <summary>
+        /// Gets the ability that is currently being cast
+        /// </summary>
+        /// <returns>The ability being cast. Null if no ability is being cast</returns>
         public IAbility GetCastingAbility() => _casting;
         #endregion
 
 
         #region Helper Methods
+        /// <summary>
+        /// Helper method to cast the ability after it is ready to be cast
+        /// </summary>
         protected void UnleashAbility()
         {
             _casting.Cast();
