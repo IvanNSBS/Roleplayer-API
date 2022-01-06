@@ -93,7 +93,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="slot">slot index</param>
         /// <returns>The ability in the slot. Null if no spell in slot or slot have invalid index</returns>
-        public IAbility GetAbility(int slot) 
+        public IAbility GetAbility(uint slot) 
         {
             if(HasAbilityInSlot(0))
                 return _abilities[slot];
