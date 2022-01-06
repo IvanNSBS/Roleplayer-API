@@ -57,7 +57,10 @@ namespace INUlib.RPG.AbilitiesSystem
             if(HasAbilityInSlot(slot) && !IsAbilityOnCd(0) && _casting == null)
             {
                 _casting = _abilities[slot];
-                _elapsedCasting = 0f;
+                // If the cast time for the spell is zero, 
+                // just cast it instantly
+                if(_casting.CastTime == 0f)
+                    UnleashAbility();
             }
         }
 
@@ -83,6 +86,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _casting.Cast();
             _casting.CurrentCooldown = _casting.Cooldown;
             _casting = null;
+            _elapsedCasting = 0f;
         }
         #endregion
     }

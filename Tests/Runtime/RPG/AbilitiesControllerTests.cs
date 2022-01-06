@@ -9,6 +9,7 @@ namespace Tests.Runtime.RPG.Abilities
     {
         #region Mock Tests
         private AbilitiesController _controller;
+        private IAbility _mockSpell;
         private bool _casted;
         private float _cd = 5;
         private float _castTime = 1;
@@ -17,11 +18,11 @@ namespace Tests.Runtime.RPG.Abilities
         public void Setup() {
             _casted = false;
             _controller = new AbilitiesController(2);
-            var mock = Substitute.For<IAbility>();
-            mock.Cooldown.Returns(_cd);
-            mock.CastTime.Returns(_castTime);
-            mock.When(x => x.Cast()).Do(x => _casted = true);
-            _controller.SetAbility(0, mock);
+            _mockSpell = Substitute.For<IAbility>();
+            _mockSpell.Cooldown.Returns(_cd);
+            _mockSpell.CastTime.Returns(_castTime);
+            _mockSpell.When(x => x.Cast()).Do(x => _casted = true);
+            _controller.SetAbility(0, _mockSpell);
         }
         #endregion
 
@@ -105,6 +106,14 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime*0.5f);
 
             Assert.IsTrue(_controller.ElapsedCastingTime == _castTime*0.5f);
+        }
+
+        [Test]
+        public void Spell_With_No_Cast_Time_Are_Cast_Instantly()
+        {
+            _mockSpell.CastTime.Returns(0);
+            _controller.StartCast(0);
+            Assert.IsTrue(_casted);
         }
 
         [Test]
