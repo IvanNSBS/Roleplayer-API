@@ -118,9 +118,15 @@ namespace Tests.Runtime.RPG.Abilities
             Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.IsAbilityOnCd(0));
         }
 
+        [Test]
         public void Can_Cancel_Casting()
         {
-            Assert.IsTrue(false);
+            _controller.StartCast(0);
+            _controller.Update(_castTime*0.5f);
+            _controller.CancelCast();
+
+            Assert.IsFalse(_controller.IsAbilityOnCd(0));
+            Assert.IsNull(_controller.GetCastingAbility());
         }
         #endregion
     }
