@@ -62,7 +62,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="slot"></param>
         public virtual void StartCast(uint slot)
         {
-            if(HasAbilityInSlot(slot) && !IsAbilityOnCd(0) && _casting == null)
+            if(HasAbilityInSlot(slot) && !IsAbilityOnCd(slot) && _casting == null)
             {
                 _casting = _abilities[slot];
                 // If the cast time for the spell is zero, 
@@ -95,7 +95,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>The ability in the slot. Null if no spell in slot or slot have invalid index</returns>
         public TAbility GetAbility(uint slot) 
         {
-            if(HasAbilityInSlot(0))
+            if(HasAbilityInSlot(slot))
                 return _abilities[slot];
         
             return null;
