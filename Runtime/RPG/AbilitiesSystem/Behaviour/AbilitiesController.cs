@@ -20,12 +20,18 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Will return 0 if no spell is being cast;
         /// </summary>
         public float ElapsedCastingTime => _elapsedCasting;
+
+        /// <summary>
+        /// Returns the number of AbilitySlots assigned in the constructor
+        /// </summary>
+        public uint AbilitySlots {get; private set;}
         #endregion
 
 
         #region Constructor
         public AbilitiesController(uint slotAmnt)
         {
+            AbilitySlots = slotAmnt;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
         }
