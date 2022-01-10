@@ -4,12 +4,12 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Interface for a game Ability and the Ability System 
     /// for the INUlib
     /// </summary>
-    public interface IAbility<TDataFactory> where TDataFactory : IAbilityDataFactory
+    public interface IAbility<TDataHub> where TDataHub : IAbilityDataHub
     {
         /// <summary>
         /// Casts the ability, unleashing it's effect in the world
         /// </summary>
-        void Cast(TDataFactory dataFactory);
+        void Cast(TDataHub dataHub);
 
         /// <summary>
         /// Getter for the current ability Cooldown

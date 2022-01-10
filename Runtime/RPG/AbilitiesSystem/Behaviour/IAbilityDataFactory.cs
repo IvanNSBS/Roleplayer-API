@@ -1,9 +1,9 @@
 namespace INUlib.RPG.AbilitiesSystem
 {
     /// <summary>
-    /// Interface for an IAbilityDataFactory
+    /// Interface for an IAbilityDataHub
     /// </summary>
-    public interface IAbilityDataFactory
+    public interface IAbilityDataHub
     {
     }
 }

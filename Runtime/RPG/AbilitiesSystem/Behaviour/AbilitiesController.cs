@@ -6,11 +6,11 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Default controller for agents that can use the ability system
     /// Fully manages the abilities cooldown and their casting process
     /// </summary>
-    public class AbilitiesController<TAbility, TAbilityDataDactory> 
-           where TAbility : class, IAbility<TAbilityDataDactory> where TAbilityDataDactory : IAbilityDataFactory
+    public class AbilitiesController<TAbility, TAbilityDataHub> 
+           where TAbility : class, IAbility<TAbilityDataHub> where TAbilityDataHub : IAbilityDataHub
     {
         #region Fields
-        protected TAbilityDataDactory _dataFactory;
+        protected TAbilityDataHub _dataFactory;
         protected TAbility[] _abilities;
         protected TAbility _casting;
         protected float _elapsedCasting;
@@ -28,15 +28,15 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public uint AbilitySlots {get; private set;}
 
-        public TAbilityDataDactory DataFactory => _dataFactory;
+        public TAbilityDataHub DataFactory => _dataFactory;
         #endregion
 
 
         #region Constructor
-        public AbilitiesController(uint slotAmnt, TAbilityDataDactory dataFactory)
+        public AbilitiesController(uint slotAmnt, TAbilityDataHub dataHub)
         {
             AbilitySlots = slotAmnt;
-            _dataFactory = dataFactory;
+            _dataFactory = dataHub;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
         }

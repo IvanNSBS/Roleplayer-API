@@ -7,19 +7,19 @@ namespace Tests.Runtime.RPG.Abilities
     public class AbilitiesControllerTests
     {
         #region Test Factory Ability
-        public class TestFactoryAbility : IAbility<IAbilityDataFactory>
+        public class TestFactoryAbility : IAbility<IAbilityDataHub>
         {   
-            private IAbilityDataFactory _factoryRef;
+            private IAbilityDataHub _factoryRef;
             public bool isEqual;
 
-            public TestFactoryAbility(float cd, float castTime, IAbilityDataFactory factoryRef)
+            public TestFactoryAbility(float cd, float castTime, IAbilityDataHub factoryRef)
             {
                 _factoryRef = factoryRef;
                 Cooldown = cd;
                 CastTime = castTime;
             }
 
-            public void Cast(IAbilityDataFactory dataFactory) => isEqual = dataFactory == _factoryRef;
+            public void Cast(IAbilityDataHub dataFactory) => isEqual = dataFactory == _factoryRef;
             public float CurrentCooldown {get; set;}
             public float Cooldown {get; set;}
             public float CastTime {get;}
@@ -27,11 +27,11 @@ namespace Tests.Runtime.RPG.Abilities
         #endregion
 
         #region Mock Tests
-        private IAbilityDataFactory _mockFactory;
-        private AbilitiesController<IAbility<IAbilityDataFactory>, IAbilityDataFactory> _controller;
-        private IAbility<IAbilityDataFactory> _mockAbility1;
-        private IAbility<IAbilityDataFactory> _mockAbility2;
-        private IAbility<IAbilityDataFactory> _mockAbility3;
+        private IAbilityDataHub _mockFactory;
+        private AbilitiesController<IAbility<IAbilityDataHub>, IAbilityDataHub> _controller;
+        private IAbility<IAbilityDataHub> _mockAbility1;
+        private IAbility<IAbilityDataHub> _mockAbility2;
+        private IAbility<IAbilityDataHub> _mockAbility3;
         private bool _casted;
         private float _cd = 5;
         private float _castTime = 1;
@@ -40,17 +40,17 @@ namespace Tests.Runtime.RPG.Abilities
         public void Setup() 
         {
             _casted = false;
-            _mockFactory = Substitute.For<IAbilityDataFactory>();
-            _controller = new AbilitiesController<IAbility<IAbilityDataFactory>, IAbilityDataFactory>(3, _mockFactory);
+            _mockFactory = Substitute.For<IAbilityDataHub>();
+            _controller = new AbilitiesController<IAbility<IAbilityDataHub>, IAbilityDataHub>(3, _mockFactory);
 
             PrepareMockAbility(_mockAbility1, 0);
             PrepareMockAbility(_mockAbility2, 1);
             PrepareMockAbility(_mockAbility3, 2);
         }
 
-        private void PrepareMockAbility(IAbility<IAbilityDataFactory> ability, uint slot)
+        private void PrepareMockAbility(IAbility<IAbilityDataHub> ability, uint slot)
         {
-            ability = Substitute.For<IAbility<IAbilityDataFactory>>();
+            ability = Substitute.For<IAbility<IAbilityDataHub>>();
             ability.Cooldown.Returns(_cd);
             ability.CastTime.Returns(_castTime);
             ability.When(x => x.Cast(_mockFactory)).Do(x => _casted = true);
@@ -87,7 +87,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Is_Set_In_Slot(uint slot)
         {
-            var mockAbility = Substitute.For<IAbility<IAbilityDataFactory>>();
+            var mockAbility = Substitute.For<IAbility<IAbilityDataHub>>();
             _controller.SetAbility(slot, mockAbility);
 
             Assert.IsTrue(_controller.GetAbility(slot) == mockAbility);
