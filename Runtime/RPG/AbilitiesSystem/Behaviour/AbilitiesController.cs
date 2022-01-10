@@ -27,6 +27,8 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Returns the number of AbilitySlots assigned in the constructor
         /// </summary>
         public uint AbilitySlots {get; private set;}
+
+        public TAbilityDataDactory DataFactory => _dataFactory;
         #endregion
 
 

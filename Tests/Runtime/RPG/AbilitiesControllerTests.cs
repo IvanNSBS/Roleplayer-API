@@ -1,4 +1,3 @@
-using UnityEngine;
 using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
@@ -7,6 +6,26 @@ namespace Tests.Runtime.RPG.Abilities
 {
     public class AbilitiesControllerTests
     {
+        #region Test Factory Ability
+        public class TestFactoryAbility : IAbility<IAbilityDataFactory>
+        {   
+            private IAbilityDataFactory _factoryRef;
+            public bool isEqual;
+
+            public TestFactoryAbility(float cd, float castTime, IAbilityDataFactory factoryRef)
+            {
+                _factoryRef = factoryRef;
+                Cooldown = cd;
+                CastTime = castTime;
+            }
+
+            public void Cast(IAbilityDataFactory dataFactory) => isEqual = dataFactory == _factoryRef;
+            public float CurrentCooldown {get; set;}
+            public float Cooldown {get; set;}
+            public float CastTime {get;}
+        }
+        #endregion
+
         #region Mock Tests
         private IAbilityDataFactory _mockFactory;
         private AbilitiesController<IAbility<IAbilityDataFactory>, IAbilityDataFactory> _controller;
@@ -42,6 +61,26 @@ namespace Tests.Runtime.RPG.Abilities
 
 
         #region Methods
+        [Test]
+        public void Controller_Is_Constructed_Correctly()
+        {
+            Assert.IsTrue(_controller.AbilitySlots == 3);
+            Assert.IsTrue(_controller.DataFactory == _mockFactory);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Receives_Correct_Data_Factory_For_Casting(uint slot)
+        {
+            var testAbility = new TestFactoryAbility(_cd, 0, _mockFactory);
+            _controller.SetAbility(slot, testAbility);
+            _controller.StartCast(slot);
+
+            Assert.IsTrue(testAbility.isEqual);
+        }
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
