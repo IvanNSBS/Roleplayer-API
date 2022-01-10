@@ -8,6 +8,7 @@ namespace Tests.Runtime.RPG.Abilities
     public class AbilitiesControllerTests
     {
         #region Mock Tests
+        private IAbilityDataFactory _mockFactory;
         private AbilitiesController<IAbility<IAbilityDataFactory>, IAbilityDataFactory> _controller;
         private IAbility<IAbilityDataFactory> _mockAbility1;
         private IAbility<IAbilityDataFactory> _mockAbility2;
@@ -20,7 +21,8 @@ namespace Tests.Runtime.RPG.Abilities
         public void Setup() 
         {
             _casted = false;
-            _controller = new AbilitiesController<IAbility<IAbilityDataFactory>, IAbilityDataFactory>(3);
+            _mockFactory = Substitute.For<IAbilityDataFactory>();
+            _controller = new AbilitiesController<IAbility<IAbilityDataFactory>, IAbilityDataFactory>(3, _mockFactory);
 
             PrepareMockAbility(_mockAbility1, 0);
             PrepareMockAbility(_mockAbility2, 1);
@@ -32,7 +34,7 @@ namespace Tests.Runtime.RPG.Abilities
             ability = Substitute.For<IAbility<IAbilityDataFactory>>();
             ability.Cooldown.Returns(_cd);
             ability.CastTime.Returns(_castTime);
-            ability.When(x => x.Cast()).Do(x => _casted = true);
+            ability.When(x => x.Cast(_mockFactory)).Do(x => _casted = true);
 
             _controller.SetAbility(slot, ability);
         }

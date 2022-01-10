@@ -9,7 +9,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Casts the ability, unleashing it's effect in the world
         /// </summary>
-        void Cast();
+        void Cast(TDataFactory dataFactory);
 
         /// <summary>
         /// Getter for the current ability Cooldown

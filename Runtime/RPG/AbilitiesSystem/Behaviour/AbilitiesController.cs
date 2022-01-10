@@ -10,6 +10,7 @@ namespace INUlib.RPG.AbilitiesSystem
            where TAbility : class, IAbility<TAbilityDataDactory> where TAbilityDataDactory : IAbilityDataFactory
     {
         #region Fields
+        protected TAbilityDataDactory _dataFactory;
         protected TAbility[] _abilities;
         protected TAbility _casting;
         protected float _elapsedCasting;
@@ -30,9 +31,10 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Constructor
-        public AbilitiesController(uint slotAmnt)
+        public AbilitiesController(uint slotAmnt, TAbilityDataDactory dataFactory)
         {
             AbilitySlots = slotAmnt;
+            _dataFactory = dataFactory;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
         }
@@ -136,7 +138,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         protected void UnleashAbility()
         {
-            _casting.Cast();
+            _casting.Cast(_dataFactory);
             _casting.CurrentCooldown = _casting.Cooldown;
             _casting = null;
             _elapsedCasting = 0f;

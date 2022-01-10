@@ -23,7 +23,8 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Methods
-        public virtual void Initialize(uint slotAmount) => _controller = new AbilitiesController<TAbility, TAbilityDataFactory>(slotAmount);
+        public virtual void Initialize(uint slotAmount, TAbilityDataFactory dataFactory) => 
+            _controller = new AbilitiesController<TAbility, TAbilityDataFactory>(slotAmount, dataFactory);
         public virtual void StartCasting(uint slot) => _controller.StartCast(slot);
         public virtual TAbility GetAbilityBeingCast() => _controller.GetCastingAbility();
         public virtual void CancelCast() => _controller.CancelCast();
