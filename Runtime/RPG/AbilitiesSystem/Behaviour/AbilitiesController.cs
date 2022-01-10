@@ -6,7 +6,8 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Default controller for agents that can use the ability system
     /// Fully manages the abilities cooldown and their casting process
     /// </summary>
-    public class AbilitiesController<TAbility> where TAbility : class, IAbility
+    public class AbilitiesController<TAbility, TAbilityDataDactory> 
+           where TAbility : class, IAbility<TAbilityDataDactory> where TAbilityDataDactory : IAbilityDataFactory
     {
         #region Fields
         protected TAbility[] _abilities;

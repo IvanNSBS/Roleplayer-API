@@ -4,7 +4,7 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Interface for a game Ability and the Ability System 
     /// for the INUlib
     /// </summary>
-    public interface IAbility
+    public interface IAbility<TDataFactory> where TDataFactory : IAbilityDataFactory
     {
         /// <summary>
         /// Casts the ability, unleashing it's effect in the world
