@@ -1,6 +1,6 @@
 {
   "name": "com.ivanneves.inulib",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "displayName": "INU Library",
   "description": "INU Library(Ivan Neves Unity Library) purpose is to be a powerful and general Library/API to get started building RPGs with Unity. Inventories, Quests, Attributes, Character Sheets. All the core RPG elements for any game will be found here",
   "unity": "2019.4",
