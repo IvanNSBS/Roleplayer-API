@@ -62,11 +62,14 @@ namespace INUlib.Core.Audio
         /// </summary>
         /// <param name="id">The audio ID</param>
         /// <param name="position">The Wold Position to spawn the audio</param>
-        public void PlaySoundAtLocation(string id, Vector3 position)
+        /// <returns>The Instantiated Audio Source</returns>
+        public AudioSource PlaySoundAtLocation(string id, Vector3 position)
         {
             var sound = CreateSound(m_collectionsHash[id]);
             sound.transform.position = position;
             sound.Play();
+
+            return sound;
         }
         
         /// <summary>
@@ -75,23 +78,27 @@ namespace INUlib.Core.Audio
         /// </summary>
         /// <param name="ids">List of AudioData IDs</param>
         /// <param name="position">The World Position to spawn the audio</param>
-        public void PlaySoundAtLocation(string[] ids, Vector3 position)
+        /// <returns>The Instantiated Audio Source</returns>
+        public AudioSource PlaySoundAtLocation(string[] ids, Vector3 position)
         {
             Random rand = new Random();
             int idx = rand.Next(0, ids.Length);
             
-            PlaySoundAtLocation(ids[idx], position);
+            return PlaySoundAtLocation(ids[idx], position);
         }
 
         /// <summary>
         /// Plays a sound and removes spatialization, even if the sound is set to 3D.
         /// </summary>
         /// <param name="id">The AudioData Id</param>
-        public void PlaySound(string id)
+        /// <returns>The Instantiated Audio Source</returns>
+        public AudioSource PlaySound(string id)
         {
             var sound = CreateSound(m_collectionsHash[id]);
             sound.spatialize = false;
             sound.Play();
+
+            return sound;
         }
         
         /// <summary>
@@ -99,12 +106,13 @@ namespace INUlib.Core.Audio
         /// set to 3D.
         /// </summary>
         /// <param name="ids">An Array of AudioData IDs</param>
-        public void PlaySound(string[] ids)
+        /// <returns>The Instantiated Audio Source</returns>
+        public AudioSource PlaySound(string[] ids)
         {
             Random rand = new Random();
             int idx = rand.Next(0, ids.Length);
             
-            PlaySound(ids[idx]);
+            return PlaySound(ids[idx]);
         }
         #endregion Methods
         
