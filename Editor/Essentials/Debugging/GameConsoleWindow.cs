@@ -4,9 +4,9 @@ using INUlib.Essentials.Common;
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.Callbacks;
-using INUlib.Common.Debugging.Settings;
+using INUlib.Gameplay.Debugging.Settings;
 
-namespace INUlib.Common.Debugging
+namespace INUlib.Gameplay.Debugging
 {
     public class GameConsoleWindow : ExtendedEditorWindow
     {

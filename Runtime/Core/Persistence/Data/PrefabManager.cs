@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using INUlib.Common.Debugging.Loggers;
+using INUlib.Gameplay.Debugging.Loggers;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;

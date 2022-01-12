@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using INUlib.Common.Grids;
-using INUlib.Common.Grids.Algorithms.Interfaces;
+using INUlib.Gameplay.Grids;
+using INUlib.Gameplay.Grids.Algorithms.Interfaces;
 
 namespace RPG.GameWorld
 {
