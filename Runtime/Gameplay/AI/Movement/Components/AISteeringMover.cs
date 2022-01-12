@@ -1,8 +1,8 @@
 using UnityEngine;
-using INUlib.RPG.AI.Movement.Behaviour;
+using INUlib.Gameplay.AI.Movement.Behaviour;
 using System;
 
-namespace INUlib.RPG.AI.Movement.Components
+namespace INUlib.Gameplay.AI.Movement.Components
 {
     [RequireComponent(typeof(Rigidbody2D))]
     public class AISteeringMover : MonoBehaviour

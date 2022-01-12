@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Runtime.Serialization;
 
-namespace INUlib.RPG.AI.Movement
+namespace INUlib.Gameplay.AI.Movement
 {
     [Serializable]
     [JsonConverter(typeof(StringEnumConverter))]

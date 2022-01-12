@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace INUlib.RPG.AI.Movement.Behaviour
+namespace INUlib.Gameplay.AI.Movement.Behaviour
 {
     [Serializable]
     public class SteeringData

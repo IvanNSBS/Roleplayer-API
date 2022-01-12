@@ -1,10 +1,10 @@
 using UnityEngine;
 using NUnit.Framework;
 using NSubstitute;
-using INUlib.RPG.AI.Movement.Behaviour;
-using INUlib.RPG.AI.Movement;
+using INUlib.Gameplay.AI.Movement.Behaviour;
+using INUlib.Gameplay.AI.Movement;
 
-namespace Tests.Runtime.RPG.AI
+namespace Tests.Runtime.Gameplay.AI
 {
     public class AIFollowPolicyTets
     {

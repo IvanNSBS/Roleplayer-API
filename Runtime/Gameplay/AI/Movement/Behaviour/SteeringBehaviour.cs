@@ -2,7 +2,7 @@ using UnityEngine;
 using INUlib.Utils.Extensions;
 using System;
 
-namespace INUlib.RPG.AI.Movement.Behaviour
+namespace INUlib.Gameplay.AI.Movement.Behaviour
 {
     public class SteeringBehaviour : IMovement
     {

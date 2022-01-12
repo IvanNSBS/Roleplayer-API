@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace INUlib.RPG.AI.Movement
+namespace INUlib.Gameplay.AI.Movement
 {
     public interface IMovement
     {
