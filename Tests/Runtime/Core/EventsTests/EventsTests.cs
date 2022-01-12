@@ -2,7 +2,7 @@
 using INUlib.Core;
 using NUnit.Framework;
 
-namespace Tests.Runtime
+namespace Tests.Runtime.Core.Events
 {
     public class EventsTests
     {

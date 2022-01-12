@@ -5,7 +5,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using Microsoft.MinIoC;
 
-namespace Tests.Runtime.IoCTests
+namespace Tests.Runtime.Core.IoCTests
 {
     #pragma warning disable 1591
     public class ContainerTests

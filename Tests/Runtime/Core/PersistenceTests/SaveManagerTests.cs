@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using INUlib.Core.Persistence;
 using INUlib.Core.Persistence.Interfaces;
 
-namespace Tests.Runtime.PersistenceTests
+namespace Tests.Runtime.Core.PersistenceTests
 {
     [TestFixture]
     public class SaveManagerTests
