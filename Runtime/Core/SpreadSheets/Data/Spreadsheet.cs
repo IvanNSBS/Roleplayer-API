@@ -2,7 +2,7 @@
 using UnityEngine.Networking;
 using System.Text.RegularExpressions;
 
-namespace INUlib.Gameplay.SpreadSheets
+namespace INUlib.Core.SpreadSheets
 {
     [CreateAssetMenu(fileName = "Spreadsheet", menuName = "INU lib/Spreadsheet", order = 0)]
     public class Spreadsheet : ScriptableObject

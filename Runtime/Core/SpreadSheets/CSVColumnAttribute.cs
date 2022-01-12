@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace INUlib.Gameplay.SpreadSheets
+namespace INUlib.Core.SpreadSheets
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class CSVColumnAttribute : Attribute

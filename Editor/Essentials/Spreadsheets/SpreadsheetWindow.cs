@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using INUlib.Essentials.Common;
-using INUlib.Gameplay.SpreadSheets;
+using INUlib.Core.SpreadSheets;
 
 namespace INUlib.Essentials.Spreadsheets
 {

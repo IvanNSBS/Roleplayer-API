@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using INUlib.Gameplay.SpreadSheets;
+using INUlib.Core.SpreadSheets;
 
 namespace INUlib.Essentials.Spreadsheets
 {

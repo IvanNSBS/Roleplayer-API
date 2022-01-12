@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace INUlib.Gameplay.SpreadSheets
+namespace INUlib.Core.SpreadSheets
 {
     [Serializable]
     public class SpreadsheetRow

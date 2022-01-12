@@ -5,7 +5,7 @@ using System.Reflection;
 using INUlib.Utils.Extensions;
 using UnityEngine;
 
-namespace INUlib.Gameplay.SpreadSheets
+namespace INUlib.Core.SpreadSheets
 {
     public static class SpreadsheetParser
     {
