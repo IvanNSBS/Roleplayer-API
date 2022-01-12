@@ -7,7 +7,7 @@ using INUlib.Core.Persistence.Data;
 using UnityEditor.SceneManagement;
 using INUlib.Core.Persistence.GameObjects;
 
-namespace INUlib.Core.Persistence
+namespace INUlib.UEditor.Core.Persistence
 {
     [CustomEditor(typeof(PersistentSceneGameObject))]
     public class PersistentSceneGameObjectEditor : UnityEditor.Editor

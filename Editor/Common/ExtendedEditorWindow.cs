@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace INUlib.Essentials.Common
+namespace INUlib.UEditor.Common
 {
     public class ExtendedEditorWindow : EditorWindow
     {

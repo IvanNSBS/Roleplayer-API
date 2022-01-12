@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using INUlib.Core.SpreadSheets;
 
-namespace INUlib.Essentials.Spreadsheets
+namespace INUlib.UEditor.Core.Spreadsheets
 {
     [CustomEditor(typeof(Spreadsheet))]
     public class SpreadSheetEditor : Editor
