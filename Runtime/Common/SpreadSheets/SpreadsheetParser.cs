@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Common.Utils.Extensions;
+using INUlib.Utils.Extensions;
 using UnityEngine;
 
 namespace INUlib.Common.SpreadSheets

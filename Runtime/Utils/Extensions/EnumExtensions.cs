@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Common.Utils.Extensions
+namespace INUlib.Utils.Extensions
 {
     public static class EnumExtensions
     {

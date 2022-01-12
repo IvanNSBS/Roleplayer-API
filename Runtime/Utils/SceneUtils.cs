@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-namespace Common.Utils.Extensions
+namespace INUlib.Utils.Extensions
 {
     public static class SceneUtils
     {

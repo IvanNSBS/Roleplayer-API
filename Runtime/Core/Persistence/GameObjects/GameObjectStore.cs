@@ -3,7 +3,7 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using INUlib.Core.Persistence.Interfaces;
-using Common.Utils.Extensions;
+using INUlib.Utils.Extensions;
 using UnityEngine.SceneManagement;
 
 namespace INUlib.Core.Persistence.GameObjects

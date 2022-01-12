@@ -1,5 +1,5 @@
 using UnityEngine;
-using Common.Utils.Extensions;
+using INUlib.Utils.Extensions;
 using System;
 
 namespace INUlib.RPG.AI.Movement.Behaviour

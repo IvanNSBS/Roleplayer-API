@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Lib.Utils;
+using INUlib.Utils;
 using UnityEngine;
 
 namespace INUlib.Core.Persistence.Data

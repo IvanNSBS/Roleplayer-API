@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using UnityEngine;
 
-namespace Lib.Utils
+namespace INUlib.Utils
 {
     public static class SettingsUtils
     {

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using JetBrains.Annotations;
 
-namespace Common.Utils.Extensions
+namespace INUlib.Utils.Extensions
 {
     public static class DotNetJson
     {
