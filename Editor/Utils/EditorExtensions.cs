@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using System.Collections.Generic;
 
-namespace INUlib.Essentials.EditorUtils
+namespace INUlib.UEditor.Utils
 {
     public static class EditorExtension
     {

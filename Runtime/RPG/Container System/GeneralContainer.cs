@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using INUlib.Common.Grids;
+using INUlib.Gameplay.Grids;
 using System.Collections.Generic;
 using System;
 using RPG.ItemSystem;

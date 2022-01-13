@@ -1,4 +1,4 @@
-﻿using INUlib.Common.Grids;
+﻿using INUlib.Gameplay.Grids;
 using RPG.ItemSystem;
 using UnityEngine;
 
