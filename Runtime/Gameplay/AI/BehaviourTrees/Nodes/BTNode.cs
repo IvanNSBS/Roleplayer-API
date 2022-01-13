@@ -25,7 +25,10 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
             _state = OnUpdate();
 
             if(_state != NodeState.Running)
+            {
+                _started = false;                
                 OnFinish();
+            }
 
             return _state;
         }

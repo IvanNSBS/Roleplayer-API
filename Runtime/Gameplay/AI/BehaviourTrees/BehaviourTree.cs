@@ -21,7 +21,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         public BehaviourTree(BTNode root, Blackboard bb) 
         {
             _root = root;
-            _blacboard = bb; 
+            _blackboard = bb; 
         } 
         #endregion
 
