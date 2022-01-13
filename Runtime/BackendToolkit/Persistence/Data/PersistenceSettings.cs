@@ -9,7 +9,7 @@ namespace INUlib.BackendToolkit.Persistence.Data
     {
         #region Static Fields
         public static string settingsFileName = "Persistence Settings";
-        public static string settingsSubFolderName = "";
+        public static string settingsSubFolderName = "INUlib";
         #endregion Static Fields
         
         #region Serializable Fields

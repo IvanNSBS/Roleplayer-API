@@ -16,7 +16,7 @@ namespace INUlib.Gameplay.Debugging.Settings
     {
         #region Constants
         private static string s_settingsFileName = "INUlib Debugging Settings";
-        private static string s_settingsSubFolderName = "Debugging";
+        private static string s_settingsSubFolderName = "INUlib";
         #endregion Constants
         
         #region Inspector Fields
