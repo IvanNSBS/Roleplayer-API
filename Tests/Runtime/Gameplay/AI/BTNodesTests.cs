@@ -1,8 +1,6 @@
 using INUlib.Gameplay.AI.BehaviourTrees;
 using NSubstitute;
-using NSubstitute.Core;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Tests.Runtime.Gameplay.AI
 {

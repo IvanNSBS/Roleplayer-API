@@ -27,13 +27,13 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        public void SetRoot(BTNode node)
-        {
-            _root = node;
-        }
-
+        public void SetRoot(BTNode node) => _root = node;
         public BTNode GetRoot() => _root;
-        public void Update() => _root.Update();
+
+        public NodeState Update() {
+            _treeState = _root.Update();
+            return _treeState;
+        } 
         #endregion
     }
 }
