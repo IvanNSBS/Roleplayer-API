@@ -22,14 +22,11 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Constructor
-        public BehaviourTree() { }
-        public BehaviourTree(BTNode root) => _root = root;
-        public BehaviourTree(Blackboard bb) => _blackboard = bb; 
-        public BehaviourTree(BTNode root, Blackboard bb) 
-        {
+        public BehaviourTree() => _blackboard = new Blackboard();
+        public BehaviourTree(BTNode root) { 
+            _blackboard = new Blackboard();
             _root = root;
-            _blackboard = bb; 
-        } 
+        }
         #endregion
 
 
