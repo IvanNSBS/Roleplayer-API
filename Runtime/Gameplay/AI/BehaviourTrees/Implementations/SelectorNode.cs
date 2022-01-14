@@ -2,6 +2,12 @@ using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
+    /// <summary>
+    /// Selector Node executes all of it's children until one 
+    /// of them succeeds, making the Selector succeed.
+    /// A Selector will fail when all of it's children fail.
+    /// It behaves like an OR operator
+    /// </summary>
     public class SelectorNode : CompositeNode
     {
         #region Fields

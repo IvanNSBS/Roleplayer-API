@@ -2,6 +2,12 @@ using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
+    /// <summary>
+    /// Sequence Node executes all of it's children until one 
+    /// of them fails, making the sequence fail.
+    /// A Sequence will succeed when all of it's children succeeds.
+    /// It behaves like an AND operator
+    /// </summary>
     public class SequenceNode : CompositeNode
     {
         #region Fields

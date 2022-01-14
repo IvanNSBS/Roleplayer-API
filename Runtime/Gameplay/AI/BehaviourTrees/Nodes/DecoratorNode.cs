@@ -1,5 +1,9 @@
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
+    /// <summary>
+    /// Interface for a Decorator Node on the
+    /// Behaviour Tree
+    /// </summary>
     public abstract class DecoratorNode : BTNode
     {
         #region Fields
@@ -18,6 +22,10 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
+        /// <summary>
+        /// Sets the Decorator Child
+        /// </summary>
+        /// <param name="child">The new Decorator Child</param>
         public void SetChild(BTNode child) => _child = child;
         #endregion
     }

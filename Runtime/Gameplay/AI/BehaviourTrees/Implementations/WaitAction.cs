@@ -1,8 +1,10 @@
 using INUlib.Utils;
-using UnityEngine;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
+    /// <summary>
+    /// Wait action. Waits an amount of time before succeeding
+    /// </summary>
     public class WaitAction : ActionNode
     {
         #region Fields

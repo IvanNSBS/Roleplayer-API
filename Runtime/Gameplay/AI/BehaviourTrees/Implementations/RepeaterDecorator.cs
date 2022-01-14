@@ -1,5 +1,9 @@
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
+    /// <summary>
+    /// Repeater is a decorator that repeats the execution of a child
+    /// node N times.
+    /// </summary>
     public class RepeaterDecorator : DecoratorNode
     {
         #region Fields
