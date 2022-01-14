@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using UnityEditor.Animations;
+
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
     /// <summary>
@@ -7,6 +11,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public class BehaviourTree
     {
         #region Fields
+        protected bool _started;
         protected BTNode _root;
         protected NodeState _treeState;
         protected Blackboard _blackboard;
@@ -18,6 +23,11 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// The current Tree Proccessing State
         /// </summary>
         public NodeState TreeState => _treeState;
+
+        /// <summary>
+        /// The Behaviour Tree Blackboard
+        /// </summary>
+        public Blackboard Blackboard => _blackboard;
         #endregion
 
 
@@ -44,13 +54,64 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         public BTNode GetRoot() => _root;
 
         /// <summary>
-        /// Ticks the tree, updating it's state
+        /// Ticks the tree, updating it's state.
+        /// Nothing will happen and it will always return Failure 
+        /// if the tree hasn't been started
         /// </summary>
         /// <returns>The new tree state</returns>
         public NodeState Update() {
+            if(!_started)
+                return NodeState.Failure;
+
             _treeState = _root.Update();
             return _treeState;
-        } 
+        }
+
+        /// <summary>
+        /// Starts the Behaviour Tree, sharing the blackboard among all of the
+        /// behaviour tree nodes an allowing the Update to happen
+        /// </summary>
+        public void Start()
+        {
+            _started = true;
+
+            PerformDFS(node => node.SetBlackBoard(_blackboard));
+        }
+        #endregion
+
+
+        #region Helper Methods
+        /// <summary>
+        /// Performs a Depth First Search on the Behaviour Tree.
+        /// Optionally, it can execute a function that has the visited node as parameter once this node
+        /// has been visited by the DFS algorithm
+        /// </summary>
+        /// <param name="OnNodeVisited">The function too execute on the node once it has been visited</param>
+        protected void PerformDFS(Action<BTNode> OnNodeVisited)
+        {
+            Stack<BTNode> stack = new Stack<BTNode>();
+            HashSet<BTNode> visitedSet = new HashSet<BTNode>();
+            
+            stack.Push(_root);
+
+            while(stack.Count > 0)
+            {
+                BTNode node = stack.Pop();
+                bool visited = visitedSet.Contains(node);
+
+                if(!visited)
+                {
+                    visitedSet.Add(node);
+                    OnNodeVisited?.Invoke(node);
+
+                    IReadOnlyList<BTNode> childs = node.GetChildren();
+                    
+                    if(childs != null)
+                        foreach(var child in childs)
+                            stack.Push(child);
+                }
+            }
+        }
         #endregion
     }
 }

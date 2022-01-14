@@ -11,11 +11,24 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         private bool _started;
         protected NodeState _state;
         protected BTNode _parent;
+        protected Blackboard _blackBoard;
         #endregion
 
         #region Properties
+        /// <summary>
+        /// The current Node Execution State
+        /// </summary>
         public NodeState State => _state;
+
+        /// <summary>
+        /// The Node parent
+        /// </summary>
         public BTNode Parent => _parent;
+        
+        /// <summary>
+        /// The Node Blackboard  
+        /// </summary>
+        public Blackboard Blackboard => _blackBoard; 
         #endregion
 
         #region Methods
@@ -42,6 +55,12 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
             return _state;
         }
+
+        /// <summary>
+        /// Sets the BlackBoard of the node
+        /// </summary>
+        /// <param name="bb">The blackboard value</param>
+        public void SetBlackBoard(Blackboard bb) => _blackBoard = bb;
 
         /// <summary>
         /// Gets all the children nodes
