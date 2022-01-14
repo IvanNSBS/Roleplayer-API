@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Tests.Runtime.Gameplay.AI
 {
-    public class BehaviourTreeTests
+    public class BTNodesTests
     {
         #region Mock Clases
         public class MockBTNode : BTNode
