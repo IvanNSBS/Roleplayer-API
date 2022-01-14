@@ -287,5 +287,20 @@ namespace Tests.Runtime.Gameplay.AI
                 Assert.IsTrue(repeater.Update() == (i == repeatAmnt - 1 ? NodeState.Success : NodeState.Running));
         }
         #endregion
+
+
+        #region Wait Action Node Tests
+        [Test]
+        [TestCase(0.0f, 0.1f, NodeState.Success)]
+        [TestCase(1.0f, 0.0f, NodeState.Running)]
+        [TestCase(0.2f, 1.0f, NodeState.Success)]
+        public void Wait_Action_Finishes_After_Time_Passes(float wait, float elapsed, NodeState expected)
+        {
+            var mockWait = Substitute.ForPartsOf<WaitAction>(wait);
+            mockWait.ElapsedTime.Returns(elapsed);
+
+            Assert.IsTrue(mockWait.Update() == expected);
+        }
+        #endregion
     }
 }
