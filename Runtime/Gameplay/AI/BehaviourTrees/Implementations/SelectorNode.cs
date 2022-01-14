@@ -23,7 +23,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         #region Methods
         protected override NodeState Evaluate()
         {
-            if(Childs.Count == 0)
+            if(GetChildren().Count == 0)
                 return NodeState.Success;
             
             switch(_childs[_currentChildIdx].Update())
@@ -48,7 +48,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
         
         #region Helper Methods
-        private bool HasVisitedAllChildrens() => _currentChildIdx == Childs.Count;
+        private bool HasVisitedAllChildrens() => _currentChildIdx == GetChildren().Count;
         #endregion
     }
 }

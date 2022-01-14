@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
     /// <summary>
@@ -17,7 +19,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
         #region Constructors
         public DecoratorNode() { }
-        public DecoratorNode(BTNode child) => _child = child;
+        public DecoratorNode(BTNode child) => SetChild(child);
         #endregion
 
 
@@ -26,7 +28,12 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// Sets the Decorator Child
         /// </summary>
         /// <param name="child">The new Decorator Child</param>
-        public void SetChild(BTNode child) => _child = child;
+        public void SetChild(BTNode child) { 
+            _child = child;
+            _child.SetParent(this); 
+        }
+        
+        public override IReadOnlyList<BTNode> GetChildren() => new List<BTNode>{ _child };
         #endregion
     }
 }

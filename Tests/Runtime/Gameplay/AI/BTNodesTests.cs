@@ -1,6 +1,9 @@
 using INUlib.Gameplay.AI.BehaviourTrees;
 using NSubstitute;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Tests.Runtime.Gameplay.AI
 {
@@ -15,6 +18,7 @@ namespace Tests.Runtime.Gameplay.AI
             protected override NodeState Evaluate() => NodeState.Success;
             protected override void OnStart() => started++;
             protected override void OnFinish() => finished++;
+            public override IReadOnlyList<BTNode> GetChildren() => null;
         } 
         #endregion
 
@@ -44,6 +48,53 @@ namespace Tests.Runtime.Gameplay.AI
             node.Update();
             Assert.IsTrue(node.State == NodeState.Success);
             Assert.IsTrue(node.finished == 2 && node.started == 2);
+        }
+
+        [Test]
+        public void Composite_Properly_Sets_Node_As_Its_Child()
+        {
+            BTNode mock = Substitute.For<BTNode>();
+
+            CompositeNode composite = Substitute.ForPartsOf<CompositeNode>();
+            composite.AddChild(mock);
+
+            Assert.IsTrue(mock.Parent == composite);
+        }
+
+        [Test]
+        public void Decorator_Properly_Sets_Node_As_Its_Child()
+        {
+            BTNode mock = Substitute.For<BTNode>();
+            DecoratorNode decorator = Substitute.ForPartsOf<DecoratorNode>(mock);
+
+            Assert.IsTrue(mock.Parent == decorator);
+        }
+
+        [Test]
+        public void Decorator_Node_Properly_Returns_Childrens()
+        {
+            BTNode mock = Substitute.For<BTNode>();
+            DecoratorNode decorator = Substitute.ForPartsOf<DecoratorNode>();
+            decorator.SetChild(mock);
+
+            Assert.IsTrue(decorator.GetChildren().Contains(mock));
+        }
+
+        [Test]
+        public void Composite_Node_Properly_Returns_Childrens()
+        {
+            BTNode mock = Substitute.For<BTNode>();
+            CompositeNode composite = Substitute.ForPartsOf<CompositeNode>();
+            composite.AddChild(mock);
+
+            Assert.IsTrue(composite.GetChildren().Contains(mock));
+        }
+
+        [Test]
+        public void Action_Node_Has_No_Children()
+        {
+            ActionNode action = Substitute.ForPartsOf<ActionNode>();
+            Assert.IsNull(action.GetChildren());
         }
         #endregion
 

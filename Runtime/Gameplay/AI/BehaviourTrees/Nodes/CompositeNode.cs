@@ -13,11 +13,6 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         #endregion
 
 
-        #region Properties
-        public IReadOnlyList<BTNode> Childs => _childs;
-        #endregion
-
-
         #region Constructors
         public CompositeNode() => _childs = new List<BTNode>();
         public CompositeNode(List<BTNode> childs) => _childs = childs;
@@ -26,14 +21,25 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// Adds a child to the Composite Node childs
         /// </summary>
         /// <param name="child">The child to be added</param>
-        public void AddChild(BTNode child) => _childs.Add(child);
+        public void AddChild(BTNode child) {
+            _childs.Add(child);
+            child.SetParent(this);
+        }
         
         /// <summary>
         /// Removes a child from the Composite Node
         /// </summary>
         /// <param name="child">The child to be removed</param>
         /// <returns>True if the child was present and removed. False otherwise</returns>
-        public bool RemoveChild(BTNode child) => _childs.Remove(child);
+        public bool RemoveChild(BTNode child) { 
+            bool removed = _childs.Remove(child);
+            if(removed)
+                child.SetParent(null);
+
+            return removed;
+        }
+        
+        public override IReadOnlyList<BTNode> GetChildren() => _childs;
         #endregion
     }
 }

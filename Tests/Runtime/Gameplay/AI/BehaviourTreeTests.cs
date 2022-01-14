@@ -1,4 +1,3 @@
-using NSubstitute;
 using INUlib.Gameplay.AI.BehaviourTrees;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -16,6 +15,7 @@ namespace Tests.Runtime.Gameplay.AI
             protected override NodeState Evaluate() => NodeState.Success;
             protected override void OnStart() => started++;
             protected override void OnFinish() => finished++;
+            public override IReadOnlyList<BTNode> GetChildren() => null;
         } 
         #endregion
 

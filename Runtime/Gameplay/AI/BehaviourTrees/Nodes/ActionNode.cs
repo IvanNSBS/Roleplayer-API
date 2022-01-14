@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
     /// <summary>
@@ -6,6 +8,8 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     /// </summary>
     public abstract class ActionNode : BTNode
     {
-        
+        #region Methods
+        public override IReadOnlyList<BTNode> GetChildren() => null;
+        #endregion
     }
 }
