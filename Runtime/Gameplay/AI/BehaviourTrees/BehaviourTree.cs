@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Animations;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
@@ -107,7 +108,8 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
                     IReadOnlyList<BTNode> childs = node.GetChildren();
                     
                     if(childs != null)
-                        foreach(var child in childs)
+                        // Reversing is necessary so we visit each node from left to right
+                        foreach(var child in childs.Reverse())
                             stack.Push(child);
                 }
             }

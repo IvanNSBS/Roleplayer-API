@@ -17,7 +17,35 @@ namespace Tests.Runtime.Gameplay.AI
             protected override void OnStart() => started++;
             protected override void OnFinish() => finished++;
             public override IReadOnlyList<BTNode> GetChildren() => null;
-        } 
+        }
+
+        public class MockBehaviourTreeDFS : BehaviourTree
+        {
+            public int result = -1;
+
+            public MockBehaviourTreeDFS() : base()
+            {
+                
+                SequenceNode seq1 = new SequenceNode();
+                SequenceNode seq2 = new SequenceNode();
+
+                for(int i = 0; i < 4; i++)
+                    seq1.AddChild(Substitute.For<BTNode>());
+                            
+                for(int i = 0; i < 4; i++)
+                    seq2.AddChild(Substitute.For<BTNode>());
+
+                SequenceNode root = new SequenceNode(new List<BTNode>{seq1, seq2});
+                SetRoot(root);
+
+                PerformDFS( x => {
+                    if(x == seq1)
+                        result = 1;
+                    if(x == seq2)
+                        result = 2;
+                });
+            }
+        }
         #endregion
 
 
@@ -90,6 +118,13 @@ namespace Tests.Runtime.Gameplay.AI
             }
 
             Assert.IsTrue(allShareSameBB);
+        }
+
+        [Test]
+        public void Behaviour_Tree_Properly_Executes_DFS_Algorithm_From_Left_To_Right()
+        {
+            MockBehaviourTreeDFS dfsTest = new MockBehaviourTreeDFS();
+            Assert.IsTrue(dfsTest.result == 2);
         }
         #endregion
     }
