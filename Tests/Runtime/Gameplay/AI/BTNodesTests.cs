@@ -302,5 +302,21 @@ namespace Tests.Runtime.Gameplay.AI
             Assert.IsTrue(mockWait.Update() == expected);
         }
         #endregion
+
+
+        #region InverterDecorator Node Tests
+        [Test]
+        [TestCase(NodeState.Running, NodeState.Running)]
+        [TestCase(NodeState.Failure, NodeState.Success)]
+        [TestCase(NodeState.Success, NodeState.Failure)]
+        public void Inverter_Correctly_Inverts(NodeState state, NodeState expected)
+        {
+            var mockNode = Substitute.For<BTNode>();
+            mockNode.Update().Returns(state);
+
+            InverterDecorator inverter = new InverterDecorator(mockNode);
+            Assert.IsTrue(inverter.Update() == expected);
+        }
+        #endregion
     }
 }
