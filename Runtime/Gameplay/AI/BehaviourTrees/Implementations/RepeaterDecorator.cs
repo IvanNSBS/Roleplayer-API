@@ -16,7 +16,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        protected override NodeState OnUpdate()
+        protected override NodeState Evaluate()
         {
             if(_child == null) {
                 _repeatCount++;

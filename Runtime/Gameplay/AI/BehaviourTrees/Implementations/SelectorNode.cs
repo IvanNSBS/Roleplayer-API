@@ -15,7 +15,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        protected override NodeState OnUpdate()
+        protected override NodeState Evaluate()
         {
             if(Childs.Count == 0)
                 return NodeState.Success;

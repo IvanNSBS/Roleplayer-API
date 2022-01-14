@@ -22,7 +22,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
                 OnStart();
             }
 
-            _state = OnUpdate();
+            _state = Evaluate();
 
             if(_state != NodeState.Running)
             {
@@ -35,7 +35,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
         protected abstract void OnStart();
         protected abstract void OnFinish();
-        protected abstract NodeState OnUpdate();
+        protected abstract NodeState Evaluate();
         #endregion
     }
 }

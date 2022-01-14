@@ -31,7 +31,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
         #region Methods
         public void SetWaitTime(float waitTime) => _waitTime = waitTime;
-        protected override NodeState OnUpdate() => ElapsedTime >= _waitTime ? NodeState.Success : NodeState.Running;
+        protected override NodeState Evaluate() => ElapsedTime >= _waitTime ? NodeState.Success : NodeState.Running;
         protected override void OnStart() => _timer.Restart();
         protected override void OnFinish() => _timer.Restart();
         #endregion

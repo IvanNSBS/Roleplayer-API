@@ -14,7 +14,7 @@ namespace Tests.Runtime.Gameplay.AI
             public int started = 0;
             public int finished = 0;
 
-            protected override NodeState OnUpdate() => NodeState.Success;
+            protected override NodeState Evaluate() => NodeState.Success;
             protected override void OnStart() => started++;
             protected override void OnFinish() => finished++;
         } 
