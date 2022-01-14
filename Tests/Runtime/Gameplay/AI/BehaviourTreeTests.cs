@@ -1,5 +1,6 @@
 using INUlib.Gameplay.AI.BehaviourTrees;
 using NSubstitute;
+using NSubstitute.Core;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -251,6 +252,39 @@ namespace Tests.Runtime.Gameplay.AI
                     Assert.IsTrue(seq.Update() == expected);
                 }
             }
+        }
+        #endregion
+
+
+        #region Repeater Decorator Tests
+        [Test]
+        [TestCase(0, NodeState.Success)]
+        [TestCase(1, NodeState.Success)]
+        [TestCase(2, NodeState.Failure)]
+        [TestCase(3, NodeState.Success)]
+        [TestCase(4, NodeState.Failure)]
+        public void Repeater_Only_Completes_After_Repeating_All_Times(int repeatAmnt, NodeState expected)
+        {
+            BTNode mock = Substitute.For<BTNode>();
+            mock.Update().Returns(expected);
+
+            RepeaterDecorator repeater = new RepeaterDecorator(repeatAmnt, mock);
+            for(int i = 0; i < repeatAmnt; i++)
+                Assert.IsTrue(repeater.Update() == (i == repeatAmnt - 1 ? expected : NodeState.Running));
+        }
+
+        [Test]
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        public void Repeater_Succeeds_If_Dont_Have_Child(int repeatAmnt)
+        {
+            RepeaterDecorator repeater = new RepeaterDecorator(repeatAmnt);
+            
+            for(int i = 0; i < repeatAmnt; i++)
+                Assert.IsTrue(repeater.Update() == (i == repeatAmnt - 1 ? NodeState.Success : NodeState.Running));
         }
         #endregion
     }
