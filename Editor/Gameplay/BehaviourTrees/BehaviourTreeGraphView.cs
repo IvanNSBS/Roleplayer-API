@@ -81,10 +81,10 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             // Clear previous tree
             DeleteElements(graphElements);
 
-            _btAsset.Nodes.ForEach(InstantiateNodeView);
+            _btAsset.InspectorNodes.ForEach(InstantiateNodeView);
         }
 
-        internal void InstantiateNodeView(BTNode nodeView)
+        internal void InstantiateNodeView(SerializedNode nodeView)
         {
             BTNodeView node = new BTNodeView(nodeView);
             AddElement(node);
@@ -92,7 +92,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
         private void InstantiateBTNode(Type t)
         {
-            BTNode node = _btAsset.CreateNode(t);
+            SerializedNode node = _btAsset.CreateNode(t);
             InstantiateNodeView(node);
         }
         #endregion

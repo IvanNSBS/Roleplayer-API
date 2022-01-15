@@ -17,14 +17,27 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
 
         #region Fields
-        private BTNode _node;
+        private SerializedNode _node;
         #endregion
 
         #region Constructors
-        public BTNodeView(BTNode node)
+        public BTNodeView(SerializedNode node)
         {
             _node = node;
             title = node.name;
+
+            style.left = node.pos.x;
+            style.top = node.pos.y;
+        }
+        #endregion
+
+
+        #region Methods
+        public override void SetPosition(Rect newPos)
+        {
+            base.SetPosition(newPos);
+            _node.pos.x = newPos.xMin;
+            _node.pos.y = newPos.yMin;
         }
         #endregion
     }
