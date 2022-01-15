@@ -11,6 +11,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public abstract class BTNode
     {
         #region Fields
+        [HideInInspector] public string guid;
         private bool _started;
         protected NodeState _state;
         protected BTNode _parent;

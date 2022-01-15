@@ -1,14 +1,18 @@
+using System;
+using UnityEngine;
+
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
     /// <summary>
     /// Repeater is a decorator that repeats the execution of a child
     /// node N times.
     /// </summary>
+    [Serializable]
     public class RepeaterDecorator : DecoratorNode
     {
         #region Fields
         private int _repeatAmnt;
-        private int _repeatCount;
+        [SerializeField] private int _repeatCount;
         #endregion
 
 

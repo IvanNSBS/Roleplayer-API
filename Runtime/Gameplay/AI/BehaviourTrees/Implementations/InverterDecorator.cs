@@ -1,9 +1,12 @@
+using System;
+
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
     /// <summary>
     /// Inverts the result of a node.
     /// Success becomes Failure and Vice-Versa
     /// </summary>
+    [Serializable]
     public class InverterDecorator : DecoratorNode
     {
         #region Constructors

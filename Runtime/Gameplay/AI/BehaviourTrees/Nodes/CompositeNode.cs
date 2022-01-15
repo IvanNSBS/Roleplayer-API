@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
@@ -9,12 +10,12 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public abstract class CompositeNode : BTNode
     {
         #region Fields
-        protected List<BTNode> _childs;
+        [SerializeReference] protected List<BTNode> _childs;
         #endregion
 
 
         #region Constructors
-        public CompositeNode() => _childs = new List<BTNode>();
+        public CompositeNode() { }
         public CompositeNode(List<BTNode> childs) => _childs = childs;
         
         /// <summary>
@@ -22,6 +23,9 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// </summary>
         /// <param name="child">The child to be added</param>
         public void AddChild(BTNode child) {
+            if(_childs == null)
+                _childs = new List<BTNode>();
+
             _childs.Add(child);
             child.SetParent(this);
         }

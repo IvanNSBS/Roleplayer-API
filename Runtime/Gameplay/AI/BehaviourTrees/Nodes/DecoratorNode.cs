@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
@@ -9,7 +10,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public abstract class DecoratorNode : BTNode
     {
         #region Fields
-        protected BTNode _child;
+        [SerializeReference] protected BTNode _child;
         #endregion
 
         #region Properties

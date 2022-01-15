@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
@@ -8,6 +9,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     /// A Sequence will succeed when all of it's children succeeds.
     /// It behaves like an AND operator
     /// </summary>
+    [Serializable]
     public class SequenceNode : CompositeNode
     {
         #region Fields

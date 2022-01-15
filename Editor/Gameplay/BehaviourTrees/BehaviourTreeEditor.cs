@@ -58,13 +58,9 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
         private void OnSelectionChange()
         {
             BehaviourTreeAsset btAsset = Selection.activeObject as BehaviourTreeAsset;
-            Debug.Log(_view);
             
             if(btAsset)
-            {
-                Debug.Log("BT Asset is not null");
                 _view.SetupView(btAsset);
-            }
         }
         #endregion
 

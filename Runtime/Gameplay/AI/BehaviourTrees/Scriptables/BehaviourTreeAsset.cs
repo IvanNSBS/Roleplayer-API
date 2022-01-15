@@ -1,15 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Pool;
+using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
     [Serializable]
     public class SerializedNode {
         [HideInInspector] public string name; 
+        [HideInInspector] public string guid;
         [HideInInspector] public Vector2 pos; 
         public BTNode node;
 
@@ -20,8 +19,10 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
                             .Replace("Composite", "");
             
             name = finalName;
+            guid = GUID.Generate().ToString();
             pos = p;
             node = n;
+            node.guid = guid;
         }
     }
 
@@ -45,6 +46,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
             _inspectorNodes.Add(serialized);
 
+            EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
 
             return serialized;
@@ -54,7 +56,10 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         {
             bool removed = _inspectorNodes.Remove(node);
             if(removed)
+            {
+               EditorUtility.SetDirty(this);
                 AssetDatabase.SaveAssets();
+            }
 
             return removed;
         }
