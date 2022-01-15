@@ -21,7 +21,9 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
         #region Methods
         /// <summary>
-        /// Retrieves a property from the blackboard
+        /// Retrieves a property from the blackboard.
+        /// Throws KeyNotFoundException if property doesnt exist.
+        /// Throws InvalidCastException if property exists, but invalid type was used 
         /// </summary>
         /// <param name="propertyName">The property name</param>
         /// <typeparam name="T">The property type</typeparam>
@@ -34,7 +36,12 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// <param name="value">The property value</param>
         /// <param name="name">The property name</param>
         /// <typeparam name="T">The property type</typeparam>
-        public void SetProperty<T>(T value, string name) => _properties[name] = value;
+        public void SetProperty<T>(T value, string name) {
+            if(!_properties.ContainsKey(name))
+                _properties.Add(name, value);
+            else
+                _properties[name] = value;
+        } 
         #endregion
     }
 }
