@@ -24,7 +24,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
         public BTNodeView(BTNode node)
         {
             _node = node;
-            title = node.GetType().Name;
+            title = node.name;
         }
         #endregion
     }

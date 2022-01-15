@@ -46,27 +46,29 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
         /// <param name="evt"></param>
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
+            var types = TypeCache.GetTypesDerivedFrom<CompositeNode>();
+            foreach(var type in types)
             {
-                var type = typeof(SelectorNode);
-                evt.menu.AppendAction($"<{type.BaseType.Name}> {type.Name}", a => {
-                    InstantiateBTNode<SelectorNode>();
-                });
-
-                type = typeof(WaitAction);
-                evt.menu.AppendAction($"<{type.BaseType.Name}> {type.Name}", a => {
-                    InstantiateBTNode<WaitAction>();
+                evt.menu.AppendAction($"{type.BaseType.Name}/ {type.Name}", a => {
+                    InstantiateBTNode(type);
                 });
             }
 
-            // {
-            //     var types = TypeCache.GetTypesDerivedFrom<CompositeNode>();
-            //     foreach(var type in types)
-            //     {
-            //         evt.menu.AppendAction($"<{type.BaseType.Name}> {type.Name}", a => {
-            //             InstantiateBTNode<>();
-            //         });
-            //     }
-            // }
+            types = TypeCache.GetTypesDerivedFrom<DecoratorNode>();
+            foreach(var type in types)
+            {
+                evt.menu.AppendAction($"{type.BaseType.Name}/{type.Name}", a => {
+                    InstantiateBTNode(type);
+                });
+            }
+
+            types = TypeCache.GetTypesDerivedFrom<ActionNode>();
+            foreach(var type in types)
+            {
+                evt.menu.AppendAction($"{type.BaseType.Name}/{type.Name}", a => {
+                    InstantiateBTNode(type);
+                });
+            }
         }
         #endregion
 
@@ -88,9 +90,9 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             AddElement(node);
         }
 
-        internal void InstantiateBTNode<TNodeType>() where TNodeType : BTNode, new()
+        private void InstantiateBTNode(Type t)
         {
-            BTNode node = _btAsset.CreateNode<TNodeType>();
+            BTNode node = _btAsset.CreateNode(t);
             InstantiateNodeView(node);
         }
         #endregion
