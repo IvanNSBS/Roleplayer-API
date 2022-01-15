@@ -9,10 +9,11 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public class SerializedNode {
         [HideInInspector] public string name; 
         [HideInInspector] public string guid;
-        [HideInInspector] public Vector2 pos; 
+        public Vector2 pos; 
         public BTNode node;
 
-        public SerializedNode(Vector2 p, BTNode n) {
+        public SerializedNode(Vector2 p, BTNode n) 
+        {
             Type t = n.GetType();
 
             string finalName = t.Name.Replace("Node", "").Replace("Decorator", "").Replace("Action", "")
@@ -39,10 +40,10 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        public SerializedNode CreateNode(Type t)
+        public SerializedNode CreateNode(Type t, Vector2 pos)
         {
             BTNode node = Activator.CreateInstance(t) as BTNode;
-            SerializedNode serialized = new SerializedNode(Vector2.zero, node);
+            SerializedNode serialized = new SerializedNode(pos, node);
 
             _inspectorNodes.Add(serialized);
 

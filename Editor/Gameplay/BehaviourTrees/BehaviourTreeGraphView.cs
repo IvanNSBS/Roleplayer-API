@@ -48,11 +48,13 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
         /// <param name="evt"></param>
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
+            Vector2 localPos = evt.localMousePosition;
             var types = TypeCache.GetTypesDerivedFrom<CompositeNode>();
+
             foreach(var type in types)
             {
                 evt.menu.AppendAction($"{type.BaseType.Name}/ {type.Name}", a => {
-                    InstantiateBTNode(type, evt.localMousePosition);
+                    InstantiateBTNode(type, localPos);
                 });
             }
 
@@ -60,7 +62,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             foreach(var type in types)
             {
                 evt.menu.AppendAction($"{type.BaseType.Name}/{type.Name}", a => {
-                    InstantiateBTNode(type, evt.localMousePosition);
+                    InstantiateBTNode(type, localPos);
                 });
             }
 
@@ -68,7 +70,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             foreach(var type in types)
             {
                 evt.menu.AppendAction($"{type.BaseType.Name}/{type.Name}", a => {
-                    InstantiateBTNode(type, evt.localMousePosition);
+                   InstantiateBTNode(type, localPos);
                 });
             }
         }
@@ -153,7 +155,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             _btAsset.InspectorNodes.ForEach(InstantiateNodeView);
 
             //Create Edges
-            _btAsset.InspectorNodes.ForEach(CreateEdges);
+            // _btAsset.InspectorNodes.ForEach(CreateEdges);
         }
 
         internal void InstantiateNodeView(SerializedNode nodeView)
@@ -164,8 +166,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
         private void InstantiateBTNode(Type t, Vector2 pos)
         {
-            SerializedNode node = _btAsset.CreateNode(t);
-            node.pos = pos;
+            SerializedNode node = _btAsset.CreateNode(t, pos);
             InstantiateNodeView(node);
         }
 
