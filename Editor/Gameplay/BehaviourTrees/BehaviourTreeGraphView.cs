@@ -20,6 +20,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
         #region Fields
         private BehaviourTreeAsset _btAsset;
+        private Action<BTNodeView> _updateInspector;
         #endregion
 
 
@@ -138,8 +139,11 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
         internal void InstantiateNodeView(SerializedBTNode nodeView)
         {
             BTNodeView node = new BTNodeView(nodeView);
+            node.onNodeSelected += _updateInspector; 
             AddElement(node);
         }
+
+        public void SetUpdateInspectorCallback(Action<BTNodeView> nodeView) => _updateInspector = nodeView;
 
         private void InstantiateBTNode(Type t, Vector2 pos)
         {

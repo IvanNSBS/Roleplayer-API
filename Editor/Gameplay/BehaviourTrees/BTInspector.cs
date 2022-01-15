@@ -1,8 +1,5 @@
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using UnityEditor.Experimental.GraphView;
 
 namespace INUlib.UEditor.Gameplay.BehaviourTrees
 {
@@ -12,6 +9,23 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
     {
         #region Uxml Factory
         public new class UxmlFactory : UxmlFactory<BTInspector, VisualElement.UxmlTraits> { }
+        #endregion
+
+        #region Fields
+        private Editor _editor;
+        #endregion
+
+
+        #region Methods
+        public void Update(BTNodeView inspect)
+        {
+            Clear();
+            UnityEngine.Object.DestroyImmediate(_editor);
+
+            _editor = Editor.CreateEditor(inspect.SerializedNode);
+            IMGUIContainer container = new IMGUIContainer(_editor.OnInspectorGUI);
+            Add(container);
+        }
         #endregion
     }
 

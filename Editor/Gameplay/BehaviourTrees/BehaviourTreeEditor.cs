@@ -51,6 +51,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             
             _view = root.Q<BehaviourTreeGraphView>();
             _inspector = root.Q<BTInspector>();
+            _view.SetUpdateInspectorCallback(_inspector.Update);
 
             OnSelectionChange();
         }

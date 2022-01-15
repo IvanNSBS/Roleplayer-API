@@ -21,6 +21,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
         private SerializedBTNode _node;
         private Port _input;
         private Port _output;
+        public event Action<BTNodeView> onNodeSelected = delegate { };
         #endregion
 
         #region Properties
@@ -77,6 +78,12 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             base.SetPosition(newPos);
             _node.pos.x = newPos.xMin;
             _node.pos.y = newPos.yMin;
+        }
+
+        public override void OnSelected()
+        {
+            base.OnSelected();
+            onNodeSelected?.Invoke(this);
         }
 
         public Edge ConnectTo(Port input) => _output.ConnectTo(input);
