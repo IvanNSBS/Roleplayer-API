@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
@@ -8,6 +9,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     /// A Selector will fail when all of it's children fail.
     /// It behaves like an OR operator
     /// </summary>
+    [Serializable]
     public class SelectorNode : CompositeNode
     {
         #region Fields

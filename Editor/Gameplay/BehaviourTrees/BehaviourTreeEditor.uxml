@@ -4,11 +4,11 @@
     </uie:Toolbar>
     <INUlib.UEditor.Gameplay.BehaviourTrees.BTSplitView fixed-pane-initial-dimension="200">
         <ui:VisualElement name="left-panel" style="flex-shrink: 0;">
-            <ui:Label text="Inspector" display-tooltip-when-elided="true" style="background-color: rgba(32, 32, 32, 255);" />
+            <ui:Label text="Inspector" display-tooltip-when-elided="true" style="background-color: rgb(32, 32, 32);" />
             <INUlib.UEditor.Gameplay.BehaviourTrees.BTInspector />
         </ui:VisualElement>
         <ui:VisualElement name="right-panel" style="flex-grow: 1;">
-            <ui:Label text="Graph" display-tooltip-when-elided="true" style="background-color: rgba(32, 32, 32, 255);" />
+            <ui:Label text="Graph" display-tooltip-when-elided="true" style="background-color: rgb(32, 32, 32);" />
             <INUlib.UEditor.Gameplay.BehaviourTrees.BehaviourTreeGraphView focusable="true" style="flex-grow: 1; height: 152px;" />
         </ui:VisualElement>
     </INUlib.UEditor.Gameplay.BehaviourTrees.BTSplitView>

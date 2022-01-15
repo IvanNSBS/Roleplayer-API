@@ -1,15 +1,17 @@
+using System;
 using INUlib.Utils;
-
+using UnityEngine;
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
     /// <summary>
     /// Wait action. Waits an amount of time before succeeding
     /// </summary>
+    [Serializable]
     public class WaitAction : ActionNode
     {
         #region Fields
         private Timer _timer;
-        private float _waitTime;
+        [SerializeField] private float _waitTime;
         #endregion
 
 

@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using UnityEditor.Experimental.GraphView;
+using INUlib.Gameplay.AI.BehaviourTrees;
+using System;
 
 namespace INUlib.UEditor.Gameplay.BehaviourTrees
 {
@@ -12,6 +14,10 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
     {
         #region Uxml Factory
         public new class UxmlFactory : UxmlFactory<BehaviourTreeGraphView, GraphView.UxmlTraits> { }
+        #endregion
+
+        #region Fields
+        private BehaviourTreeAsset _btAsset;
         #endregion
 
 
@@ -29,6 +35,63 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(styleSheetPath);
             
             styleSheets.Add(styleSheet);
+        }
+        #endregion
+
+
+        #region Overrides
+        /// <summary>
+        /// Builds the context menu when you right click the Graph View
+        /// </summary>
+        /// <param name="evt"></param>
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
+            {
+                var type = typeof(SelectorNode);
+                evt.menu.AppendAction($"<{type.BaseType.Name}> {type.Name}", a => {
+                    InstantiateBTNode<SelectorNode>();
+                });
+
+                type = typeof(WaitAction);
+                evt.menu.AppendAction($"<{type.BaseType.Name}> {type.Name}", a => {
+                    InstantiateBTNode<WaitAction>();
+                });
+            }
+
+            // {
+            //     var types = TypeCache.GetTypesDerivedFrom<CompositeNode>();
+            //     foreach(var type in types)
+            //     {
+            //         evt.menu.AppendAction($"<{type.BaseType.Name}> {type.Name}", a => {
+            //             InstantiateBTNode<>();
+            //         });
+            //     }
+            // }
+        }
+        #endregion
+
+
+        #region Methods
+        internal void SetupView(BehaviourTreeAsset tree)
+        {
+            _btAsset = tree;
+
+            // Clear previous tree
+            DeleteElements(graphElements);
+
+            _btAsset.Nodes.ForEach(InstantiateNodeView);
+        }
+
+        internal void InstantiateNodeView(BTNode nodeView)
+        {
+            BTNodeView node = new BTNodeView(nodeView);
+            AddElement(node);
+        }
+
+        internal void InstantiateBTNode<TNodeType>() where TNodeType : BTNode, new()
+        {
+            BTNode node = _btAsset.CreateNode<TNodeType>();
+            InstantiateNodeView(node);
         }
         #endregion
     }

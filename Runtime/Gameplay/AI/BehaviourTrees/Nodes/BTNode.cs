@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
@@ -5,6 +6,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     /// <summary>
     /// Base Behaviour Tree Node
     /// </summary>
+    [Serializable]
     public abstract class BTNode
     {
         #region Fields

@@ -2,16 +2,34 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+using INUlib.Gameplay.AI.BehaviourTrees;
+using UnityEditor.Callbacks;
 
 namespace INUlib.UEditor.Gameplay.BehaviourTrees
 {
     public class BehaviourTreeEditor : EditorWindow
     {
+        #region Fields
+        private BehaviourTreeGraphView _view;
+        private BTInspector _inspector;
+        #endregion
+
+
+        #region Editor Methods
         [MenuItem("INU lib/AI/Behaviour Tree")]
-        public static void OpenWindow()
+        public static void OpenWindow() => OpenWindow(null);
+                
+        [OnOpenAsset]
+        public static bool OnOpenAsset(int instanceId, int line)
         {
-            BehaviourTreeEditor wnd = GetWindow<BehaviourTreeEditor>();
-            wnd.titleContent = new GUIContent("BehaviourTreeEditor");
+            BehaviourTreeAsset btAsset = EditorUtility.InstanceIDToObject(instanceId) as BehaviourTreeAsset;
+            if (btAsset != null)
+            {   
+                OpenWindow(btAsset);
+                return true;
+            }
+
+            return false;
         }
 
         public void CreateGUI()
@@ -30,6 +48,34 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(styleSheetPath);
             
             root.styleSheets.Add(styleSheet);
+            
+            _view = root.Q<BehaviourTreeGraphView>();
+            _inspector = root.Q<BTInspector>();
         }
+
+        private void OnSelectionChange()
+        {
+            BehaviourTreeAsset btAsset = Selection.activeObject as BehaviourTreeAsset;
+            Debug.Log(_view);
+            
+            if(btAsset)
+            {
+                Debug.Log("BT Asset is not null");
+                _view.SetupView(btAsset);
+            }
+        }
+        #endregion
+
+
+        #region Helper Methods
+        private static void OpenWindow(BehaviourTreeAsset btAsset = null)
+        {
+            BehaviourTreeEditor wnd = GetWindow<BehaviourTreeEditor>();
+            wnd.titleContent = new GUIContent("BehaviourTreeEditor");
+
+            if(btAsset)
+                wnd._view.SetupView(btAsset);
+        }
+        #endregion
     }
 }
