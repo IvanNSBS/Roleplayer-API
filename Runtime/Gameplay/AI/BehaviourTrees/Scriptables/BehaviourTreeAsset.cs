@@ -9,7 +9,8 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public class BehaviourTreeAsset : ScriptableObject
     {
         #region Serialized Fields
-        [SerializeReference] private List<SerializedBTNode> _inspectorNodes = new List<SerializedBTNode>();
+        [SerializeField] private RootNode _root;
+        [SerializeField] private List<SerializedBTNode> _inspectorNodes = new List<SerializedBTNode>();
         #endregion
 
         #region Properties
@@ -18,6 +19,14 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
+        public void CreateRoot()
+        {
+            if(_root == null)
+            {
+                _root = CreateNode(typeof(RootNode), Vector2.zero) as RootNode;
+            }
+        }
+        
         public SerializedBTNode CreateNode(Type t, Vector2 pos)
         {
             SerializedBTNode serialized = CreateBTNode(t, pos);
@@ -37,6 +46,9 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
             bool removed = _inspectorNodes.Remove(node);
             if(removed)
             {
+                if(node == _root)
+                    _root = null;
+
                 AssetDatabase.RemoveObjectFromAsset(node);
                 EditorUtility.SetDirty(this);
                 AssetDatabase.SaveAssets();

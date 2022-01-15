@@ -129,6 +129,8 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             DeleteElements(graphElements);
             graphViewChanged += OnGraphViewChanged;
 
+            _btAsset.CreateRoot();
+
             // Create Nodes
             _btAsset.InspectorNodes.ForEach(InstantiateNodeView);
 

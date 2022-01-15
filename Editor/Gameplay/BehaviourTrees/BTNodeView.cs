@@ -48,6 +48,9 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
         #region Methods
         private void CreateInputPorts()
         {
+            if(_node is RootNode)
+                return;
+
             _input = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Single, typeof(bool));
 
             if(_input != null) 
@@ -64,6 +67,8 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             else if (_node is SerializedComposite)
                 _output = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi, typeof(bool));
             else if (_node is SerializedDecorator)
+                _output = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
+            else if (_node is RootNode)
                 _output = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
 
             if(_output != null)
