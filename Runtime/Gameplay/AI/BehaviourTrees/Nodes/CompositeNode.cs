@@ -15,7 +15,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Constructors
-        public CompositeNode() { }
+        public CompositeNode() => _childs = new List<BTNode>();
         public CompositeNode(List<BTNode> childs) => _childs = childs;
         
         /// <summary>

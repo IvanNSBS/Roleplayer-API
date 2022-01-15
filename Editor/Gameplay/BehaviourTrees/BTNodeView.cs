@@ -18,18 +18,18 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
 
         #region Fields
-        private SerializedNode _node;
+        private SerializedBTNode _node;
         private Port _input;
         private Port _output;
         #endregion
 
         #region Properties
-        public SerializedNode SerializedNode => _node;
+        public SerializedBTNode SerializedNode => _node;
         #endregion
 
 
         #region Constructors
-        public BTNodeView(SerializedNode node)
+        public BTNodeView(SerializedBTNode node)
         {
             _node = node;
             title = node.name;
@@ -58,11 +58,11 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
         private void CreateOutputPorts()
         {
-            if(_node.node is ActionNode) 
+            if(_node is SerializedAction) 
                 _output = null;
-            else if (_node.node is CompositeNode)
+            else if (_node is SerializedComposite)
                 _output = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi, typeof(bool));
-            else if (_node.node is DecoratorNode)
+            else if (_node is SerializedDecorator)
                 _output = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
 
             if(_output != null)

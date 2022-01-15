@@ -5,47 +5,26 @@ using System.Collections.Generic;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
-    [Serializable]
-    public class SerializedNode {
-        [HideInInspector] public string name; 
-        [HideInInspector] public string guid;
-        public Vector2 pos; 
-        [SerializeReference] public BTNode node;
-
-        public SerializedNode(Vector2 p, BTNode n) 
-        {
-            Type t = n.GetType();
-
-            string finalName = t.Name.Replace("Node", "").Replace("Decorator", "").Replace("Action", "")
-                            .Replace("Composite", "");
-            
-            name = finalName;
-            guid = GUID.Generate().ToString();
-            pos = p;
-            node = n;
-            node.guid = guid;
-        }
-    }
-
     [CreateAssetMenu(menuName="INU lib/AI/Behaviour Tree", fileName="Behaviour Tree")]
     public class BehaviourTreeAsset : ScriptableObject
     {
         #region Serialized Fields
-        [SerializeReference] private List<SerializedNode> _inspectorNodes = new List<SerializedNode>();
+        [SerializeReference] private List<SerializedBTNode> _inspectorNodes = new List<SerializedBTNode>();
         #endregion
 
         #region Properties
-        public List<SerializedNode> InspectorNodes => _inspectorNodes;
+        public List<SerializedBTNode> InspectorNodes => _inspectorNodes;
         #endregion
 
 
         #region Methods
-        public SerializedNode CreateNode(Type t, Vector2 pos)
+        public SerializedBTNode CreateNode(Type t, Vector2 pos)
         {
-            BTNode node = Activator.CreateInstance(t) as BTNode;
-            SerializedNode serialized = new SerializedNode(pos, node);
+            SerializedBTNode serialized = CreateBTNode(t, pos);
 
             _inspectorNodes.Add(serialized);
+
+            AssetDatabase.AddObjectToAsset(serialized, this);
 
             EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
@@ -53,16 +32,30 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
             return serialized;
         }
 
-        public bool RemoveNode(SerializedNode node)
+        public bool RemoveNode(SerializedBTNode node)
         {
             bool removed = _inspectorNodes.Remove(node);
             if(removed)
             {
-               EditorUtility.SetDirty(this);
+                AssetDatabase.RemoveObjectFromAsset(node);
+                EditorUtility.SetDirty(this);
                 AssetDatabase.SaveAssets();
             }
 
             return removed;
+        }
+
+        private static SerializedBTNode CreateBTNode(Type t, Vector2 pos)
+        {
+            SerializedBTNode node = ScriptableObject.CreateInstance(t) as SerializedBTNode;
+            string finalName = t.Name.Replace("Node", "").Replace("Decorator", "").Replace("Action", "")
+                            .Replace("Composite", "").Replace("Serialized", "");
+            
+            node.name = finalName;
+            node.guid = GUID.Generate().ToString();
+            node.pos = pos;
+        
+            return node;
         }
         #endregion
     }    

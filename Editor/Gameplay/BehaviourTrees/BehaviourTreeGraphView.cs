@@ -49,27 +49,27 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
             Vector2 localPos = evt.localMousePosition;
-            var types = TypeCache.GetTypesDerivedFrom<CompositeNode>();
+            var types = TypeCache.GetTypesDerivedFrom<SerializedComposite>();
 
             foreach(var type in types)
             {
-                evt.menu.AppendAction($"{type.BaseType.Name}/ {type.Name}", a => {
+                evt.menu.AppendAction($"{type.BaseType.Name.Replace("Serialized", "")}/ {type.Name.Replace("Serialized", "")}", a => {
                     InstantiateBTNode(type, localPos);
                 });
             }
 
-            types = TypeCache.GetTypesDerivedFrom<DecoratorNode>();
+            types = TypeCache.GetTypesDerivedFrom<SerializedDecorator>();
             foreach(var type in types)
             {
-                evt.menu.AppendAction($"{type.BaseType.Name}/{type.Name}", a => {
+                evt.menu.AppendAction($"{type.BaseType.Name.Replace("Serialized", "")}/{type.Name.Replace("Serialized", "")}", a => {
                     InstantiateBTNode(type, localPos);
                 });
             }
 
-            types = TypeCache.GetTypesDerivedFrom<ActionNode>();
+            types = TypeCache.GetTypesDerivedFrom<SerializedAction>();
             foreach(var type in types)
             {
-                evt.menu.AppendAction($"{type.BaseType.Name}/{type.Name}", a => {
+                evt.menu.AppendAction($"{type.BaseType.Name.Replace("Serialized", "")}/{type.Name.Replace("Serialized", "")}", a => {
                    InstantiateBTNode(type, localPos);
                 });
             }
@@ -98,17 +98,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
                     {
                         BTNodeView parent = edge.output.node as BTNodeView;
                         BTNodeView child = edge.input.node as BTNodeView;
-
-                        if(parent.SerializedNode.node is CompositeNode)
-                        {
-                            var composite = parent.SerializedNode.node as CompositeNode;
-                            composite.RemoveChild(child.SerializedNode.node);
-                        }
-                        else if(parent.SerializedNode.node is DecoratorNode)
-                        {
-                            var composite = parent.SerializedNode.node as DecoratorNode;
-                            composite.SetChild(null);
-                        }
+                        parent.SerializedNode.RemoveChild(child.SerializedNode);
                     }
                 }
             }
@@ -118,21 +108,8 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
                 foreach(Edge edge in graphViewChange.edgesToCreate)
                 {
                     BTNodeView parent = edge.output.node as BTNodeView;
-                    if(parent.SerializedNode.node is ActionNode)
-                        continue;
-
                     BTNodeView child = edge.input.node as BTNodeView;
-                    
-                    if(parent.SerializedNode.node is CompositeNode)
-                    {
-                        var composite = parent.SerializedNode.node as CompositeNode;
-                        composite.AddChild(child.SerializedNode.node);
-                    }
-                    else if(parent.SerializedNode.node is DecoratorNode)
-                    {
-                        var composite = parent.SerializedNode.node as DecoratorNode;
-                        composite.SetChild(child.SerializedNode.node);
-                    }
+                    parent.SerializedNode.AddChild(child.SerializedNode);
                 }
             }
 
@@ -155,10 +132,10 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             _btAsset.InspectorNodes.ForEach(InstantiateNodeView);
 
             //Create Edges
-            // _btAsset.InspectorNodes.ForEach(CreateEdges);
+            _btAsset.InspectorNodes.ForEach(CreateEdges);
         }
 
-        internal void InstantiateNodeView(SerializedNode nodeView)
+        internal void InstantiateNodeView(SerializedBTNode nodeView)
         {
             BTNodeView node = new BTNodeView(nodeView);
             AddElement(node);
@@ -166,13 +143,13 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
         private void InstantiateBTNode(Type t, Vector2 pos)
         {
-            SerializedNode node = _btAsset.CreateNode(t, pos);
+            SerializedBTNode node = _btAsset.CreateNode(t, pos);
             InstantiateNodeView(node);
         }
 
-        private void CreateEdges(SerializedNode node)
+        private void CreateEdges(SerializedBTNode node)
         {
-            var childs = node.node.GetChildren();
+            var childs = node.childs;
             
             if(childs != null && childs.Count > 0)
             {
