@@ -86,14 +86,23 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
         private GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
         {
+            var toRemove = graphViewChange;
+
             if(graphViewChange.elementsToRemove != null)
             {
                 foreach(GraphElement remove in graphViewChange.elementsToRemove)
                 {
                     BTNodeView nodeView = remove as BTNodeView;
                     if(nodeView != null)
+                    {
+                        if(nodeView.SerializedNode == _btAsset.Root)
+                        {
+                            toRemove.elementsToRemove.Remove(remove);
+                            break;
+                        }
                         _btAsset.RemoveNode(nodeView.SerializedNode);
-
+                    }
+    
                     Edge edge = remove as Edge;
                     if(edge != null)
                     {
@@ -114,7 +123,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
                 }
             }
 
-            return graphViewChange;
+            return toRemove;
         }
         #endregion
 

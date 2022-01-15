@@ -19,7 +19,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
             return true;
         }
 
-        public bool RemoveChild(SerializedBTNode child)
+        public virtual bool RemoveChild(SerializedBTNode child)
         {
             bool removed = childs.Remove(child);
             if(removed)
