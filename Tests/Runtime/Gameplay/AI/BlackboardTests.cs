@@ -48,6 +48,17 @@ namespace Tests.Runtime.Gameplay.AI
 
             Assert.Throws<InvalidCastException>(() => _blackboard.GetProperty<bool>("val"));
         }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Blackboard_Correctly_Checks_If_Property_Exists(bool exists)
+        {
+            if(exists)
+                _blackboard.SetProperty(5, "val");
+
+            Assert.IsTrue(_blackboard.HasProperty("val") == exists);
+        }
         #endregion
     }
 }

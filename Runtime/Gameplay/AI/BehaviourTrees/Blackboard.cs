@@ -31,6 +31,13 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         public T GetProperty<T>(string propertyName) => (T)_properties[propertyName];
 
         /// <summary>
+        /// Checks if a given vlaue is present for a certain key
+        /// </summary>
+        /// <param name="propertyName">The property name</param>
+        /// <returns>True if there's a value for the property. False otherwise</returns>
+        public bool HasProperty(string propertyName) => _properties.ContainsKey(propertyName);
+
+        /// <summary>
         /// Adds/Sets a property with a given name and value
         /// </summary>
         /// <param name="value">The property value</param>
