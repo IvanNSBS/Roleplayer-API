@@ -36,11 +36,16 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         }
 
         /// <summary>
-        /// Creates a BT Node
+        /// Creates a BT Node for the SerializedBTNode
         /// </summary>
         /// <returns></returns>
         protected abstract BTNode NodeFactory();
 
+        /// <summary>
+        /// Adds a SerializedBTNode as child of this node
+        /// </summary>
+        /// <param name="child">The child to be added</param>
+        /// <returns>True if the child was added, false otherwise</returns>
         public virtual bool AddChild(SerializedBTNode child)
         {
             Undo.RecordObject(this, "Behaviour Tree (Add Child)");
@@ -52,6 +57,11 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
             return true;
         }
 
+        /// <summary>
+        /// Removes a child from the SerializedBTNode child list
+        /// </summary>
+        /// <param name="child">The child to be removed</param>
+        /// <returns>True if the child was added. False otherwise</returns>
         public virtual bool RemoveChild(SerializedBTNode child)
         {
             Undo.RecordObject(this, "Behaviour Tree (Remove Child)");
@@ -67,6 +77,9 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
             return removed;
         }
 
+        /// <summary>
+        /// Sorts the node childrens based on their editor X position
+        /// </summary>
         public void SortChildren() => childs.Sort((a, b) => a.pos.x.CompareTo(b.pos.x));
         #endregion
     }
