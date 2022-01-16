@@ -5,6 +5,6 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public class SerializedDebugLog : SerializedAction
     {
         [SerializeField] private string _debugMsg;
-        public override BTNode CreateNode() => new DebugLogAction(_debugMsg);
+        protected override BTNode NodeFactory() => new DebugLogAction(_debugMsg);
     }
 }

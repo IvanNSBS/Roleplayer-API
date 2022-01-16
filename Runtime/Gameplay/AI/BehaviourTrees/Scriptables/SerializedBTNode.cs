@@ -15,7 +15,32 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        public abstract BTNode CreateNode();
+        /// <summary>
+        /// Instantiates a BTNode from the NodeFactory function and then creates it's children
+        /// </summary>
+        /// <returns></returns>
+        public BTNode CreateNode()
+        {
+            var node = NodeFactory();
+
+            if(childs.Count > 0)
+            {
+                if(node is DecoratorNode)
+                    (node as DecoratorNode).SetChild(childs[0].CreateNode());
+                else if(node is CompositeNode)
+                    foreach(var child in childs)
+                        (node as CompositeNode).AddChild(child.CreateNode());
+            }
+
+            return node;
+        }
+
+        /// <summary>
+        /// Creates a BT Node
+        /// </summary>
+        /// <returns></returns>
+        protected abstract BTNode NodeFactory();
+
         public virtual bool AddChild(SerializedBTNode child)
         {
             Undo.RecordObject(this, "Behaviour Tree (Add Child)");

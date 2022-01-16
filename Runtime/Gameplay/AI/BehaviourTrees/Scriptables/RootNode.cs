@@ -28,7 +28,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
             return base.RemoveChild(child);
         }
 
-        public override BTNode CreateNode()
+        protected override BTNode NodeFactory()
         {
             if(!_child)
                 return null;
