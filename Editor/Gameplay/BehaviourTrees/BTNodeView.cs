@@ -12,8 +12,8 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
     // experimental and won't show up by default
     public class BTNodeView : Node
     {
-        #region Uxml Factory
-        // public new class UxmlFactory : UxmlFactory<BehaviourTreeGraphView, GraphView.UxmlTraits> { }
+        #region Constants
+        private const string UXML_PATH = "Packages/com.ivanneves.inulib/Editor/Gameplay/BehaviourTrees/BTNodeView.uxml";
         #endregion
 
 
@@ -30,7 +30,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
 
         #region Constructors
-        public BTNodeView(SerializedBTNode node)
+        public BTNodeView(SerializedBTNode node) : base(UXML_PATH)
         {
             _node = node;
             title = node.name;
@@ -41,6 +41,7 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
 
             CreateInputPorts();
             CreateOutputPorts();
+            AddUssClasses();
         }
         #endregion
 
@@ -51,11 +52,12 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             if(_node is RootNode)
                 return;
 
-            _input = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Single, typeof(bool));
+            _input = InstantiatePort(Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
 
             if(_input != null) 
             {
                 _input.portName = "";
+                _input.style.flexDirection = FlexDirection.Column;
                 inputContainer.Add(_input);
             }
         }
@@ -65,17 +67,31 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             if(_node is SerializedAction) 
                 _output = null;
             else if (_node is SerializedComposite)
-                _output = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi, typeof(bool));
+                _output = InstantiatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Multi, typeof(bool));
             else if (_node is SerializedDecorator)
-                _output = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
+                _output = InstantiatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Single, typeof(bool));
             else if (_node is RootNode)
-                _output = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
+                _output = InstantiatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Single, typeof(bool));
 
             if(_output != null)
             {
                 _output.portName = "";
+                _output.style.flexDirection = FlexDirection.ColumnReverse;
                 outputContainer.Add(_output);
             }
+        }
+
+        private void AddUssClasses()
+        {
+            if(_node is SerializedAction) 
+                AddToClassList("action");
+            else if (_node is SerializedComposite)
+                AddToClassList("composite");
+            else if (_node is SerializedDecorator)
+                AddToClassList("decorator");
+            else if (_node is RootNode)
+                AddToClassList("root");
+
         }
 
         public override void SetPosition(Rect newPos)

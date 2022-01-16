@@ -1,0 +1,172 @@
+#node-border {
+    background-color: rgba(47, 47, 47, 255);
+    border-left-color: rgba(255, 255, 255, 255);
+    border-right-color: rgba(255, 255, 255, 255);
+    border-top-color: rgba(255, 255, 255, 255);
+    border-bottom-color: rgba(255, 255, 255, 255);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+#input {
+    align-items: center;
+    padding-top: 0;
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+}
+
+#output {
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+}
+
+#selection-border {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+:hover > #selection-border {
+    border-left-color: rgba(0, 216, 214, 255);
+    border-right-color: rgba(0, 216, 214, 255);
+    border-top-color: rgba(0, 216, 214, 255);
+    border-bottom-color: rgba(0, 216, 214, 255);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+:selected > #selection-border {
+    border-left-color: rgba(15, 188, 249, 255);
+    border-right-color: rgba(15, 188, 249, 255);
+    border-top-color: rgba(15, 188, 249, 255);
+    border-bottom-color: rgba(15, 188, 249, 255);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+:hover:selected > #selection-border {
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.node {
+    width: 140px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#divider {
+    min-height: 1px;
+    background-color: rgb(72, 72, 72);
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.action #input {
+    background-color: rgba(46, 41, 78, 255);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    align-items: center;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.composite #input {
+    background-color: rgb(11, 93, 30);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    align-items: center;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.decorator #input {
+    background-color: rgb(41, 139, 147);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.root #input {
+    background-color: rgb(231, 29, 54);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    min-height: 25px;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
