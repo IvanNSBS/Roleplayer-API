@@ -10,7 +10,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         [HideInInspector] public SerializedBTNode parent;
         [HideInInspector] public Vector2 pos;
         [HideInInspector] public string guid;
-        public List<SerializedBTNode> childs = new List<SerializedBTNode>();
+        [HideInInspector] public List<SerializedBTNode> childs = new List<SerializedBTNode>();
         #endregion
 
 
