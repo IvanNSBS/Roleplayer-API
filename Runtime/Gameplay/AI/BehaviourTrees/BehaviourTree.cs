@@ -60,8 +60,10 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// </summary>
         /// <returns>The new tree state</returns>
         public NodeState Update() {
-            if(!_started)
+            if(!_started) {
+                _treeState = NodeState.Failure;
                 return NodeState.Failure;
+            }
 
             _treeState = _root.Update();
             return _treeState;
@@ -87,7 +89,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// has been visited by the DFS algorithm
         /// </summary>
         /// <param name="OnNodeVisited">The function too execute on the node once it has been visited</param>
-        protected void PerformDFS(Action<BTNode> OnNodeVisited)
+        public void PerformDFS(Action<BTNode> OnNodeVisited)
         {
             Stack<BTNode> stack = new Stack<BTNode>();
             HashSet<BTNode> visitedSet = new HashSet<BTNode>();
