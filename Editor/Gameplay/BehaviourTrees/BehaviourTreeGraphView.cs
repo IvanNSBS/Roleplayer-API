@@ -38,7 +38,11 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(styleSheetPath);
             
             styleSheets.Add(styleSheet);
+
+            Undo.undoRedoPerformed += OnUndoRedo;
         }
+
+        ~BehaviourTreeGraphView() => Undo.undoRedoPerformed -= OnUndoRedo;
         #endregion
 
 
@@ -177,6 +181,12 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
                     AddElement(edge);
                 }
             }
+        }
+        
+        private void OnUndoRedo()
+        {
+            SetupView(_btAsset);
+            AssetDatabase.SaveAssets();
         }
         #endregion
     }

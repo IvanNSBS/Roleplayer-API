@@ -23,8 +23,11 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             UnityEngine.Object.DestroyImmediate(_editor);
 
             _editor = Editor.CreateEditor(inspect.SerializedNode);
-            IMGUIContainer container = new IMGUIContainer(_editor.OnInspectorGUI);
-            Add(container);
+            if(_editor)
+            {
+                IMGUIContainer container = new IMGUIContainer(_editor.OnInspectorGUI);
+                Add(container);
+            }
         }
         #endregion
     }

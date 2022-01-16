@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
@@ -17,21 +18,27 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         public abstract BTNode CreateNode();
         public virtual bool AddChild(SerializedBTNode child)
         {
+            Undo.RecordObject(this, "Behaviour Tree (Add Child)");
             child.parent = this;
             childs.Add(child);
             SortChildren();
 
+            EditorUtility.SetDirty(this);
             return true;
         }
 
         public virtual bool RemoveChild(SerializedBTNode child)
         {
+            Undo.RecordObject(this, "Behaviour Tree (Remove Child)");
+
             bool removed = childs.Remove(child);
             if(removed) {
                 child.parent = null;
                 SortChildren();
+
             }
-                
+
+            EditorUtility.SetDirty(this);
             return removed;
         }
 

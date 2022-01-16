@@ -23,9 +23,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         public void CreateRoot()
         {
             if(_root == null)
-            {
                 _root = CreateNode(typeof(RootNode), Vector2.zero) as RootNode;
-            }
         }
         
         public SerializedBTNode CreateNode(Type t, Vector2 pos)
@@ -35,10 +33,9 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
             _inspectorNodes.Add(serialized);
 
             AssetDatabase.AddObjectToAsset(serialized, this);
-
             EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
-
+ 
             return serialized;
         }
 
@@ -51,7 +48,6 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
                     _root = null;
 
                 AssetDatabase.RemoveObjectFromAsset(node);
-                EditorUtility.SetDirty(this);
                 AssetDatabase.SaveAssets();
             }
 
