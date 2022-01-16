@@ -99,6 +99,8 @@ namespace INUlib.UEditor.Gameplay.BehaviourTrees
             base.SetPosition(newPos);
             _node.pos.x = newPos.xMin;
             _node.pos.y = newPos.yMin;
+
+            _node.parent?.SortChildren();
         }
 
         public override void OnSelected()
