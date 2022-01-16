@@ -26,8 +26,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         #region MonoBehaviour Methods
         protected virtual void Awake()
         {
-            BTNode root = _btAsset.Root.CreateNode();
-            _bt = new BehaviourTree(root);
+            _bt = _btAsset.CreateTree();
             _bt.Start();
         }
 

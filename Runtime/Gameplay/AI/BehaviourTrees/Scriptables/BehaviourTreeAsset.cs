@@ -14,12 +14,13 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         #endregion
 
         #region Properties
-        public RootNode Root => _root;
         public List<SerializedBTNode> InspectorNodes => _inspectorNodes;
         #endregion
 
 
         #region Methods
+        public BehaviourTree CreateTree() => new BehaviourTree(_root.CreateNode());
+
         public void CreateRoot()
         {
             if(_root == null)
