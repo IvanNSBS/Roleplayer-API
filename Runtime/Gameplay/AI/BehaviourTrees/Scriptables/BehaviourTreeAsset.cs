@@ -14,6 +14,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         #endregion
 
         #region Properties
+        public RootNode Root => _root;
         public List<SerializedBTNode> InspectorNodes => _inspectorNodes;
         #endregion
 
