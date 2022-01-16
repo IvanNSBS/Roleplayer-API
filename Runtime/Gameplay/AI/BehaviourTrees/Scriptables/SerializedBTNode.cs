@@ -7,10 +7,10 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public abstract class SerializedBTNode : ScriptableObject
     {
         #region Fields
-        public SerializedBTNode parent;
+        [HideInInspector] public SerializedBTNode parent;
+        [HideInInspector] public Vector2 pos;
+        [HideInInspector] public string guid;
         public List<SerializedBTNode> childs = new List<SerializedBTNode>();
-        public Vector2 pos;
-        public string guid;
         #endregion
 
 
