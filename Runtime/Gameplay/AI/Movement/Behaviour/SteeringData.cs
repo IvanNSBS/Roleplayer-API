@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace INUlib.Gameplay.AI.Movement.Behaviour
@@ -7,33 +8,33 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
     public class SteeringData
     {
         #region Inspector Fields
-        [SerializeField] protected float _acceptDistance;
-        [SerializeField] protected float _desiredSpeed;
-        [SerializeField] protected float _maxSteerForce;
-        [SerializeField] protected MovementType _type;
-        [SerializeField] protected AvoidData _avoidData;
+        [SerializeField] [JsonProperty] protected float acceptDistance;
+        [SerializeField] [JsonProperty] protected float desiredSpeed;
+        [SerializeField] [JsonProperty] protected float maxSteerForce;
+        [SerializeField] [JsonProperty] protected MovementType type;
+        [SerializeField] [JsonProperty] protected AvoidData avoidData;
         #endregion
 
         #region Properties
-        public float AcceptDistance => _acceptDistance;
-        public float DesiredSpeed => _desiredSpeed;
-        public float MaxSteerForce => _maxSteerForce;
-        public MovementType MoveType => _type;
-        public AvoidData AvoidData => _avoidData;
+        public float AcceptDistance => acceptDistance;
+        public float DesiredSpeed => desiredSpeed;
+        public float MaxSteerForce => maxSteerForce;
+        public MovementType MoveType => type;
+        public AvoidData AvoidData => avoidData;
         #endregion
 
 
         public SteeringData(float accept, float desired, float maxForce, AvoidData avoid = null)
         {
-            _acceptDistance = accept;
-            _desiredSpeed = desired;
-            _maxSteerForce = maxForce;
-            _avoidData = avoid;
+            acceptDistance = accept;
+            desiredSpeed = desired;
+            maxSteerForce = maxForce;
+            avoidData = avoid;
         }
 
-        public void SetMovementType(MovementType tp) => _type = tp;
-        public void SetSpeed(float speed) => _desiredSpeed = speed;
-        public void SetAvoidData(AvoidData avoid) => _avoidData = avoid; 
+        public void SetMovementType(MovementType tp) => type = tp;
+        public void SetSpeed(float speed) => desiredSpeed = speed;
+        public void SetAvoidData(AvoidData avoid) => avoidData = avoid; 
     }
 
     [Serializable]
@@ -41,23 +42,23 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
     {
         #region Inspector Fields
         [Range(4, 24)]
-        [SerializeField] protected int _rayAmount;
-        [SerializeField] protected float _rayLength;
-        [SerializeField] protected int _layerMask;
+        [SerializeField] [JsonProperty] protected int rayAmount;
+        [SerializeField] [JsonProperty] protected float rayLength;
+        [SerializeField] [JsonProperty] protected int layerMask;
         #endregion
 
         #region Properties
-        public int RayAmount => _rayAmount;
-        public float RayLength => _rayLength;
-        public int LayerMask => _layerMask;
+        public int RayAmount => rayAmount;
+        public float RayLength => rayLength;
+        public int LayerMask => layerMask;
         #endregion
 
 
         public AvoidData(int rayAmnt, float raySize, int layerMask)
         {
-            this._rayAmount = rayAmnt;
-            this._rayLength = raySize;
-            this._layerMask = layerMask;
+            this.rayAmount = rayAmnt;
+            this.rayLength = raySize;
+            this.layerMask = layerMask;
         }
     }
 }
