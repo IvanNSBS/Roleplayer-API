@@ -19,7 +19,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        public BehaviourTree CreateTree() => new BehaviourTree(_root.CreateNode());
+        public void SetupTree(BehaviourTree tree) => tree.SetRoot(_root.CreateNode());
 
         #if UNITY_EDITOR
         /// <summary>
