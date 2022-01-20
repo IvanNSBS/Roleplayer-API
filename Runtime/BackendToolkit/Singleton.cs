@@ -11,9 +11,7 @@ namespace INUlib.BackendToolkit
         #endregion
 
 
-        public static void InitSingleton()
-        {
-            _instance = new T();
-        }
+        public static void InitSingleton() => _instance = new T();
+        public static void DestroySingleton() => _instance = null;
     }
 }

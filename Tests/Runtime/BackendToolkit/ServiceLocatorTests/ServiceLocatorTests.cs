@@ -9,6 +9,7 @@ namespace Tests.Runtime.BackendToolkit.ServiceLocatorTests
         #region Setup
         private interface IMockInterface { int MockInt { get; } }
         private class MockClass : IMockInterface { public int MockInt => 5; }
+        private class MockSingleton : Singleton<MockSingleton> { }
 
         private ServiceLocator _locator;
 
@@ -24,8 +25,9 @@ namespace Tests.Runtime.BackendToolkit.ServiceLocatorTests
         [Test]
         public void Singleton_CRTP_Creates_The_Instance()
         {
-            ServiceLocator.InitSingleton();
-            Assert.NotNull(ServiceLocator.Instance);
+            MockSingleton.InitSingleton();
+            Assert.NotNull(MockSingleton.Instance);
+            MockSingleton.DestroySingleton();
         }
 
         [Test]

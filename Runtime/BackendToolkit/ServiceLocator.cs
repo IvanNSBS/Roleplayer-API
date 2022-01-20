@@ -19,6 +19,8 @@ namespace INUlib.BackendToolkit
         
         
         #region Methods
+        public bool HasService<T>() => m_services.ContainsKey(typeof(T).Name);
+
         public T GetService<T>() where T : class
         {
             string key = typeof(T).Name;
