@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
@@ -10,10 +11,11 @@ namespace INUlib.RPG.AbilitiesSystem
            where TAbility : class, IAbility<TAbilityDataHub> where TAbilityDataHub : IAbilityDataHub
     {
         #region Fields
-        protected TAbilityDataHub _dataFactory;
+        protected TAbilityDataHub _dataHub;
         protected TAbility[] _abilities;
         protected TAbility _casting;
-        protected float _elapsedCasting;
+        protected float _elapsedChanneling;
+        protected CastingState _castingState;
         #endregion
 
         #region Properties
@@ -21,14 +23,22 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Gets the elapsed cast time for the spell being charged.
         /// Will return 0 if no spell is being cast;
         /// </summary>
-        public float ElapsedCastingTime => _elapsedCasting;
+        public float ElapsedChannelingTime => _elapsedChanneling;
 
         /// <summary>
         /// Returns the number of AbilitySlots assigned in the constructor
         /// </summary>
         public uint AbilitySlots {get; private set;}
 
-        public TAbilityDataHub DataFactory => _dataFactory;
+        /// <summary>
+        /// Getter for the AbilityController Data Hub
+        /// </summary>
+        public TAbilityDataHub DataHub => _dataHub;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public CastingState CastingState => _castingState;
         #endregion
 
 
@@ -36,7 +46,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public AbilitiesController(uint slotAmnt, TAbilityDataHub dataHub)
         {
             AbilitySlots = slotAmnt;
-            _dataFactory = dataHub;
+            _dataHub = dataHub;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
         }
@@ -61,8 +71,8 @@ namespace INUlib.RPG.AbilitiesSystem
 
             if(_casting != null)
             {
-                _elapsedCasting += deltaTime;
-                if(_elapsedCasting >= _casting.CastTime)
+                _elapsedChanneling += deltaTime;
+                if(_elapsedChanneling >= _casting.ChannelingTime)
                     UnleashAbility();
             }
         }
@@ -79,9 +89,11 @@ namespace INUlib.RPG.AbilitiesSystem
             {
                 _casting = _abilities[slot];
                 _casting.OnChannelingStarted();
+                _castingState = CastingState.Channeling;
+
                 // If the cast time for the spell is zero, 
                 // just cast it instantly
-                if(_casting.CastTime == 0f)
+                if(_casting.ChannelingTime == 0f)
                     UnleashAbility();
             }
         }
@@ -90,10 +102,13 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Cancels the ability channeling for the current spell,
         /// reseting the ElapsedCasting timer and setting the casting spell to null
         /// </summary>
-        public virtual void CancelChanneling() {
-            _elapsedCasting = 0f;
+        public virtual void CancelChanneling() 
+        {
             _casting.OnChannelingCanceled();
             _casting = null;
+
+            _elapsedChanneling = 0f;
+            _castingState = CastingState.None;
         } 
 
         /// <summary>
@@ -144,11 +159,23 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         protected void UnleashAbility()
         {
+            _castingState = CastingState.Casting;
+
             _casting.OnChannelingCompleted();
-            _casting.Cast(_dataFactory);
             _casting.CurrentCooldown = _casting.Cooldown;
+            _casting.Cast(_dataHub, FinishAbilityCasting);
+
+            _elapsedChanneling = 0f;
+        }
+
+        /// <summary>
+        /// Finishes casting the current ability, setting the Casted Ability to null and
+        /// the casting state to None
+        /// </summary>        
+        public void FinishAbilityCasting()
+        {
+            _castingState = CastingState.None;
             _casting = null;
-            _elapsedCasting = 0f;
         }
         #endregion
     }
