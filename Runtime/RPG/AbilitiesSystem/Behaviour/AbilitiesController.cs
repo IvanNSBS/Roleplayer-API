@@ -69,7 +69,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 }
             }
 
-            if(_casting != null)
+            if(_casting != null && _castingState == CastingState.Channeling)
             {
                 _elapsedChanneling += deltaTime;
                 if(_elapsedChanneling >= _casting.ChannelingTime)
