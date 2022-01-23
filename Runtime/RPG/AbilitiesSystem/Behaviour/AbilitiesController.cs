@@ -78,6 +78,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if(HasAbilityInSlot(slot) && !IsAbilityOnCd(slot) && _casting == null)
             {
                 _casting = _abilities[slot];
+                _casting.OnChannelingStarted();
                 // If the cast time for the spell is zero, 
                 // just cast it instantly
                 if(_casting.CastTime == 0f)
@@ -91,6 +92,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public virtual void CancelChanneling() {
             _elapsedCasting = 0f;
+            _casting.OnChannelingCanceled();
             _casting = null;
         } 
 
@@ -142,6 +144,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         protected void UnleashAbility()
         {
+            _casting.OnChannelingCompleted();
             _casting.Cast(_dataFactory);
             _casting.CurrentCooldown = _casting.Cooldown;
             _casting = null;

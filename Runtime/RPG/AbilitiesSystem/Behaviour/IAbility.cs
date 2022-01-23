@@ -10,6 +10,26 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Casts the ability, unleashing it's effect in the world
         /// </summary>
         void Cast(TDataHub dataHub);
+        
+        /// <summary>
+        /// Function to be called when the Channeling proccess 
+        /// of the ability has started
+        /// </summary>
+        void OnChannelingStarted();
+
+        /// <summary>
+        /// Function to be called when the Channeling proccess 
+        /// of the ability has completed and the ability will
+        /// then be cast
+        /// </summary>
+        void OnChannelingCompleted();
+
+
+        /// <summary>
+        /// Function to be called when the Channeling proccess 
+        /// of the ability was canceled
+        /// </summary>
+        void OnChannelingCanceled();
 
         /// <summary>
         /// Getter for the current ability Cooldown

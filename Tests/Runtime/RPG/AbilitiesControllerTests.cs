@@ -20,6 +20,10 @@ namespace Tests.Runtime.RPG.Abilities
             }
 
             public void Cast(IAbilityDataHub dataFactory) => isEqual = dataFactory == _factoryRef;
+            public void OnChannelingStarted() { }
+            public void OnChannelingCompleted() { }
+            public void OnChannelingCanceled() { }
+
             public float CurrentCooldown {get; set;}
             public float Cooldown {get; set;}
             public float CastTime {get;}
@@ -35,7 +39,7 @@ namespace Tests.Runtime.RPG.Abilities
         private bool _casted;
         private float _cd = 5;
         private float _castTime = 1;
-
+        
         [SetUp]
         public void Setup() 
         {
@@ -225,6 +229,54 @@ namespace Tests.Runtime.RPG.Abilities
 
             Assert.IsFalse(_controller.IsAbilityOnCd(slot));
             Assert.IsNull(_controller.GetCastingAbility());
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void On_Channeling_Start_Is_Called(uint slot)
+        {
+            bool evtCalled = false;
+            var ability = _controller.GetAbility(slot);
+            ability.When(x => x.OnChannelingStarted()).Do(x => evtCalled = true);
+
+            _controller.StartChanneling(slot);
+
+            Assert.IsTrue(evtCalled);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void On_Channeling_Completed_Is_Called(uint slot)
+        {
+            bool evtCalled = false;
+            var ability = _controller.GetAbility(slot);
+            ability.When(x => x.OnChannelingCompleted()).Do(x => evtCalled = true);
+
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+
+            Assert.IsTrue(evtCalled);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void On_Channeling_Canceled_Is_Called(uint slot)
+        {
+            bool evtCalled = false;
+            var ability = _controller.GetAbility(slot);
+            ability.When(x => x.OnChannelingCanceled()).Do(x => evtCalled = true);
+
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime*0.1f);
+            _controller.CancelChanneling();
+            
+            Assert.IsTrue(evtCalled);
         }
         #endregion
     }
