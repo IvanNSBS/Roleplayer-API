@@ -25,10 +25,10 @@ namespace INUlib.RPG.AbilitiesSystem
         #region Methods
         public virtual void Initialize(uint slotAmount, TAbilityDataFactory dataHub) => 
             _controller = new AbilitiesController<TAbility, TAbilityDataFactory>(slotAmount, dataHub);
-        public virtual void StartCasting(uint slot) => _controller.StartCast(slot);
+        public virtual void StartChanneling(uint slot) => _controller.StartChanneling(slot);
         public virtual TAbility GetAbilityBeingCast() => _controller.GetCastingAbility();
-        public virtual void CancelCast() => _controller.CancelCast();
-        public virtual float GetElapsedCastingTime() => _controller.ElapsedCastingTime;
+        public virtual void CancelCast() => _controller.CancelChanneling();
+        public virtual float GetElapsedChannelingTime() => _controller.ElapsedChannelingTime;
         public virtual void SetAbility(uint slot, TAbility ability) => _controller.SetAbility(slot, ability);
         public virtual TAbility GetAbility(uint slot) => _controller.GetAbility(slot);
         public virtual bool IsAbilityOnCD(uint slot) => _controller.IsAbilityOnCd(slot);

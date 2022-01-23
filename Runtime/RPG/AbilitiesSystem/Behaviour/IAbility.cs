@@ -1,3 +1,5 @@
+using System;
+
 namespace INUlib.RPG.AbilitiesSystem
 {
     /// <summary>
@@ -9,7 +11,27 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Casts the ability, unleashing it's effect in the world
         /// </summary>
-        void Cast(TDataHub dataHub);
+        void Cast(TDataHub dataHub, Action NotifyFinishCast);
+
+        /// <summary>
+        /// Function to be called when the Channeling proccess 
+        /// of the ability has started
+        /// </summary>
+        void OnChannelingStarted();
+
+        /// <summary>
+        /// Function to be called when the Channeling proccess 
+        /// of the ability has completed and the ability will
+        /// then be cast
+        /// </summary>
+        void OnChannelingCompleted();
+
+
+        /// <summary>
+        /// Function to be called when the Channeling proccess 
+        /// of the ability was canceled
+        /// </summary>
+        void OnChannelingCanceled();
 
         /// <summary>
         /// Getter for the current ability Cooldown
@@ -29,6 +51,6 @@ namespace INUlib.RPG.AbilitiesSystem
         /// 0 should mean that the ability is cast instantly
         /// </summary>
         /// <value></value>
-        float CastTime {get;}
+        float ChannelingTime {get;}
     }
 }
