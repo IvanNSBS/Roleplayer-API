@@ -76,7 +76,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             var testAbility = new TestFactoryAbility(_cd, 0, _mockFactory);
             _controller.SetAbility(slot, testAbility);
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
 
             Assert.IsTrue(testAbility.isEqual);
         }
@@ -99,7 +99,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Is_Unleashed_After_Finish_Cast(uint slot)
         {
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             _controller.Update(1);
             Assert.IsTrue(_casted);
         }
@@ -110,7 +110,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Goes_On_Cooldown_After_Finish_Cast(uint slot)
         {
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             _controller.Update(_castTime);
             Assert.IsTrue(_controller.IsAbilityOnCd(slot));
             Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == 5f);
@@ -122,7 +122,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Doesnt_Go_In_CD_Right_After_Start_Casting(uint slot)
         {
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             Assert.IsFalse(_controller.IsAbilityOnCd(slot));
             _controller.Update(_castTime - 0.2f);
             Assert.IsFalse(_controller.IsAbilityOnCd(slot));
@@ -134,7 +134,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_CurrentCD_Doesnt_Change_While_Casting(uint slot)
         {
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == 0);
             _controller.Update(_castTime - 0.2f);
             Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == 0);
@@ -150,7 +150,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(5f, 2u)]
         public void Cooldown_Is_Updated(float elapsed, uint slot)
         {
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             _controller.Update(_castTime);
             _controller.Update(elapsed);
 
@@ -166,9 +166,9 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(1u, 0u)]
         public void Cant_Cast_While_Casting_Another_Spell(uint slot1, uint slot2)
         {
-            _controller.StartCast(slot1);
+            _controller.StartChanneling(slot1);
             _controller.Update(_castTime*0.5f);
-            _controller.StartCast(slot2);
+            _controller.StartChanneling(slot2);
 
             Assert.IsTrue(_controller.GetCastingAbility() == _controller.GetAbility(slot1));
         }
@@ -182,7 +182,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u, 0.4f)]
         public void Elapsed_Casting_Time_Is_Updated(uint slot, float castTimePct)
         {
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             _controller.Update(_castTime*castTimePct);
 
             Assert.IsTrue(_controller.ElapsedCastingTime == _castTime*castTimePct);
@@ -195,7 +195,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void Spell_With_No_Cast_Time_Are_Cast_Instantly(uint slot)
         {
             _controller.GetAbility(slot).CastTime.Returns(0);
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             Assert.IsTrue(_casted);
         }
 
@@ -205,10 +205,10 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Cant_Cast_While_On_Cooldown(uint slot)
         {
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             _controller.Update(1f);
             _controller.Update(1f);
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
 
             Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.IsAbilityOnCd(slot));
         }
@@ -219,9 +219,9 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Can_Cancel_Casting(uint slot)
         {
-            _controller.StartCast(slot);
+            _controller.StartChanneling(slot);
             _controller.Update(_castTime*0.5f);
-            _controller.CancelCast();
+            _controller.CancelChanneling();
 
             Assert.IsFalse(_controller.IsAbilityOnCd(slot));
             Assert.IsNull(_controller.GetCastingAbility());

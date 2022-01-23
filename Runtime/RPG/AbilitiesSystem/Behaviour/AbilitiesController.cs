@@ -68,10 +68,12 @@ namespace INUlib.RPG.AbilitiesSystem
         }
 
         /// <summary>
-        /// Casts the ability in the given slot
+        /// Starts channeling the ability in the given slot
+        /// If the channeling time is 0, the ability is unleashed
+        /// instantly
         /// </summary>
-        /// <param name="slot"></param>
-        public virtual void StartCast(uint slot)
+        /// <param name="slot">The ability slot index</param>
+        public virtual void StartChanneling(uint slot)
         {
             if(HasAbilityInSlot(slot) && !IsAbilityOnCd(slot) && _casting == null)
             {
@@ -84,10 +86,10 @@ namespace INUlib.RPG.AbilitiesSystem
         }
 
         /// <summary>
-        /// Cancels the cast charge for the current spell,
+        /// Cancels the ability channeling for the current spell,
         /// reseting the ElapsedCasting timer and setting the casting spell to null
         /// </summary>
-        public virtual void CancelCast() {
+        public virtual void CancelChanneling() {
             _elapsedCasting = 0f;
             _casting = null;
         } 
