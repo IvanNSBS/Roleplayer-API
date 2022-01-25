@@ -23,6 +23,17 @@ namespace INUlib.BackendToolkit.Meta
 
             return true;
         }
+
+        public virtual bool Load(JsonSerializerSettings serializeSettings)
+        {
+            var fileText = Resources.Load<TextAsset>(FilePath).text;
+            if (String.IsNullOrEmpty(fileText)) return false;
+            
+            Data = JsonConvert.DeserializeObject<T>(fileText, serializeSettings);
+            if (Data == null) return false;
+
+            return true;
+        }
         #endregion Methods
     }
 }
