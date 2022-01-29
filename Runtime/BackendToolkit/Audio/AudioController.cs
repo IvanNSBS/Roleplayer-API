@@ -114,6 +114,20 @@ namespace INUlib.BackendToolkit.Audio
             
             return PlaySound(ids[idx]);
         }
+
+        /// <summary>
+        /// Checks if a sound exists in the audio collection
+        /// </summary>
+        /// <param name="id">The id of the sound</param>
+        /// <returns>True if exists. False otherwise</returns>
+        public bool SoundsExists(string id) => m_collectionsHash.ContainsKey(id);
+
+        /// <summary>
+        /// Checks if a Background Music exists
+        /// </summary>
+        /// <param name="id">The id of the BGM</param>
+        /// <returns></returns>
+        public bool BGMExists(string id) => m_bgmHash.ContainsKey(id);
         #endregion Methods
         
         

@@ -2,6 +2,8 @@
 using UnityEngine;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 namespace INUlib.BackendToolkit.Meta
 {
@@ -101,6 +103,81 @@ namespace INUlib.BackendToolkit.Meta
                 bool valid = checkValid(value.Value);
                 allValid &= valid;
                 if(!valid && errorMsg != null) Debug.Log(errorMsg(value.Key));
+            }
+
+            return allValid;
+        }
+
+        /// <summary>
+        /// Checks if a prefab has components of all the given types in his object tree
+        /// </summary>
+        /// <param name="prefab">The prefab to check</param>
+        /// <param name="typesToLook">The types that the prefab should have</param>
+        /// <param name="errorMsg">
+        /// Optional error message to function to print when there's a missing component.
+        /// The signature is a string, the list of the representing the missing components separated by a comma.
+        /// </param>
+        /// <returns>True if the prefab has all the types in the list. False otherwise</returns>
+        public static bool PrefabHasAllListedComponents(GameObject prefab, List<Type> typesToLook, Func<string, string> errorMsg = null)
+        {
+            bool allValid = true;
+            List<string> missingComponents = new List<string>();
+
+            foreach(Type type in typesToLook)
+            {
+                if(!prefab.GetComponentInChildren(type, true))
+                    missingComponents.Add(type.Name);
+            }
+
+            if (missingComponents.Count > 0)
+            {
+                allValid = false;
+                if(errorMsg != null)
+                    Debug.Log(errorMsg($"[{string.Join(",", missingComponents)}]"));
+            }
+
+            return allValid;
+        }
+
+        /// <summary>
+        /// Checks if a prefab has all SerializedField properly set from the components given on the list
+        /// of types to look for 
+        /// </summary>
+        /// <param name="prefab">The prefab to be checked</param>
+        /// <param name="typesToLook">MonoBehaviour types to look for in the prefab</param>
+        /// <param name="errorMsg">
+        /// Optional error msg to print. 
+        /// Signature is: Type that failed the check, Fields that failed the check, separated by commas 
+        /// </param>
+        /// <returns>True if all values are correctly set. False otherwise</returns>
+        public static bool PrefabHasAllSerializedFieldsSet(GameObject prefab, List<Type> typesToLook, 
+                                                           Func<Type, string, string> errorMsg = null)
+        {
+            bool allValid = true;
+
+            foreach(Type type in typesToLook)
+            {
+                Component component = prefab.GetComponentInChildren(type, true); 
+                if(component == null)
+                    continue;
+
+                FieldInfo[] props = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                                            .Where(prop => prop.IsDefined(typeof(SerializeField), false))
+                                            .ToArray();
+
+                List<string> unsetVariables = new List<string>();
+
+                foreach(FieldInfo prop in props)
+                {
+                    bool propertyIsSet = prop.GetValue(component) != null;
+                    allValid &= propertyIsSet;
+
+                    if(!propertyIsSet)
+                        unsetVariables.Add(prop.Name);
+                }
+
+                if(unsetVariables.Count > 0 && errorMsg != null)
+                    Debug.Log(errorMsg.Invoke(type, $"[{string.Join(",", unsetVariables)}]"));
             }
 
             return allValid;
