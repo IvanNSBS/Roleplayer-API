@@ -16,6 +16,7 @@ namespace INUlib.BackendToolkit.ScriptableValues
         public virtual TVal Value
         {
             get => m_useConstant ? m_value : m_scriptable.Value;
+            set => m_scriptable.Value = value;
         }
 
         public bool HasScriptable => m_scriptable != null;
