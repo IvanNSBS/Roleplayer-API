@@ -24,9 +24,9 @@ namespace Tests.Runtime.RPG.Abilities
 
             public void Cast(IAbilityDataHub dataFactory, Action notifyFinishCast) 
                             => isEqual = dataFactory == _factoryRef && _actionRef == notifyFinishCast;
-            public void OnChannelingStarted() { }
-            public void OnChannelingCompleted() { }
-            public void OnChannelingCanceled() { }
+            public void OnChannelingStarted(IAbilityDataHub dataFactory) { }
+            public void OnChannelingCompleted(IAbilityDataHub dataFactory) { }
+            public void OnChannelingCanceled(IAbilityDataHub dataFactory) { }
 
             public float CurrentCooldown {get; set;}
             public float Cooldown {get; set;}
@@ -247,7 +247,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             bool evtCalled = false;
             var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingStarted()).Do(x => evtCalled = true);
+            ability.When(x => x.OnChannelingStarted(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
 
             _controller.StartChanneling(slot);
 
@@ -262,7 +262,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             bool evtCalled = false;
             var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingCompleted()).Do(x => evtCalled = true);
+            ability.When(x => x.OnChannelingCompleted(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
 
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
@@ -278,7 +278,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             bool evtCalled = false;
             var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingCanceled()).Do(x => evtCalled = true);
+            ability.When(x => x.OnChannelingCanceled(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
 
             _controller.StartChanneling(slot);
             _controller.Update(_castTime*0.1f);

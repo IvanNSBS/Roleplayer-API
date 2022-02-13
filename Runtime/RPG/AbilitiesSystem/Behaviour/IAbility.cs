@@ -17,21 +17,21 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Function to be called when the Channeling proccess 
         /// of the ability has started
         /// </summary>
-        void OnChannelingStarted();
+        void OnChannelingStarted(TDataHub dataHub);
 
         /// <summary>
         /// Function to be called when the Channeling proccess 
         /// of the ability has completed and the ability will
         /// then be cast
         /// </summary>
-        void OnChannelingCompleted();
+        void OnChannelingCompleted(TDataHub dataHub);
 
 
         /// <summary>
         /// Function to be called when the Channeling proccess 
         /// of the ability was canceled
         /// </summary>
-        void OnChannelingCanceled();
+        void OnChannelingCanceled(TDataHub dataHub);
 
         /// <summary>
         /// Getter for the current ability Cooldown

@@ -88,7 +88,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if(HasAbilityInSlot(slot) && !IsAbilityOnCd(slot) && _casting == null)
             {
                 _casting = _abilities[slot];
-                _casting.OnChannelingStarted();
+                _casting.OnChannelingStarted(_dataHub);
                 _castingState = CastingState.Channeling;
 
                 // If the cast time for the spell is zero, 
@@ -104,7 +104,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public virtual void CancelChanneling() 
         {
-            _casting.OnChannelingCanceled();
+            _casting.OnChannelingCanceled(_dataHub);
             _casting = null;
 
             _elapsedChanneling = 0f;
@@ -161,7 +161,7 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             _castingState = CastingState.Casting;
 
-            _casting.OnChannelingCompleted();
+            _casting.OnChannelingCompleted(_dataHub);
             _casting.CurrentCooldown = _casting.Cooldown;
             _casting.Cast(_dataHub, FinishAbilityCasting);
 
