@@ -18,6 +18,7 @@ namespace INUlib.RPG.CharacterSheet
         protected override float Sum(float a, float b) => a + b;
         protected override float Subtract(float a, float b) => a - b;
         protected override float DefaultMaxValue() => -1;
+        protected override float Zero() => 0;
         protected override float Clamp(float value, float min, float max) => Mathf.Clamp(value, min, max);
         #endregion
     }

@@ -1,6 +1,5 @@
 
 using System;
-using UnityEngine;
 
 namespace INUlib.RPG.CharacterSheet
 {
@@ -8,7 +7,6 @@ namespace INUlib.RPG.CharacterSheet
     {
         #region Fields
         private T _addedValue;
-        private Attribute<T> _target;
         #endregion
 
         #region Properties
@@ -17,9 +15,7 @@ namespace INUlib.RPG.CharacterSheet
 
 
         #region Constructor
-        public AttributeModifier(T amount, Attribute<T> attr) => _addedValue = amount;
-        public void Apply() => _target.Increase(_addedValue); 
-        public void Remove() => _target.Decrease(_addedValue);
+        public AttributeModifier(T amount) => _addedValue = amount;
         #endregion
     }
 }

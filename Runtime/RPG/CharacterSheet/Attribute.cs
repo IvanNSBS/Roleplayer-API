@@ -12,6 +12,7 @@ namespace INUlib.RPG.CharacterSheet
         [JsonProperty] public readonly T defaultVal;
         [JsonProperty] public readonly T maxVal;
         protected T _value;
+        protected T _modifiers;
         protected List<IAttributeModifier<T>> _flatBonuses;
         protected List<IAttributeModifier<T>> _percentBonuses;
         #endregion
@@ -20,6 +21,8 @@ namespace INUlib.RPG.CharacterSheet
         #region Properties
         public T DefaultValue => defaultVal;
         public T Value => _value;
+        public T Modifiers => _modifiers;
+        public virtual T Total => Sum(_value, _modifiers);
         #endregion
 
 
@@ -50,7 +53,7 @@ namespace INUlib.RPG.CharacterSheet
         public void Increase(T amount) 
         {
             _value = Sum(_value, amount);
-            if(maxVal.CompareTo(DefaultMaxValue()) == 0)
+            if(maxVal.CompareTo(DefaultMaxValue()) != 0)
                 _value = Clamp(_value, defaultVal, maxVal);
 
             onValueChanged?.Invoke(_value);
@@ -67,47 +70,57 @@ namespace INUlib.RPG.CharacterSheet
 
         public virtual IAttributeModifier<T> AddFlatModifier(T amount)
         {
-            IAttributeModifier<T> mod = new AttributeModifier<T>(amount, this); 
-            mod.Apply();
+            IAttributeModifier<T> mod = new AttributeModifier<T>(amount); 
             _flatBonuses.Add(mod);
 
+            _modifiers = CalculateModifiers();
+            onModifiersChanged?.Invoke(_modifiers);
+            return mod;
+        }
+
+        public virtual IAttributeModifier<T> AddPercentModifier(float pct)
+        {
+            IAttributeModifier<T> mod = new AttributeModifier<T>(Scale(Mathf.Clamp01(pct)));
+            _percentBonuses.Add(mod);
+            
+            _modifiers = CalculateModifiers();
+            onModifiersChanged?.Invoke(_modifiers);
             return mod;
         }
 
         public virtual bool RemoveFlatModifier(IAttributeModifier<T> mod)
         {
             bool removed = _flatBonuses.Remove(mod);
-            if(removed)
-                mod.Remove();
-
+            if(removed) {
+                _modifiers = CalculateModifiers();
+                onModifiersChanged?.Invoke(_modifiers);
+            }          
             return removed;
-        }
-
-        public virtual IAttributeModifier<T> AddPercentModifier(float pct)
-        {
-            float clampedPct = Mathf.Clamp01(pct);
-            IAttributeModifier<T> mod = new AttributeModifier<T>(Scale(clampedPct), this);
-            mod.Apply();
-            _percentBonuses.Add(mod);
-
-            return mod;
         }
 
         public virtual bool RemovePercentModifier(IAttributeModifier<T> mod)
         {
             bool removed = _percentBonuses.Remove(mod);
-            if(removed)
-                mod.Remove();
+            if(removed) {
+                _modifiers = CalculateModifiers();
+                onModifiersChanged?.Invoke(_modifiers);
+            }
 
             return removed;
         }
 
+        /// <summary>
+        /// Resets the attribute to the default value after construction
+        /// </summary>
         public void Reset()
         {
             _value = defaultVal;
-            _percentBonuses.Clear();
             _flatBonuses.Clear();
+            _percentBonuses.Clear();
+            _modifiers = CalculateModifiers();
+
             onValueChanged?.Invoke(_value);
+            onModifiersChanged?.Invoke(_modifiers);
         }
         #endregion
 
@@ -117,9 +130,10 @@ namespace INUlib.RPG.CharacterSheet
         protected abstract T Sum(T a, T b);
         protected abstract T Subtract(T a, T b);
         protected abstract T DefaultMaxValue();
+        protected abstract T Zero();
         protected abstract T Clamp(T value, T min, T max);
 
-        protected virtual void ApplyBonuses() { }
+        protected virtual T CalculateModifiers() => Zero();
         #endregion
     }
 }
