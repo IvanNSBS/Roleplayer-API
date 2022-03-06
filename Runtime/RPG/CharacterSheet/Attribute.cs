@@ -13,16 +13,17 @@ namespace INUlib.RPG.CharacterSheet
         [JsonProperty] public readonly T maxVal;
         protected T _value;
         protected T _modifiers;
-        protected List<IAttributeModifier<T>> _flatBonuses;
-        protected List<IAttributeModifier<T>> _percentBonuses;
+        protected List<IAttributeModifier<T>> _flatMods;
+        protected List<IAttributeModifier<T>> _percentMods;
         #endregion
 
 
         #region Properties
-        public T DefaultValue => defaultVal;
         public T Value => _value;
         public T Modifiers => _modifiers;
         public virtual T Total => Sum(_value, _modifiers);
+        public IReadOnlyList<IAttributeModifier<T>> FlatMods => _flatMods;
+        public IReadOnlyList<IAttributeModifier<T>> PercentMods => _percentMods;
         #endregion
 
 
@@ -30,9 +31,10 @@ namespace INUlib.RPG.CharacterSheet
         public Attribute(T defaultVal)
         {
             this.defaultVal = defaultVal;
+            this.maxVal = DefaultMaxValue();
             _value = this.defaultVal;
-            _flatBonuses = new List<IAttributeModifier<T>>();
-            _percentBonuses = new List<IAttributeModifier<T>>();
+            _flatMods = new List<IAttributeModifier<T>>();
+            _percentMods = new List<IAttributeModifier<T>>();
         } 
             
         public Attribute(T defaultVal, T maxVal) 
@@ -40,8 +42,8 @@ namespace INUlib.RPG.CharacterSheet
             this.maxVal = maxVal;
             this.defaultVal = defaultVal;
             _value = this.defaultVal;
-            _flatBonuses = new List<IAttributeModifier<T>>();
-            _percentBonuses = new List<IAttributeModifier<T>>();
+            _flatMods = new List<IAttributeModifier<T>>();
+            _percentMods = new List<IAttributeModifier<T>>();
         } 
         #endregion
 
@@ -62,8 +64,7 @@ namespace INUlib.RPG.CharacterSheet
         public void Decrease(T amount) 
         {
             _value = Subtract(_value, amount);
-            T clampVal = maxVal.CompareTo(DefaultMaxValue()) == 0 ? _value : maxVal; 
-            _value = Clamp(_value, defaultVal, clampVal);
+            _value = Clamp(_value, defaultVal, Sum(_value, amount));
 
             onValueChanged?.Invoke(_value);
         }
@@ -71,7 +72,7 @@ namespace INUlib.RPG.CharacterSheet
         public virtual IAttributeModifier<T> AddFlatModifier(T amount)
         {
             IAttributeModifier<T> mod = new AttributeModifier<T>(amount); 
-            _flatBonuses.Add(mod);
+            _flatMods.Add(mod);
 
             _modifiers = CalculateModifiers();
             onModifiersChanged?.Invoke(_modifiers);
@@ -80,8 +81,8 @@ namespace INUlib.RPG.CharacterSheet
 
         public virtual IAttributeModifier<T> AddPercentModifier(float pct)
         {
-            IAttributeModifier<T> mod = new AttributeModifier<T>(Scale(Mathf.Clamp01(pct)));
-            _percentBonuses.Add(mod);
+            IAttributeModifier<T> mod = new AttributeModifier<T>(Scale(pct));
+            _percentMods.Add(mod);
             
             _modifiers = CalculateModifiers();
             onModifiersChanged?.Invoke(_modifiers);
@@ -90,7 +91,7 @@ namespace INUlib.RPG.CharacterSheet
 
         public virtual bool RemoveFlatModifier(IAttributeModifier<T> mod)
         {
-            bool removed = _flatBonuses.Remove(mod);
+            bool removed = _flatMods.Remove(mod);
             if(removed) {
                 _modifiers = CalculateModifiers();
                 onModifiersChanged?.Invoke(_modifiers);
@@ -100,7 +101,7 @@ namespace INUlib.RPG.CharacterSheet
 
         public virtual bool RemovePercentModifier(IAttributeModifier<T> mod)
         {
-            bool removed = _percentBonuses.Remove(mod);
+            bool removed = _percentMods.Remove(mod);
             if(removed) {
                 _modifiers = CalculateModifiers();
                 onModifiersChanged?.Invoke(_modifiers);
@@ -115,8 +116,8 @@ namespace INUlib.RPG.CharacterSheet
         public void Reset()
         {
             _value = defaultVal;
-            _flatBonuses.Clear();
-            _percentBonuses.Clear();
+            _flatMods.Clear();
+            _percentMods.Clear();
             _modifiers = CalculateModifiers();
 
             onValueChanged?.Invoke(_value);
