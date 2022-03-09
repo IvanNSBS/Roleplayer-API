@@ -12,20 +12,55 @@ namespace INUlib.RPG.CharacterSheet
         #endregion
 
         #region Methods
-        public static implicit operator Float(float num) => new Float(num);
+        public override INumber Sum(INumber b)
+        {
+            _value += b.AsFloat();
+            return this;
+        }
 
-        public override INumber Sum(INumber b) 
+        public override INumber Sum(float b)
+        {
+            _value += (int)b;
+            return this;
+        }
+
+        public override INumber Sum(int b)
         {
             _value += b;
             return this;
         }
 
-        public override INumber Subtract(INumber b) 
+        public override INumber Subtract(INumber b)
+        {
+            _value -= b.AsFloat();
+            return this;
+        }
+
+        public override INumber Subtract(float b)
+        {
+            _value -= (int)b;
+            return this;
+        }
+
+        public override INumber Subtract(int b)
         {
             _value -= b;
             return this;
         }
+
         public override INumber Multiply(INumber b)
+        {
+            _value *= b.AsFloat();
+            return this;
+        }
+
+        public override INumber Multiply(float b)
+        {
+            _value *= (int)b;
+            return this;
+        }
+
+        public override INumber Multiply(int b)
         {
             _value *= b;
             return this;
@@ -33,12 +68,24 @@ namespace INUlib.RPG.CharacterSheet
         
         public override INumber Divide(INumber b)
         {
+            _value /= b.AsFloat();
+            return this;
+        }
+
+        public override INumber Divide(float b)
+        {
+            _value /= (int)b;
+            return this;
+        }
+
+        public override INumber Divide(int b)
+        {
             _value /= b;
             return this;
         }
 
-        protected override int AsInt() => (int)_value;
-        protected override float AsFloat() => _value;
+        public override int AsInt() => (int)_value;
+        public override float AsFloat() => _value;
         #endregion
     }
 } 
