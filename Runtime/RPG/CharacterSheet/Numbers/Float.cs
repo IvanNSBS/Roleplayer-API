@@ -20,7 +20,7 @@ namespace INUlib.RPG.CharacterSheet
 
         public override INumber Sum(float b)
         {
-            _value += (int)b;
+            _value += b;
             return this;
         }
 
@@ -36,27 +36,33 @@ namespace INUlib.RPG.CharacterSheet
             return this;
         }
 
-        public override INumber Subtract(float b)
+        public override INumber Subtract(float b, bool preceding)
         {
-            _value -= (int)b;
+            if(preceding)
+                _value = b - _value;
+            else
+                _value -= b;
             return this;
         }
 
-        public override INumber Subtract(int b)
+        public override INumber Subtract(int b, bool preceding)
         {
-            _value -= b;
+            if(preceding)
+                _value = b - _value;
+            else
+                _value -= b;
             return this;
         }
 
         public override INumber Multiply(INumber b)
         {
-            _value *= b.AsFloat();
+            _value = _value * b.AsFloat();
             return this;
         }
 
         public override INumber Multiply(float b)
         {
-            _value *= (int)b;
+            _value *= b;
             return this;
         }
 
@@ -68,19 +74,25 @@ namespace INUlib.RPG.CharacterSheet
         
         public override INumber Divide(INumber b)
         {
-            _value /= b.AsFloat();
+            _value = _value / b.AsFloat();
             return this;
         }
 
-        public override INumber Divide(float b)
+        public override INumber Divide(float b, bool preceding)
         {
-            _value /= (int)b;
+            if(preceding)
+                _value = b / _value;
+            else
+                _value /= b;
             return this;
         }
 
-        public override INumber Divide(int b)
+        public override INumber Divide(int b, bool preceding)
         {
-            _value /= b;
+            if(preceding)
+                _value = (float)b / _value;
+            else
+                _value /= b;
             return this;
         }
 

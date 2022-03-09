@@ -1,6 +1,5 @@
 using INUlib.RPG.CharacterSheet;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Tests.Runtime.RPG.Attributes
 {
@@ -14,7 +13,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Int_Number_Sum(int a, int b)
         {
             int val = new Int(a) + new Int(b);
+            int v1 = new Int(a) + b;
+            int v2 = a + new Int(b);
             Assert.AreEqual(a + b, val);
+            Assert.AreEqual(a + b, v1);
+            Assert.AreEqual(a + b, v2);
         }
 
         [Test]
@@ -25,7 +28,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Int_Number_Sum_Float(int a, float b)
         {
             int val = new Int(a) + new Float(b);
+            int v1 = new Int(a) + b;
+            int v2 = b + new Int(a);
             Assert.AreEqual(a + (int)b, val);
+            Assert.AreEqual(a + (int)b, v1);
+            Assert.AreEqual(a + (int)b, v2);
         }
 
         [Test]
@@ -36,7 +43,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Float_Number_Sum(float a, float b)
         {
             float val = new Float(a) + new Float(b);
+            float v1 = new Float(b) + a;
+            float v2 = a + new Float(b);
             Assert.AreEqual(a + b, val);
+            Assert.AreEqual(a + b, v1);
+            Assert.AreEqual(a + b, v2);
         }
 
         [Test]
@@ -47,7 +58,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Float_Number_Sum_Int(int a, float b)
         {
             float val = new Float(b) + new Int(a);
+            float v1 = new Float(b) + a;
+            float v2 = a + new Float(b);
             Assert.AreEqual(a + b, val);
+            Assert.AreEqual(a + b, v1);
+            Assert.AreEqual(a + b, v2);
         }
 
         [Test]
@@ -58,7 +73,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Int_Number_Subtraction(int a, int b)
         {
             int val = new Int(a) - new Int(b);
+            int v1 = new Int(a) - b;
+            int v2 = a - new Int(b);
             Assert.AreEqual(a - b, val);
+            Assert.AreEqual(a - b, v1);
+            Assert.AreEqual(a - b, v2);
         }
 
         [Test]
@@ -69,7 +88,9 @@ namespace Tests.Runtime.RPG.Attributes
         public void Int_Number_Subtraction_Float(int a, float b)
         {
             int val = new Int(a) - new Float(b);
-            Assert.AreEqual(a - (int)b,val);
+            int v1 = new Int(a) - b;
+            Assert.AreEqual(a - (int)b, val);
+            Assert.AreEqual(a - (int)b, v1);
         }
 
         [Test]
@@ -80,7 +101,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Float_Number_Subtraction(float a, float b)
         {
             float val = new Float(a) - new Float(b);
+            float v1 = new Float(a) - b;
+            float v2 = a - new Float(b);
             Assert.AreEqual(a - b, val);
+            Assert.AreEqual(a - b, v1);
+            Assert.AreEqual(a - b, v2);
         }
 
         [Test]
@@ -91,7 +116,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Float_Number_Subtraction_Int(float a, int b)
         {
             float val = new Float(a) - new Int(b);
+            float v1 = new Float(a) - b;
+            float v2 = a - new Float(b);
             Assert.AreEqual(a - b, val);
+            Assert.AreEqual(a - b, v1);
+            Assert.AreEqual(a - b, v2);
         }
 
         [Test]
@@ -104,7 +133,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Int_Number_Division(int a, int b)
         {
             int val = new Int(a)/new Int(b);
+            int v1 = new Int(a)/b;
+            int v2 = a/new Int(b);
             Assert.AreEqual(a/b, val);
+            Assert.AreEqual(a/b, v1);
+            Assert.AreEqual(a/b, v2);
         }
 
         [Test]
@@ -117,7 +150,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Int_Number_Division_Float(int a, float b)
         {
             int val = new Int(a)/new Float(b);
+            int v1 = new Int(a) / b;
+            int v2 = a / new Float(b);
             Assert.AreEqual((int)(a/b), val);
+            Assert.AreEqual((int)(a/b), v1);
+            Assert.AreEqual((int)(a/b), v2);
         }
 
         [Test]
@@ -130,7 +167,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Float_Number_Division(float a, float b)
         {
             float val = new Float(a)/new Float(b);
+            float v1 = new Float(a)/b;
+            float v2 = a/new Float(b);
             Assert.AreEqual(a/b, val);
+            Assert.AreEqual(a/b, v1);
+            Assert.AreEqual(a/b, v2);
         }
 
         [Test]
@@ -143,7 +184,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Float_Number_Division_int(float a, int b)
         {
             float val = new Float(a)/new Int(b);
+            float v1 = new Float(a)/b;
+            float v2 = a/new Float(b);
             Assert.AreEqual(a/b, val);
+            Assert.AreEqual(a/b, v1);
+            Assert.AreEqual(a/b, v2);
         }
 
         [Test]
@@ -156,7 +201,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Int_Number_Multiplication(int a, int b)
         {
             int val = new Int(a)*new Int(b);
+            int v1 = new Int(a)*b;
+            int v2 = a*new Int(b);
             Assert.AreEqual(a*b, val);
+            Assert.AreEqual(a*b, v1);
+            Assert.AreEqual(a*b, v2);
         }
 
         [Test]
@@ -170,7 +219,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Int_Number_Multiplication_Float(int a, float b)
         {
             int val = new Int(a)*new Float(b);
+            int v1 = new Int(a)*b;
+            int v2 = a*new Float(b);
             Assert.AreEqual((int)(a*b), val);
+            Assert.AreEqual((int)(a*b), v1);
+            Assert.AreEqual((int)(a*b), v2);
         }
 
         [Test]
@@ -183,7 +236,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Float_Number_Multiplication(float a, float b)
         {
             float val = new Float(a)*new Float(b);
+            float v1 = new Float(a) * b;
+            float v2 = a * new Float(b);
             Assert.AreEqual(a*b, val);
+            Assert.AreEqual(a*b, v1);
+            Assert.AreEqual(a*b, v2);
         }
 
         [Test]
@@ -196,7 +253,11 @@ namespace Tests.Runtime.RPG.Attributes
         public void Float_Number_Multiplication_Int(float a, int b)
         {
             float val = new Float(a)*new Int(b);
+            float v1 = new Float(a)*b;
+            // float v2 = a * new Int(b);
             Assert.AreEqual(a*b, val);
+            Assert.AreEqual(a*b, v1);
+            // Assert.AreEqual(a*b, v2);
         }
     }
 }
