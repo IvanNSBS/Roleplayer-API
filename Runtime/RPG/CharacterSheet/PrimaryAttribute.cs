@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace INUlib.RPG.CharacterSheet
 {
-    public abstract class Attribute<T> : ModifiableAttribute<T> where T : IComparable
+    public abstract class PrimaryAttribute<T> : ModifiableAttribute<T> where T : IComparable
     {
         #region Fields
         [JsonProperty] public readonly T defaultVal;
@@ -21,14 +21,14 @@ namespace INUlib.RPG.CharacterSheet
 
 
         #region Constructor
-        public Attribute(T defaultVal) : base()
+        public PrimaryAttribute(T defaultVal) : base()
         {
             this.defaultVal = defaultVal;
             this.maxVal = DefaultMaxValue();
             _value = this.defaultVal;
         } 
             
-        public Attribute(T defaultVal, T maxVal) : base()
+        public PrimaryAttribute(T defaultVal, T maxVal) : base()
         {
             this.maxVal = maxVal;
             this.defaultVal = defaultVal;

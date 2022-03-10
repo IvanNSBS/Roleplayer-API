@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace INUlib.RPG.CharacterSheet
 {
-    public class FloatAttribute : Attribute<float>
+    public class FloatAttribute : PrimaryAttribute<float>
     {
         #region Constructor
         [JsonConstructor]
@@ -14,8 +14,8 @@ namespace INUlib.RPG.CharacterSheet
 
 
         #region Methods
-        public override int AsInt() => (int)_value;
-        public override float AsFloat() => _value;
+        public override int AsInt() => (int)Clamp(_value + _modifiers, defaultVal, Mathf.Abs(_value + _modifiers));
+        public override float AsFloat() => Clamp(_value + _modifiers, defaultVal, Mathf.Abs(_value + _modifiers));
 
         protected override float Scale(float b) => _value * b;
         protected override float Sum(float a, float b) => a + b;
