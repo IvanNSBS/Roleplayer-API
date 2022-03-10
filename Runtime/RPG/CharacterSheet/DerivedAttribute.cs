@@ -3,44 +3,48 @@ using System;
 
 namespace INUlib.RPG.CharacterSheet
 {
-    public abstract class DerivedAttribute<T> : Attribute<T> where T : IComparable
+    public abstract class DerivedAttribute : IAttribute
     {
         #region Fields
-        private Attribute<IComparable>[] _parents;
+        private IAttribute[] _parents;
         #endregion
 
 
         #region Constructors
-        public DerivedAttribute(T defaultVal) : base(defaultVal) { }
         ~DerivedAttribute() => UnlinkParents();
         #endregion
     
         
         #region Methods
+        public event Action onAttributeChanged = delegate { };
+
+        public abstract int AsInt();
+        public abstract float AsFloat();
+
         protected virtual void UnlinkParents()
         {
             if(_parents == null)
                 return;
 
             foreach(var p in _parents)
-            {
-                p.onValueChanged -= UpdateValue;
-                p.onModifiersChanged -= UpdateValue;
-            }
+                p.onAttributeChanged -= ApplyChanges;
         }
 
-        protected void LinkParents(params Attribute<IComparable>[] parents)
+        protected void LinkParents(params IAttribute[] parents)
         {
             UnlinkParents();
             _parents = parents;
+
             foreach(var p in _parents)
-            {
-                p.onValueChanged += UpdateValue;
-                p.onModifiersChanged += UpdateValue;
-            }
+                p.onAttributeChanged += ApplyChanges;
         }
 
-        private void UpdateValue(IComparable t) => OnParentChanged();
+        private void ApplyChanges()
+        {
+            OnParentChanged();
+            onAttributeChanged.Invoke();
+        }
+
         public abstract void OnParentChanged();
         #endregion
     }

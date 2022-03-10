@@ -14,6 +14,9 @@ namespace INUlib.RPG.CharacterSheet
 
 
         #region Methods
+        public override int AsInt() => _value;
+        public override float AsFloat() => _value;
+
         protected override int Scale(float b) => Mathf.FloorToInt((float)_value * b);
         protected override int Sum(int a, int b) => a + b;
         protected override int Subtract(int a, int b) => a - b;
