@@ -1,12 +1,16 @@
 
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace INUlib.RPG.CharacterSheet
 {
-    public abstract class ModifiableAttribute<T> : IAttribute where T : IComparable
+    public abstract class RPGAttribute<T> : IAttribute where T : IComparable
     {
         #region Fields
+        public readonly T defaultVal;
+        public readonly T maxVal;
+        protected T _value;
         protected T _modifiers;
         protected List<IAttributeModifier<T>> _flatMods;
         protected List<IAttributeModifier<T>> _percentMods;
@@ -14,15 +18,38 @@ namespace INUlib.RPG.CharacterSheet
 
 
         #region Properties
+        public T Value => _value;
         public T Modifiers => _modifiers;
+        public abstract T Total { get;}
         public IReadOnlyList<IAttributeModifier<T>> FlatMods => _flatMods;
         public IReadOnlyList<IAttributeModifier<T>> PercentMods => _percentMods;
         #endregion
 
 
         #region Constructor
-        public ModifiableAttribute() 
+        public RPGAttribute() 
         {
+            this.defaultVal = Zero();
+            this.maxVal = DefaultMaxValue();
+            _value = this.defaultVal;
+            _flatMods = new List<IAttributeModifier<T>>();
+            _percentMods = new List<IAttributeModifier<T>>();
+        } 
+
+        public RPGAttribute(T defaultVal)
+        {
+            this.defaultVal = defaultVal;
+            this.maxVal = DefaultMaxValue();
+            _value = this.defaultVal;
+            _flatMods = new List<IAttributeModifier<T>>();
+            _percentMods = new List<IAttributeModifier<T>>();
+        } 
+            
+        public RPGAttribute(T defaultVal, T maxVal)
+        {
+            this.maxVal = maxVal;
+            this.defaultVal = defaultVal;
+            _value = this.defaultVal;
             _flatMods = new List<IAttributeModifier<T>>();
             _percentMods = new List<IAttributeModifier<T>>();
         } 
@@ -90,6 +117,7 @@ namespace INUlib.RPG.CharacterSheet
         public abstract float AsFloat();
         protected abstract T Scale(float b);
         protected abstract T Zero();
+        protected abstract T DefaultMaxValue();
 
         protected virtual T CalculateModifiers() => Zero();
         #endregion

@@ -5,35 +5,12 @@ using Newtonsoft.Json;
 
 namespace INUlib.RPG.CharacterSheet
 {
-    public abstract class PrimaryAttribute<T> : ModifiableAttribute<T> where T : IComparable
+    public abstract class PrimaryAttribute<T> : RPGAttribute<T> where T : IComparable
     {
-        #region Fields
-        [JsonProperty] public readonly T defaultVal;
-        [JsonProperty] public readonly T maxVal;
-        protected T _value;
-        #endregion
-
-
-        #region Properties
-        public T Value => _value;
-        public virtual T Total => Sum(_value, _modifiers);
-        #endregion
-
-
-        #region Constructor
-        public PrimaryAttribute(T defaultVal) : base()
-        {
-            this.defaultVal = defaultVal;
-            this.maxVal = DefaultMaxValue();
-            _value = this.defaultVal;
-        } 
-            
-        public PrimaryAttribute(T defaultVal, T maxVal) : base()
-        {
-            this.maxVal = maxVal;
-            this.defaultVal = defaultVal;
-            _value = this.defaultVal;
-        } 
+        #region Constructors
+        public PrimaryAttribute() : base() { } 
+        public PrimaryAttribute(T defaultVal) : base(defaultVal) { } 
+        public PrimaryAttribute(T defaultVal, T maxVal) : base(defaultVal, maxVal) { } 
         #endregion
 
 
@@ -78,7 +55,6 @@ namespace INUlib.RPG.CharacterSheet
         #region Interface Methods
         protected abstract T Sum(T a, T b);
         protected abstract T Subtract(T a, T b);
-        protected abstract T DefaultMaxValue();
         protected abstract T Clamp(T value, T min, T max);
         #endregion
     }

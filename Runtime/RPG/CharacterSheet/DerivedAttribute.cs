@@ -3,7 +3,7 @@ using System;
 
 namespace INUlib.RPG.CharacterSheet
 {
-    public abstract class DerivedAttribute : IAttribute
+    public abstract class DerivedAttribute<T> : RPGAttribute<T> where T : IComparable
     {
         #region Fields
         private IAttribute[] _parents;
@@ -16,11 +16,6 @@ namespace INUlib.RPG.CharacterSheet
     
         
         #region Methods
-        public event Action onAttributeChanged = delegate { };
-
-        public abstract int AsInt();
-        public abstract float AsFloat();
-
         protected virtual void UnlinkParents()
         {
             if(_parents == null)
@@ -42,7 +37,7 @@ namespace INUlib.RPG.CharacterSheet
         private void ApplyChanges()
         {
             OnParentChanged();
-            onAttributeChanged.Invoke();
+            OnAttributeChanged();
         }
 
         public abstract void OnParentChanged();

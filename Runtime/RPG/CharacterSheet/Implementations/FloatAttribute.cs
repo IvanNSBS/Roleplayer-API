@@ -14,6 +14,7 @@ namespace INUlib.RPG.CharacterSheet
 
 
         #region Methods
+        public override float Total => (int)Clamp(_value + _modifiers, defaultVal, Mathf.Abs(_value + _modifiers));
         public override int AsInt() => (int)Clamp(_value + _modifiers, defaultVal, Mathf.Abs(_value + _modifiers));
         public override float AsFloat() => Clamp(_value + _modifiers, defaultVal, Mathf.Abs(_value + _modifiers));
 
