@@ -170,7 +170,7 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(2f)]
         [TestCase(2.5f)]
         [TestCase(5f)]
-        public void PrimaryAttribute_Refreshes_Value_With_Float_Increase(float pctIncrease)
+        public void PrimaryAttribute_Refreshes_Mods_Value_With_Float_Increase(float pctIncrease)
         {
             IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
             _mockAttr.Increase(_dfValue);
@@ -183,7 +183,7 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(2f)]
         [TestCase(2.5f)]
         [TestCase(5f)]
-        public void PrimaryAttribute_Refreshes_Value_With_Integer_Increase(float pctIncrease)
+        public void PrimaryAttribute_Refreshes_Mods_Value_With_Integer_Increase(float pctIncrease)
         {
             IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
             _mockAttr.Increase((int)_dfValue);
@@ -196,7 +196,7 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(2f)]
         [TestCase(2.5f)]
         [TestCase(5f)]
-        public void PrimaryAttribute_Refreshes_Value_With_Float_Decrease(float pctIncrease)
+        public void PrimaryAttribute_Refreshes_Mods_Value_With_Float_Decrease(float pctIncrease)
         {
             IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
             _mockAttr.Increase(_dfValue);
@@ -210,7 +210,7 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(2f)]
         [TestCase(2.5f)]
         [TestCase(5f)]
-        public void PrimaryAttribute_Refreshes_Value_With_Int_Decrease(float pctIncrease)
+        public void PrimaryAttribute_Refreshes_Mods_Value_With_Int_Decrease(float pctIncrease)
         {
             IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
             _mockAttr.Increase((int)_dfValue);
