@@ -3,6 +3,11 @@ using System.Linq;
 
 namespace INUlib.RPG.RPGAttributes
 {
+    /// <summary>
+    /// DerivedAttributes are attributes that have their CurrentValue derived from
+    /// parent attributes.
+    /// The CurrentValue will be set whenever one of the parent attributes change
+    /// </summary>
     public abstract class DerivedAttribute : RPGAttribute
     {
         #region Fields
@@ -11,23 +16,59 @@ namespace INUlib.RPG.RPGAttributes
 
 
         #region Properties
+        /// <summary>
+        /// Getter for the parent list of the DerivedAttribute
+        /// </summary>
+        /// <returns></returns>
         public IReadOnlyList<IAttribute> Parents => _parents?.ToList();
         #endregion
 
 
         #region Constructors
+        /// <summary>
+        /// Constructor that sets the DerivedAttribute Type only
+        /// </summary>
+        /// <param name="t">The attribute type</param>
         public DerivedAttribute(AttributeType t) : base(t) { }
+
+        /// <summary>
+        /// Constructor that sets the DerivedAttribute Type and default value
+        /// </summary>
+        /// <param name="t">The attribute type</param>
+        /// <param name="dfVal">The attribute defaultValue</param>
         public DerivedAttribute(AttributeType t, float dfVal) : base(t, dfVal) { }
+        
+        /// <summary>
+        /// Constructor that sets the DerivedAttribute Type, default and max value
+        /// </summary>
+        /// <param name="t">The attribute type</param>
+        /// <param name="dfVal">The attribute defaultValue</param>
+        /// <param name="maxVal">The attribute maxVal</param>
         public DerivedAttribute(AttributeType t, float dfVal, float maxVal) : base(t, dfVal, maxVal) { }
         #endregion
 
 
         #region Methods
-        public abstract void UpdateAttribute();
+        /// <summary>
+        /// Method that defines how the currentValue will be updated, given the list of parents
+        /// </summary>
+        /// <returns>The updated attribute currentValue</returns>
+        public abstract float UpdateAttribute();
+
+        /// <summary>
+        /// Applies the UpdateAttribute to the _currentValue field
+        /// </summary>
+        protected virtual void ApplyUpdate() => _currentValue = UpdateAttribute();
         #endregion
 
 
         #region Helper Methods
+        /// <summary>
+        /// Links the Attribute parents, listening to their onAttributeChanged
+        /// to apply the UpdateAttribute accordingly and immediately Applies the Update.
+        /// </summary>
+        /// <param name="parent">The required parent to link</param>
+        /// <param name="others">Params to link N other parents</param>
         protected void LinkParents(IAttribute parent, params IAttribute[] others)
         {
             UnlinkParents();
@@ -38,21 +79,24 @@ namespace INUlib.RPG.RPGAttributes
                 _parents[i] = others[i-1];
 
             foreach(var attr in _parents)
-                attr.onAttributeChanged += UpdateAttribute;
+                attr.onAttributeChanged += ApplyUpdate;
 
-            UpdateAttribute();
+            ApplyUpdate();
         }
 
+        /// <summary>
+        /// Unlinks all parents, sets the Parent list to null and Applies the Attribute Update
+        /// </summary>
         protected void UnlinkParents()
         {
             if(_parents == null)
                 return;
 
             foreach(var attr in _parents)
-                attr.onAttributeChanged -= UpdateAttribute;
+                attr.onAttributeChanged -= ApplyUpdate;
 
             _parents = null;
-            UpdateAttribute();
+            ApplyUpdate();
         }
         #endregion
     }

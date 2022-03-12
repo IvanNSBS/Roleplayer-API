@@ -15,14 +15,16 @@ namespace Tests.Runtime.RPG.Attributes
 
             public override float CalculateMods() => 0f;
 
-            public override void UpdateAttribute()
+            public override float UpdateAttribute()
             {
-                _currentValue = 0;
+                float currentValue = 0;
                 if(Parents == null)
-                    return;
+                    return 0;
                     
                 foreach(IAttribute parent in Parents)
-                    _currentValue++;
+                    currentValue++;
+
+                return currentValue;
             }
 
             public void Link(IAttribute parent, params IAttribute[] others) => LinkParents(parent, others);
