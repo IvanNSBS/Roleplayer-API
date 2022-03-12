@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace INUlib.RPG.RPGAttributes
 {
     public abstract class PrimaryAttribute : RPGAttribute
@@ -16,13 +18,15 @@ namespace INUlib.RPG.RPGAttributes
                 _currentValue += (int)amount;
             else
                 _currentValue += amount;
-
+ 
+            ClampCurrentValue();
             RaiseAttributeChanged();
         }
 
         public void Increase(int amount)
         {
             _currentValue += amount;
+            ClampCurrentValue();
             RaiseAttributeChanged();
         }
 
@@ -32,14 +36,27 @@ namespace INUlib.RPG.RPGAttributes
                 _currentValue -= (int)amount;
             else
                 _currentValue -= amount;
-        
+            
+            ClampCurrentValue();
             RaiseAttributeChanged();
         }
 
         public void Decrease(int amount)
         {
             _currentValue -= amount;
+            ClampCurrentValue();
             RaiseAttributeChanged();
+        }
+        #endregion
+
+
+        #region Helper Methods
+        private void ClampCurrentValue()
+        {
+            if(_currentValue < defaultValue)
+                _currentValue = defaultValue;
+            if(maxValue != -1 && _currentValue > maxValue)
+                _currentValue = maxValue;
         }
         #endregion
     }

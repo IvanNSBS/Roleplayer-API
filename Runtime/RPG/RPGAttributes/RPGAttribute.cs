@@ -24,7 +24,7 @@ namespace INUlib.RPG.RPGAttributes
 
 
         #region Properties
-        public float CurrenValue => _currentValue;
+        public float CurrentValue => _currentValue;
         public float ModsValue => _modsValue;
         public virtual float Total => _currentValue + _modsValue;
         public IReadOnlyList<IAttributeMod> FlatMods => _flatMods;
