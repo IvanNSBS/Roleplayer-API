@@ -1,9 +1,17 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace INUlib.RPG.RPGAttributes
 {
     public abstract class DerivedAttribute : RPGAttribute
     {
         #region Fields
         private IAttribute[] _parents;
+        #endregion
+
+
+        #region Properties
+        public IReadOnlyList<IAttribute> Parents => _parents?.ToList();
         #endregion
 
 
@@ -15,7 +23,7 @@ namespace INUlib.RPG.RPGAttributes
 
 
         #region Methods
-        public abstract void CalculateAttribute();
+        public abstract void UpdateAttribute();
         #endregion
 
 
@@ -30,7 +38,9 @@ namespace INUlib.RPG.RPGAttributes
                 _parents[i] = others[i-1];
 
             foreach(var attr in _parents)
-                attr.onAttributeChanged += CalculateAttribute;
+                attr.onAttributeChanged += UpdateAttribute;
+
+            UpdateAttribute();
         }
 
         protected void UnlinkParents()
@@ -39,7 +49,10 @@ namespace INUlib.RPG.RPGAttributes
                 return;
 
             foreach(var attr in _parents)
-                attr.onAttributeChanged -= CalculateAttribute;
+                attr.onAttributeChanged -= UpdateAttribute;
+
+            _parents = null;
+            UpdateAttribute();
         }
         #endregion
     }
