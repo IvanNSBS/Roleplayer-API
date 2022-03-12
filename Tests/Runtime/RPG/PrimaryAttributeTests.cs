@@ -19,6 +19,18 @@ namespace Tests.Runtime.RPG.Attributes
             _changed = false;
             _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue, _maxValue);
             _mockAttr.onAttributeChanged += () => _changed = true;
+            _mockAttr.When(x => x.CalculateMods()).Do(x => {
+                float total = 0;
+                foreach(var pctMod in _mockAttr.PercentMods)
+                    total += pctMod.ValueAsFloat();
+                foreach(var flatMod in _mockAttr.FlatMods)
+                    total += flatMod.ValueAsFloat();
+            
+                if(total < 0)
+                    total = 0;
+
+                _mockAttr.ModsValue.Returns(total);
+            });
         }
         #endregion
 
@@ -135,8 +147,8 @@ namespace Tests.Runtime.RPG.Attributes
         public void PrimaryIntAttribute_Correctly_Calculates_Mods()
         {
             PrimaryIntAttribute attr = new PrimaryIntAttribute(5);
-            attr.AddFlatModifier(10);
-            attr.AddFlatModifier(12);
+            attr.AddFlatModifier(10.5f);
+            attr.AddFlatModifier(12.5f);
             attr.AddPercentModifier(2);
 
             Assert.AreEqual(32, attr.ModsValue);
@@ -151,6 +163,60 @@ namespace Tests.Runtime.RPG.Attributes
             attr.AddPercentModifier(2.5f);
 
             Assert.AreEqual(35.2f, attr.ModsValue);
+        }
+
+        [Test]
+        [TestCase(1f)]
+        [TestCase(2f)]
+        [TestCase(2.5f)]
+        [TestCase(5f)]
+        public void PrimaryAttribute_Refreshes_Value_With_Float_Increase(float pctIncrease)
+        {
+            IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
+            _mockAttr.Increase(_dfValue);
+
+            Assert.AreEqual(2*_dfValue*pctIncrease, pctMod.ValueAsFloat());
+        }
+
+        [Test]
+        [TestCase(1f)]
+        [TestCase(2f)]
+        [TestCase(2.5f)]
+        [TestCase(5f)]
+        public void PrimaryAttribute_Refreshes_Value_With_Integer_Increase(float pctIncrease)
+        {
+            IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
+            _mockAttr.Increase((int)_dfValue);
+
+            Assert.AreEqual(2*_dfValue*pctIncrease, pctMod.ValueAsFloat());
+        }
+
+        [Test]
+        [TestCase(1f)]
+        [TestCase(2f)]
+        [TestCase(2.5f)]
+        [TestCase(5f)]
+        public void PrimaryAttribute_Refreshes_Value_With_Float_Decrease(float pctIncrease)
+        {
+            IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
+            _mockAttr.Increase(_dfValue);
+            _mockAttr.Decrease(_dfValue);
+
+            Assert.AreEqual(_dfValue*pctIncrease, pctMod.ValueAsFloat());
+        }
+
+        [Test]
+        [TestCase(1f)]
+        [TestCase(2f)]
+        [TestCase(2.5f)]
+        [TestCase(5f)]
+        public void PrimaryAttribute_Refreshes_Value_With_Int_Decrease(float pctIncrease)
+        {
+            IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
+            _mockAttr.Increase((int)_dfValue);
+            _mockAttr.Decrease((int)_dfValue);
+
+            Assert.AreEqual(_dfValue*pctIncrease, pctMod.ValueAsFloat());
         }
         #endregion
 

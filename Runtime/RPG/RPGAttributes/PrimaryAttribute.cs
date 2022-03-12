@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace INUlib.RPG.RPGAttributes
 {
     public abstract class PrimaryAttribute : RPGAttribute
@@ -12,7 +10,7 @@ namespace INUlib.RPG.RPGAttributes
 
 
         #region Methods
-        public void Increase(float amount)
+        public virtual void Increase(float amount)
         {
             if(_type == AttributeType.Integer)
                 _currentValue += (int)amount;
@@ -20,17 +18,19 @@ namespace INUlib.RPG.RPGAttributes
                 _currentValue += amount;
  
             ClampCurrentValue();
+            RefreshMods();
             RaiseAttributeChanged();
         }
 
-        public void Increase(int amount)
+        public virtual void Increase(int amount)
         {
             _currentValue += amount;
             ClampCurrentValue();
+            RefreshMods();
             RaiseAttributeChanged();
         }
 
-        public void Decrease(float amount)
+        public virtual void Decrease(float amount)
         {
             if(_type == AttributeType.Integer)
                 _currentValue -= (int)amount;
@@ -38,25 +38,35 @@ namespace INUlib.RPG.RPGAttributes
                 _currentValue -= amount;
             
             ClampCurrentValue();
+            RefreshMods();
             RaiseAttributeChanged();
         }
 
-        public void Decrease(int amount)
+        public virtual void Decrease(int amount)
         {
             _currentValue -= amount;
             ClampCurrentValue();
+            RefreshMods();
             RaiseAttributeChanged();
         }
         #endregion
 
 
         #region Helper Methods
-        private void ClampCurrentValue()
+        protected void ClampCurrentValue()
         {
             if(_currentValue < defaultValue)
                 _currentValue = defaultValue;
             if(maxValue != -1 && _currentValue > maxValue)
                 _currentValue = maxValue;
+        }
+
+        protected void RefreshMods()
+        {
+            foreach(IAttributeMod flatMod in _flatMods)
+                flatMod.RefreshValue();
+            foreach(IAttributeMod pctMod in _percentMods)
+                pctMod.RefreshValue();
         }
         #endregion
     }
