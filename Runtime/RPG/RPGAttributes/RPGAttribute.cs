@@ -24,6 +24,8 @@ namespace INUlib.RPG.RPGAttributes
 
 
         #region Properties
+        public float CurrenValue => _currentValue;
+        public float ModsValue => _modsValue;
         public virtual float Total => _currentValue + _modsValue;
         public IReadOnlyList<IAttributeMod> FlatMods => _flatMods;
         public IReadOnlyList<IAttributeMod> PercentMods => _percentMods;
@@ -45,10 +47,18 @@ namespace INUlib.RPG.RPGAttributes
         public RPGAttribute(AttributeType t, float dfVal)
         {
             _type = t;
-            defaultValue = dfVal;
+            if(t == AttributeType.Integer)
+            {
+                defaultValue = (int)dfVal;
+                _currentValue = (int)dfVal;
+            }
+            else
+            {
+                defaultValue = dfVal;
+                _currentValue = dfVal;
+            }
+
             maxValue = -1;
-            _currentValue = dfVal;
-            
             _flatMods = new List<IAttributeMod>();
             _percentMods = new List<IAttributeMod>();
         }
@@ -56,9 +66,18 @@ namespace INUlib.RPG.RPGAttributes
         public RPGAttribute(AttributeType t, float dfVal, float maxVal)
         {
             _type = t;
-            defaultValue = dfVal;
-            maxValue = maxVal;
-            _currentValue = dfVal;
+            if(t == AttributeType.Integer)
+            {
+                defaultValue = (int)dfVal;
+                maxValue = (int)maxVal;
+                _currentValue = (int)dfVal;
+            }
+            else
+            {
+                defaultValue = dfVal;
+                maxValue = maxVal;
+                _currentValue = dfVal;
+            }
             
             _flatMods = new List<IAttributeMod>();
             _percentMods = new List<IAttributeMod>();
@@ -92,9 +111,9 @@ namespace INUlib.RPG.RPGAttributes
         {
             IAttributeMod mod;
             if(_type == AttributeType.Integer)
-                mod = new FlatAttributeMod(flatVal);
-            else
                 mod = new FlatAttributeMod((int)flatVal);
+            else
+                mod = new FlatAttributeMod(flatVal);
             
             _flatMods.Add(mod);
 
