@@ -3,11 +3,14 @@ using System.Collections.Generic;
 
 namespace INUlib.RPG.StatusEffectSystem
 {
-    public abstract class StatusEffectReceiver<T, TTargets> : MonoBehaviour where T : StatusEffect where TTargets : IStatusEffectTargets
+    public abstract class StatusEffectReceiver<T, TTargets> 
+    : MonoBehaviour 
+    where T : StatusEffect 
+    where TTargets : IStatusEffectTargets
     {
         #region Fields
         private StatusEffectManager _manager;
-        private TTargets _targets;
+        [SerializeField] private TTargets _targets;
         #endregion
 
 
