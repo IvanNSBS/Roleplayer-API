@@ -6,7 +6,7 @@ namespace INUlib.RPG.StatusEffectSystem
         void OnApply();
         void OnComplete();
         void OnDispel();
-        void OnCollision(StatusEffect ef);
+        void Collide(IStatusEffect ef);
         bool Update(float deltaTime);
     }
 }

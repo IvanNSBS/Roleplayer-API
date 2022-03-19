@@ -5,7 +5,6 @@ namespace INUlib.RPG.StatusEffectSystem
 {
     public abstract class StatusEffectReceiver<T, TTargets> 
     : MonoBehaviour 
-    where T : StatusEffect 
     where TTargets : IStatusEffectTargets
     {
         #region Fields
@@ -16,7 +15,7 @@ namespace INUlib.RPG.StatusEffectSystem
 
         #region Properties
         public TTargets Targets => _targets;
-        public IReadOnlyList<StatusEffect> ActiveEffects => _manager.ActiveEffects;
+        public IReadOnlyList<IStatusEffect> ActiveEffects => _manager.ActiveEffects;
         #endregion
 
 
@@ -34,8 +33,8 @@ namespace INUlib.RPG.StatusEffectSystem
 
 
         #region Methods
-        public void ApplyEffect(StatusEffect e) => _manager.ApplyEffect(e);
-        public bool DispelEffect(StatusEffect e) => _manager.DispelEffect(e);
+        public void ApplyEffect(IStatusEffect e) => _manager.ApplyEffect(e);
+        public bool DispelEffect(IStatusEffect e) => _manager.DispelEffect(e);
         #endregion
     }
 }

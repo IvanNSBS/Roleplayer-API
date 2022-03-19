@@ -1,34 +1,33 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace INUlib.RPG.StatusEffectSystem
 {
     public class StatusEffectManager
     {
         #region Fields
-        private List<StatusEffect> _activeEffects;
+        private List<IStatusEffect> _activeEffects;
         #endregion
 
 
         #region Properties
-        public IReadOnlyList<StatusEffect> ActiveEffects => _activeEffects;
+        public IReadOnlyList<IStatusEffect> ActiveEffects => _activeEffects;
         #endregion
 
 
         #region Constructor
         public StatusEffectManager()
         {
-            _activeEffects = new List<StatusEffect>();
+            _activeEffects = new List<IStatusEffect>();
         }
         #endregion
 
 
         #region Methods
-        public void ApplyEffect(StatusEffect effect)
+        public void ApplyEffect(IStatusEffect effect)
         {
-            StatusEffect sameEffect = null;
+            IStatusEffect sameEffect = null;
 
-            foreach(StatusEffect e in _activeEffects)
+            foreach(IStatusEffect e in _activeEffects)
             {
                 if(e.GetType() == effect.GetType())
                 {
@@ -38,7 +37,7 @@ namespace INUlib.RPG.StatusEffectSystem
             }
 
             if(sameEffect != null) {
-                sameEffect.OnCollision(effect);
+                sameEffect.Collide(effect);
             }
             else {
                 _activeEffects.Add(effect);
@@ -46,7 +45,7 @@ namespace INUlib.RPG.StatusEffectSystem
             }
         }
 
-        public bool DispelEffect(StatusEffect effect)
+        public bool DispelEffect(IStatusEffect effect)
         {
             bool dispeled = _activeEffects.Remove(effect);
             if(dispeled)
@@ -59,7 +58,7 @@ namespace INUlib.RPG.StatusEffectSystem
         {
             for(int i = _activeEffects.Count - 1; i >= 0; i--)
             {
-                StatusEffect effect = _activeEffects[i];
+                IStatusEffect effect = _activeEffects[i];
                 bool completed = effect.Update(deltaTime);
 
                 if(completed) 

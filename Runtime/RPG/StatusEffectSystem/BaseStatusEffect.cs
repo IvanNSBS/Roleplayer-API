@@ -1,6 +1,6 @@
 namespace INUlib.RPG.StatusEffectSystem
 {
-    public abstract class StatusEffect
+    public abstract class BaseStatusEffect<T> : IStatusEffect where T : BaseStatusEffect<T>
     {
         #region Fields
         private bool _applied = false;
@@ -10,13 +10,13 @@ namespace INUlib.RPG.StatusEffectSystem
 
 
         #region Constructors
-        public StatusEffect(float duration)
+        public BaseStatusEffect(float duration)
         {
             _activeTime = 0;
             _duration = duration;
         }
 
-        public StatusEffect()
+        public BaseStatusEffect()
         {
 
         }
@@ -30,11 +30,12 @@ namespace INUlib.RPG.StatusEffectSystem
             OnApply();
         }
 
+        public void Collide(IStatusEffect ef) => OnCollision((T)ef);
+
         public abstract void OnApply();
         public abstract void OnComplete();
         public abstract void OnDispel();
-        public abstract void OnCollision(StatusEffect ef);
-        
+        protected abstract void OnCollision(T effect);
         public virtual bool Update(float deltaTime)
         {
             if(!_applied)
