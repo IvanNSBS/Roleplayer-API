@@ -37,7 +37,7 @@ namespace INUlib.RPG.StatusEffectSystem
             }
 
             if(sameEffect != null) {
-                sameEffect.Collide(effect);
+                sameEffect.Reapply(effect);
             }
             else {
                 _activeEffects.Add(effect);

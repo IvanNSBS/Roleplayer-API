@@ -30,12 +30,12 @@ namespace INUlib.RPG.StatusEffectSystem
             OnApply();
         }
 
-        public void Collide(IStatusEffect ef) => OnCollision((T)ef);
+        public void Reapply(IStatusEffect ef) => OnReapply((T)ef);
 
         public abstract void OnApply();
         public abstract void OnComplete();
         public abstract void OnDispel();
-        protected abstract void OnCollision(T effect);
+        protected abstract void OnReapply(T effect);
         public virtual bool Update(float deltaTime)
         {
             if(!_applied)
