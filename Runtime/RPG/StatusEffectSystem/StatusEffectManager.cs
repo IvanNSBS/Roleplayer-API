@@ -41,7 +41,7 @@ namespace INUlib.RPG.StatusEffectSystem
             }
             else {
                 _activeEffects.Add(effect);
-                effect.OnApply();
+                effect.Apply();
             }
         }
 

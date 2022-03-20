@@ -1,11 +1,13 @@
+using UnityEngine;
+
 namespace INUlib.RPG.StatusEffectSystem
 {
     public abstract class BaseStatusEffect<T> : IStatusEffect where T : BaseStatusEffect<T>
     {
         #region Fields
-        private bool _applied = false;
-        private float _activeTime;
-        private float _duration;
+        protected bool _applied = false;
+        protected float _activeTime;
+        protected float _duration;
         #endregion
 
 
@@ -36,13 +38,14 @@ namespace INUlib.RPG.StatusEffectSystem
         public abstract void OnComplete();
         public abstract void OnDispel();
         protected abstract void OnReapply(T effect);
+
         public virtual bool Update(float deltaTime)
         {
             if(!_applied)
                 return false;
                 
             _activeTime += deltaTime;
-            return _activeTime >= deltaTime; 
+            return _activeTime >= _duration; 
         }
         #endregion
     }
