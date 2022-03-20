@@ -180,6 +180,27 @@ namespace Tests.Runtime.RPG.StatusEffects
             Assert.IsTrue(_mockBase.reaplied);
             Assert.AreEqual(0f, _mockBase.ActiveTime);
         }
+
+        [Test]
+        public void Base_Status_Effect_Immediately_Completes_If_Complete_Is_Called()
+        {
+            _mockBase.Complete();
+            _manager.ApplyEffect(_mockBase);
+
+            Assert.IsTrue(_mockBase.Update(0.0f));
+        }
+
+        [Test]
+        public void Endless_Base_Status_Effect_Only_Completes_After_Calling_Complete()
+        {
+            _mockBase = Substitute.ForPartsOf<MockBaseStatusEffect>(-1);
+            _manager.ApplyEffect(_mockBase);
+            _manager.Update(150f);
+
+            Assert.IsFalse(_mockBase.Update(0.0f));
+            _mockBase.Complete();
+            Assert.IsTrue(_mockBase.Update(0.0f));
+        }
         #endregion
     }
 }
