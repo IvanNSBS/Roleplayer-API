@@ -17,7 +17,7 @@ namespace Tests.Runtime.RPG.StatusEffects
 
             public MockBaseStatusEffect(float a) : base(a) { }
 
-            protected override void OnReapply(MockBaseStatusEffect effect)
+            protected override void OnReapply(MockBaseStatusEffect effect, EffectApplyStats stats)
             {
                 _activeTime = 0f;
                 reaplied = true;
@@ -46,10 +46,10 @@ namespace Tests.Runtime.RPG.StatusEffects
             _mockEffect = Substitute.For<IStatusEffect>();
             _mockBase = Substitute.ForPartsOf<MockBaseStatusEffect>(_targetDuration);
 
-            _mockEffect.When(x => x.Apply()).Do(x => _applied = true);
+            _mockEffect.When(x => x.Apply(Arg.Any<EffectApplyStats>())).Do(x => _applied = true);
             _mockEffect.When(x => x.OnDispel()).Do(x => _dispelled = true);
             _mockEffect.When(x => x.OnComplete()).Do(x => _completed = true);
-            _mockEffect.When(x => x.Reapply(Arg.Any<IStatusEffect>())).Do(x => _reapplied = true);
+            _mockEffect.When(x => x.Reapply(Arg.Any<IStatusEffect>(), Arg.Any<EffectApplyStats>())).Do(x => _reapplied = true);
             _mockEffect.When(x => x.Update(Arg.Any<float>())).Do(x => _elapsedTime += (float)x[0]);
             _mockEffect.Update(Arg.Any<float>()).Returns(x => _elapsedTime + (float)x[0] >= _targetDuration);
         }

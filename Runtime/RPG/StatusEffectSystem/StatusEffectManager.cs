@@ -56,16 +56,17 @@ namespace INUlib.RPG.StatusEffectSystem
                 }
             }
 
+            AddOrUpdateEffectStats(effect);
+
             if(sameEffect != null) {
-                sameEffect.Reapply(effect);
+                sameEffect.Reapply(effect, _addedEffectsStats[effect.GetType()]);
             }
             else {
                 _activeEffects.Add(effect);
                 _activeEffectsDict.Add(effect.GetType(), effect);
-                effect.Apply();
+                effect.Apply(_addedEffectsStats[effect.GetType()]);
             }
 
-            AddOrUpdateEffectStats(effect);
         }
 
         public bool DispelEffect(IStatusEffect effect)

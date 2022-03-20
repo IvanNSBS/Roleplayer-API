@@ -26,14 +26,14 @@ namespace INUlib.RPG.StatusEffectSystem
 
 
         #region Methods
-        public void Apply()
+        public void Apply(EffectApplyStats stats)
         {
             _applied = true;
-            OnApply();
+            OnApply(stats);
         }
 
         public void Complete() => _completed = true;
-        public void Reapply(IStatusEffect ef) => OnReapply((T)ef);
+        public void Reapply(IStatusEffect ef, EffectApplyStats stats) => OnReapply((T)ef, stats);
        
         public virtual bool Update(float deltaTime)
         {
@@ -41,20 +41,20 @@ namespace INUlib.RPG.StatusEffectSystem
                 return false;
             
             _activeTime += deltaTime;
-            
+
             if(_duration < 0f)
                 return _completed;
             else
                 return _activeTime >= _duration || _completed; 
         }
 
-        protected virtual void OnReapply(T effect)
+        protected virtual void OnReapply(T effect, EffectApplyStats stats)
         {
             _activeTime = 0f;
         }
 
 
-        public abstract void OnApply();
+        public abstract void OnApply(EffectApplyStats stats);
         public abstract void OnComplete();
         public abstract void OnDispel();
         #endregion
