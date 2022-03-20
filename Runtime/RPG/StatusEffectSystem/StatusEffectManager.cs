@@ -85,7 +85,7 @@ namespace INUlib.RPG.StatusEffectSystem
                 EffectApplyStats stats = pair.Value;
                 
                 stats.Update(deltaTime, isEffectActive);
-                if(stats.InactiveTime >= _effectStatsResetTime)
+                if(_effectStatsResetTime > 0 && stats.InactiveTime >= _effectStatsResetTime)
                     stats.Reset();
             }
 
