@@ -43,6 +43,14 @@ namespace INUlib.RPG.StatusEffectSystem
 
 
         #region Methods
+        public EffectApplyStats GetEffectApplyStats(IStatusEffect effect)
+        {
+            if(_addedEffectsStats.ContainsKey(effect.GetType()))
+                return _addedEffectsStats[effect.GetType()];
+            
+            return null;
+        }
+
         public void ApplyEffect(IStatusEffect effect)
         {
             IStatusEffect sameEffect = null;
@@ -59,12 +67,12 @@ namespace INUlib.RPG.StatusEffectSystem
             AddOrUpdateEffectStats(effect);
 
             if(sameEffect != null) {
-                sameEffect.Reapply(effect, _addedEffectsStats[effect.GetType()]);
+                sameEffect.Reapply(effect, GetEffectApplyStats(effect));
             }
             else {
                 _activeEffects.Add(effect);
                 _activeEffectsDict.Add(effect.GetType(), effect);
-                effect.Apply(_addedEffectsStats[effect.GetType()]);
+                effect.Apply(GetEffectApplyStats(effect));
             }
 
         }
@@ -80,16 +88,6 @@ namespace INUlib.RPG.StatusEffectSystem
 
         public void Update(float deltaTime)
         {
-            foreach(var pair in _addedEffectsStats)
-            {
-                bool isEffectActive = _activeEffectsDict.ContainsKey(pair.Key);
-                EffectApplyStats stats = pair.Value;
-                
-                stats.Update(deltaTime, isEffectActive);
-                if(_effectStatsResetTime > 0 && stats.InactiveTime >= _effectStatsResetTime)
-                    stats.Reset();
-            }
-
             for(int i = _activeEffects.Count - 1; i >= 0; i--)
             {
                 IStatusEffect effect = _activeEffects[i];
@@ -101,6 +99,16 @@ namespace INUlib.RPG.StatusEffectSystem
                     _activeEffects.RemoveAt(i);
                     _activeEffectsDict.Remove(effect.GetType());
                 }
+            }
+
+            foreach(var pair in _addedEffectsStats)
+            {
+                bool isEffectActive = _activeEffectsDict.ContainsKey(pair.Key);
+                EffectApplyStats stats = pair.Value;
+                
+                stats.Update(deltaTime, isEffectActive);
+                if(_effectStatsResetTime > 0 && stats.InactiveTime >= _effectStatsResetTime)
+                    stats.Reset();
             }
         }
         #endregion

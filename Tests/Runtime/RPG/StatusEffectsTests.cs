@@ -201,6 +201,120 @@ namespace Tests.Runtime.RPG.StatusEffects
             _mockBase.Complete();
             Assert.IsTrue(_mockBase.Update(0.0f));
         }
+
+        [Test]
+        public void EffectApplyStats_Is_Created_After_Being_Applying_The_First_Time()
+        {
+            _manager.ApplyEffect(_mockEffect);
+            bool containsKey = _manager.AddedEffectStats.ContainsKey(_mockEffect.GetType());
+        
+            Assert.IsTrue(containsKey);
+            Assert.AreEqual(1, _manager.AddedEffectStats[_mockEffect.GetType()].TimesApplied);
+        }
+
+        [Test]
+        public void EffectApplyStats_Correctly_Updates_Inactive_Time()
+        {
+            float elapsedTime = _targetDuration * 2;
+            _manager.ApplyEffect(_mockEffect);
+            _manager.Update(_targetDuration * 2f);
+
+            Assert.AreEqual(elapsedTime, _manager.GetEffectApplyStats(_mockEffect).InactiveTime);
+        }
+
+        [Test]
+        public void EffectApplyStats_Wont_Update_Inactive_Time_If_Effect_Is_Active()
+        {
+            _manager.ApplyEffect(_mockBase);
+            _manager.Update(_targetDuration * 0.5f);
+
+            Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockBase).InactiveTime);
+        }
+
+        [Test]
+        public void EffectApplyStats_Resets_Inactive_Time_After_Applying_Effect_Again()
+        {
+            float elapsedTime = _targetDuration * 2;
+            _manager.ApplyEffect(_mockEffect);
+            _manager.Update(_targetDuration * 2f);
+            _manager.ApplyEffect(_mockEffect);
+
+            Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockEffect).InactiveTime);
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(5)]
+        [TestCase(12)]
+        public void EffectApplyStats_Correctly_Updates_Times_Applied(int timesApplied)
+        {
+            for(int i = 0; i < timesApplied; i++)
+                _manager.ApplyEffect(_mockEffect);
+
+            Assert.AreEqual(timesApplied, _manager.GetEffectApplyStats(_mockEffect).TimesApplied);
+        }
+        
+        [Test]
+        [TestCase(0f)]
+        [TestCase(0.5f)]
+        [TestCase(1.2f)]
+        [TestCase(5.43f)]
+        [TestCase(3.22f)]
+        [TestCase(22.5f)]
+        public void EffectApplyStats_Correctly_Updates_Time_Since_First_Apply(float elapsedTime)
+        {
+            _manager.ApplyEffect(_mockEffect);
+            _manager.Update(elapsedTime);
+
+            Assert.AreEqual(elapsedTime, _manager.GetEffectApplyStats(_mockEffect).SecondsSinceFirstApply);
+        }
+
+        [Test]
+        [TestCase(0f)]
+        [TestCase(0.5f)]
+        [TestCase(1.2f)]
+        [TestCase(5.43f)]
+        [TestCase(3.22f)]
+        [TestCase(22.5f)]
+        public void EffectApplyStats_Correctly_Updates_Time_Since_Last_Apply(float elapsedTime)
+        {
+            _manager.ApplyEffect(_mockEffect);
+            _manager.Update(elapsedTime);
+
+            Assert.AreEqual(elapsedTime, _manager.GetEffectApplyStats(_mockEffect).SecondsSinceLastApply);
+        }
+
+        [Test]
+        public void EffectApplyStats_Resets_Time_Since_Last_Apply_After_Reapply()
+        {
+            _manager.ApplyEffect(_mockEffect);
+            _manager.Update(5f);
+            _manager.ApplyEffect(_mockEffect);
+
+            Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockEffect).SecondsSinceLastApply);
+        }
+
+        [Test]
+        public void EffectApplyStats_Is_Reset_After_Target_Inactive_Time()
+        {
+            _manager.ApplyEffect(_mockBase);
+            _manager.Update(_targetDuration);
+            _manager.Update(StatusEffectManager.DEFAULT_EFFECT_STATS_RESET_TIME);
+
+            Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockBase).TimesApplied);
+        }
+
+        [Test]
+        public void EffectApplyStats_Will_Never_Reset_If_Target_Manager_Inactive_Time_Is_Less_Than_Zero()
+        {
+            _manager = new StatusEffectManager(-1);
+            _manager.ApplyEffect(_mockBase);
+            _manager.Update(_targetDuration);
+            _manager.Update(StatusEffectManager.DEFAULT_EFFECT_STATS_RESET_TIME);
+        
+            Assert.AreEqual(1, _manager.GetEffectApplyStats(_mockBase).TimesApplied);
+        }
         #endregion
     }
 }
