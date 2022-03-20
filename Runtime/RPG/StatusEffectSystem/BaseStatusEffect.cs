@@ -33,12 +33,7 @@ namespace INUlib.RPG.StatusEffectSystem
         }
 
         public void Reapply(IStatusEffect ef) => OnReapply((T)ef);
-
-        public abstract void OnApply();
-        public abstract void OnComplete();
-        public abstract void OnDispel();
-        protected abstract void OnReapply(T effect);
-
+       
         public virtual bool Update(float deltaTime)
         {
             if(!_applied)
@@ -47,6 +42,15 @@ namespace INUlib.RPG.StatusEffectSystem
             _activeTime += deltaTime;
             return _activeTime >= _duration; 
         }
+
+        protected virtual void OnReapply(T effect)
+        {
+            _activeTime = 0f;
+        }
+
+        public abstract void OnApply();
+        public abstract void OnComplete();
+        public abstract void OnDispel();
         #endregion
     }
 }
