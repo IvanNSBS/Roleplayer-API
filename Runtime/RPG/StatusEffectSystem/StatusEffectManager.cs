@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace INUlib.RPG.StatusEffectSystem
 {
-    public class StatusEffectManager
+    public class StatusEffectManager<T> where T : IStatusEffect
     {
         #region Constants
         public const float DEFAULT_EFFECT_STATS_RESET_TIME = 60f;
@@ -11,14 +11,14 @@ namespace INUlib.RPG.StatusEffectSystem
 
         #region Fields
         private float _effectStatsResetTime;
-        private List<IStatusEffect> _activeEffects;
-        private Dictionary<Type, IStatusEffect> _activeEffectsDict;
+        private List<T> _activeEffects;
+        private Dictionary<Type, T> _activeEffectsDict;
         private Dictionary<Type, EffectApplyStats> _addedEffectsStats;
         #endregion
 
 
         #region Properties
-        public IReadOnlyList<IStatusEffect> ActiveEffects => _activeEffects;
+        public IReadOnlyList<T> ActiveEffects => _activeEffects;
         public IReadOnlyDictionary<Type, EffectApplyStats> AddedEffectStats => _addedEffectsStats;
         #endregion
 
@@ -27,23 +27,23 @@ namespace INUlib.RPG.StatusEffectSystem
         public StatusEffectManager()
         {
             _effectStatsResetTime = DEFAULT_EFFECT_STATS_RESET_TIME;
-            _activeEffects = new List<IStatusEffect>();
-            _activeEffectsDict = new Dictionary<Type, IStatusEffect>();
+            _activeEffects = new List<T>();
+            _activeEffectsDict = new Dictionary<Type, T>();
             _addedEffectsStats = new Dictionary<Type, EffectApplyStats>();
         }
 
         public StatusEffectManager(float effectStatsResetTime)
         {
             _effectStatsResetTime = effectStatsResetTime;
-            _activeEffects = new List<IStatusEffect>();
-            _activeEffectsDict = new Dictionary<Type, IStatusEffect>();
+            _activeEffects = new List<T>();
+            _activeEffectsDict = new Dictionary<Type, T>();
             _addedEffectsStats = new Dictionary<Type, EffectApplyStats>();
         }
         #endregion
 
 
         #region Methods
-        public EffectApplyStats GetEffectApplyStats(IStatusEffect effect)
+        public EffectApplyStats GetEffectApplyStats(T effect)
         {
             if(_addedEffectsStats.ContainsKey(effect.GetType()))
                 return _addedEffectsStats[effect.GetType()];
@@ -51,7 +51,7 @@ namespace INUlib.RPG.StatusEffectSystem
             return null;
         }
 
-        public void ApplyEffect(IStatusEffect effect)
+        public void ApplyEffect(T effect)
         {
             IStatusEffect sameEffect = null;
 
@@ -77,7 +77,7 @@ namespace INUlib.RPG.StatusEffectSystem
 
         }
 
-        public bool DispelEffect(IStatusEffect effect)
+        public bool DispelEffect(T effect)
         {
             bool dispeled = _activeEffects.Remove(effect);
             if(dispeled)
