@@ -116,6 +116,39 @@ namespace INUlib.BackendToolkit.Audio
         }
 
         /// <summary>
+        /// Destroys an audio over time(or instantly, if destroy time is )
+        /// </summary>
+        /// <param name="destroyTime"></param>
+        /// <param name="easing"></param>
+        public void DestroyAudio(AudioSource source, float destroyTime, Ease easing=Ease.OutQuad)
+        {
+            if(destroyTime > 0)
+            {
+                Sequence sequence = DOTween.Sequence();
+                sequence.Append(
+                    DOTween.To(
+                        () => m_currentBgm.volume, x=>m_currentBgm.volume=x, 0, destroyTime
+                    ).SetEase(easing)
+                );
+                sequence.AppendCallback(() => {
+                    if(source.gameObject)
+                        MonoBehaviour.Destroy(source.gameObject);
+                });
+
+                sequence.onComplete += () => {
+                    sequence.Kill();
+                    sequence = null;
+                };
+
+                sequence.Play();
+            }
+            else
+            {
+                MonoBehaviour.Destroy(source);
+            }
+        }
+
+        /// <summary>
         /// Checks if a sound exists in the audio collection
         /// </summary>
         /// <param name="id">The id of the sound</param>
