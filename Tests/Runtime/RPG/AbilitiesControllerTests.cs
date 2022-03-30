@@ -8,13 +8,13 @@ namespace Tests.Runtime.RPG.Abilities
     public class AbilitiesControllerTests
     {
         #region Test Factory Ability
-        public class TestFactoryAbility : IAbility<IAbilityDataHub>
+        public class TestFactoryAbility : IAbility<IAbilityCaster>
         {   
-            private IAbilityDataHub _factoryRef;
+            private IAbilityCaster _factoryRef;
             private Action _actionRef;
             public bool isEqual;
 
-            public TestFactoryAbility(float cd, float castTime, IAbilityDataHub factoryRef, Action notifyFinish)
+            public TestFactoryAbility(float cd, float castTime, IAbilityCaster factoryRef, Action notifyFinish)
             {
                 _actionRef = notifyFinish;
                 _factoryRef = factoryRef;
@@ -22,11 +22,11 @@ namespace Tests.Runtime.RPG.Abilities
                 ChannelingTime = castTime;
             }
 
-            public void Cast(IAbilityDataHub dataFactory, Action notifyFinishCast) 
+            public void Cast(IAbilityCaster dataFactory, Action notifyFinishCast) 
                             => isEqual = dataFactory == _factoryRef && _actionRef == notifyFinishCast;
-            public void OnChannelingStarted(IAbilityDataHub dataFactory) { }
-            public void OnChannelingCompleted(IAbilityDataHub dataFactory) { }
-            public void OnChannelingCanceled(IAbilityDataHub dataFactory) { }
+            public void OnChannelingStarted(IAbilityCaster dataFactory) { }
+            public void OnChannelingCompleted(IAbilityCaster dataFactory) { }
+            public void OnChannelingCanceled(IAbilityCaster dataFactory) { }
 
             public float CurrentCooldown {get; set;}
             public float Cooldown {get; set;}
@@ -35,11 +35,11 @@ namespace Tests.Runtime.RPG.Abilities
         #endregion
 
         #region Mock Tests
-        private IAbilityDataHub _mockFactory;
-        private AbilitiesController<IAbility<IAbilityDataHub>, IAbilityDataHub> _controller;
-        private IAbility<IAbilityDataHub> _mockAbility1;
-        private IAbility<IAbilityDataHub> _mockAbility2;
-        private IAbility<IAbilityDataHub> _mockAbility3;
+        private IAbilityCaster _mockFactory;
+        private AbilitiesController<IAbility<IAbilityCaster>, IAbilityCaster> _controller;
+        private IAbility<IAbilityCaster> _mockAbility1;
+        private IAbility<IAbilityCaster> _mockAbility2;
+        private IAbility<IAbilityCaster> _mockAbility3;
         private bool _casted;
         private float _cd = 5;
         private float _castTime = 1;
@@ -48,17 +48,17 @@ namespace Tests.Runtime.RPG.Abilities
         public void Setup() 
         {
             _casted = false;
-            _mockFactory = Substitute.For<IAbilityDataHub>();
-            _controller = new AbilitiesController<IAbility<IAbilityDataHub>, IAbilityDataHub>(3, _mockFactory);
+            _mockFactory = Substitute.For<IAbilityCaster>();
+            _controller = new AbilitiesController<IAbility<IAbilityCaster>, IAbilityCaster>(3, _mockFactory);
 
             PrepareMockAbility(_mockAbility1, 0);
             PrepareMockAbility(_mockAbility2, 1);
             PrepareMockAbility(_mockAbility3, 2);
         }
 
-        private void PrepareMockAbility(IAbility<IAbilityDataHub> ability, uint slot, bool reset = true)
+        private void PrepareMockAbility(IAbility<IAbilityCaster> ability, uint slot, bool reset = true)
         {
-            ability = Substitute.For<IAbility<IAbilityDataHub>>();
+            ability = Substitute.For<IAbility<IAbilityCaster>>();
             ability.Cooldown.Returns(_cd);
             ability.ChannelingTime.Returns(_castTime);
             ability.When(x => x.Cast(_mockFactory, _controller.FinishAbilityCasting)).Do(x => {
@@ -99,7 +99,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Is_Set_In_Slot(uint slot)
         {
-            var mockAbility = Substitute.For<IAbility<IAbilityDataHub>>();
+            var mockAbility = Substitute.For<IAbility<IAbilityCaster>>();
             _controller.SetAbility(slot, mockAbility);
 
             Assert.IsTrue(_controller.GetAbility(slot) == mockAbility);
@@ -247,7 +247,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             bool evtCalled = false;
             var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingStarted(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
+            ability.When(x => x.OnChannelingStarted(Arg.Any<IAbilityCaster>())).Do(x => evtCalled = true);
 
             _controller.StartChanneling(slot);
 
@@ -262,7 +262,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             bool evtCalled = false;
             var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingCompleted(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
+            ability.When(x => x.OnChannelingCompleted(Arg.Any<IAbilityCaster>())).Do(x => evtCalled = true);
 
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
@@ -278,7 +278,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             bool evtCalled = false;
             var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingCanceled(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
+            ability.When(x => x.OnChannelingCanceled(Arg.Any<IAbilityCaster>())).Do(x => evtCalled = true);
 
             _controller.StartChanneling(slot);
             _controller.Update(_castTime*0.1f);

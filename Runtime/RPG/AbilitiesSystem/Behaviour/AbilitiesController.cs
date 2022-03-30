@@ -7,11 +7,11 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Default controller for agents that can use the ability system
     /// Fully manages the abilities cooldown and their casting process
     /// </summary>
-    public class AbilitiesController<TAbility, TAbilityDataHub> 
-           where TAbility : class, IAbility<TAbilityDataHub> where TAbilityDataHub : IAbilityDataHub
+    public class AbilitiesController<TAbility, TCaster> 
+           where TAbility : class, IAbility<TCaster> where TCaster : IAbilityCaster
     {
         #region Fields
-        protected TAbilityDataHub _dataHub;
+        protected TCaster _caster;
         protected TAbility[] _abilities;
         protected TAbility _casting;
         protected float _elapsedChanneling;
@@ -33,7 +33,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Getter for the AbilityController Data Hub
         /// </summary>
-        public TAbilityDataHub DataHub => _dataHub;
+        public TCaster DataHub => _caster;
 
         /// <summary>
         /// 
@@ -43,10 +43,10 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Constructor
-        public AbilitiesController(uint slotAmnt, TAbilityDataHub dataHub)
+        public AbilitiesController(uint slotAmnt, TCaster caster)
         {
             AbilitySlots = slotAmnt;
-            _dataHub = dataHub;
+            _caster = caster;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
         }
@@ -88,7 +88,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if(HasAbilityInSlot(slot) && !IsAbilityOnCd(slot) && _casting == null)
             {
                 _casting = _abilities[slot];
-                _casting.OnChannelingStarted(_dataHub);
+                _casting.OnChannelingStarted(_caster);
                 _castingState = CastingState.Channeling;
 
                 // If the cast time for the spell is zero, 
@@ -104,7 +104,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public virtual void CancelChanneling() 
         {
-            _casting.OnChannelingCanceled(_dataHub);
+            _casting.OnChannelingCanceled(_caster);
             _casting = null;
 
             _elapsedChanneling = 0f;
@@ -161,9 +161,9 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             _castingState = CastingState.Casting;
 
-            _casting.OnChannelingCompleted(_dataHub);
+            _casting.OnChannelingCompleted(_caster);
             _casting.CurrentCooldown = _casting.Cooldown;
-            _casting.Cast(_dataHub, FinishAbilityCasting);
+            _casting.Cast(_caster, FinishAbilityCasting);
 
             _elapsedChanneling = 0f;
         }

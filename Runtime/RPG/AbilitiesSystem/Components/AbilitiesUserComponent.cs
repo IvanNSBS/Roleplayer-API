@@ -6,11 +6,11 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Humble Component for the Abilities Controller class 
     /// to be used on the Unity Environment 
     /// </summary>
-    public abstract class AbilitiesUserComponent<TAbility, TAbilityDataFactory> : MonoBehaviour where TAbility: class, 
-    IAbility<TAbilityDataFactory> where TAbilityDataFactory: IAbilityDataHub
+    public abstract class AbilitiesUserComponent<TAbility, TCaster> : MonoBehaviour where TAbility: class, 
+    IAbility<TCaster> where TCaster: IAbilityCaster
     {
         #region Fields
-        protected AbilitiesController<TAbility, TAbilityDataFactory> _controller;
+        protected AbilitiesController<TAbility, TCaster> _controller;
         #endregion
 
 
@@ -23,8 +23,8 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Methods
-        public virtual void Initialize(uint slotAmount, TAbilityDataFactory dataHub) => 
-            _controller = new AbilitiesController<TAbility, TAbilityDataFactory>(slotAmount, dataHub);
+        public virtual void Initialize(uint slotAmount, TCaster dataHub) => 
+            _controller = new AbilitiesController<TAbility, TCaster>(slotAmount, dataHub);
         public virtual void StartChanneling(uint slot) => _controller.StartChanneling(slot);
         public virtual TAbility GetAbilityBeingCast() => _controller.GetCastingAbility();
         public virtual void CancelCast() => _controller.CancelChanneling();

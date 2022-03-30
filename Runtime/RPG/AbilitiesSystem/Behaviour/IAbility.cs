@@ -6,32 +6,32 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Interface for a game Ability and the Ability System 
     /// for the INUlib
     /// </summary>
-    public interface IAbility<TDataHub> where TDataHub : IAbilityDataHub
+    public interface IAbility<TCaster> where TCaster : IAbilityCaster
     {
         /// <summary>
         /// Casts the ability, unleashing it's effect in the world
         /// </summary>
-        void Cast(TDataHub dataHub, Action NotifyFinishCast);
+        void Cast(TCaster caster, Action NotifyFinishCast);
 
         /// <summary>
         /// Function to be called when the Channeling proccess 
         /// of the ability has started
         /// </summary>
-        void OnChannelingStarted(TDataHub dataHub);
+        void OnChannelingStarted(TCaster caster);
 
         /// <summary>
         /// Function to be called when the Channeling proccess 
         /// of the ability has completed and the ability will
         /// then be cast
         /// </summary>
-        void OnChannelingCompleted(TDataHub dataHub);
+        void OnChannelingCompleted(TCaster caster);
 
 
         /// <summary>
         /// Function to be called when the Channeling proccess 
         /// of the ability was canceled
         /// </summary>
-        void OnChannelingCanceled(TDataHub dataHub);
+        void OnChannelingCanceled(TCaster caster);
 
         /// <summary>
         /// Getter for the current ability Cooldown
