@@ -124,8 +124,8 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
-            Assert.IsTrue(_controller.IsAbilityOnCd(slot));
-            Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == 5f);
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd((int)slot));
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo((int)slot).currentCooldown == 5f);
         }
 
         [Test]
@@ -135,9 +135,9 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Doesnt_Go_In_CD_Right_After_Start_Casting(uint slot)
         {
             _controller.StartChanneling(slot);
-            Assert.IsFalse(_controller.IsAbilityOnCd(slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd((int)slot));
             _controller.Update(_castTime - 0.2f);
-            Assert.IsFalse(_controller.IsAbilityOnCd(slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd((int)slot));
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.Update(elapsed);
 
-            Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == _cd - elapsed);
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo((int)slot).currentCooldown == _cd - elapsed);
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(1f);
             _controller.StartChanneling(slot);
 
-            Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.IsAbilityOnCd(slot));
+            Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.CooldownsHandler.IsAbilityOnCd((int)slot));
         }
 
         [Test]
@@ -235,7 +235,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime*0.5f);
             _controller.CancelChanneling();
 
-            Assert.IsFalse(_controller.IsAbilityOnCd(slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd((int)slot));
             Assert.IsNull(_controller.GetCastingAbility());
         }
 

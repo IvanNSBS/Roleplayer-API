@@ -28,14 +28,13 @@ namespace INUlib.RPG.AbilitiesSystem
     /// their cooldown reduction and functions to increase or decrease manually the cooldown
     /// of a ability
     /// </summary>
-    public class CooldownHandler<TAbility, TCaster>
-            where TAbility : class, IAbility<TCaster> where TCaster : IAbilityCaster
+    public class CooldownHandler 
     {
         #region Fields
         protected float _globalCdr;
         protected float _maxCdrValue = 0.9f;
         protected float[] _cooldowns;
-        protected TAbility[] _abilities;
+        protected IAbilityBase[] _abilities;
         protected Dictionary<int, float> _categoriesCdr;
         #endregion
 
@@ -71,7 +70,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Constructor
-        public CooldownHandler(TAbility[] abilities)
+        public CooldownHandler(IAbilityBase[] abilities)
         {
             _abilities = abilities;
             _cooldowns = new float[abilities.Length];
@@ -85,12 +84,12 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Updates the 
         /// </summary>
         /// <param name="deltaTime"></param>
-        public void Update(float deltaTime)
+        public void Update(float deltaTime, IAbilityBase spellCasted = null)
         {
             for(int i = 0; i < _abilities.Length; i++)
             {
-                TAbility ability = _abilities[i];
-                if(ability == null)
+                IAbilityBase ability = _abilities[i];
+                if(ability == null || ability == spellCasted)
                     continue;
 
                 DecreaseCooldown(i, deltaTime);
@@ -102,7 +101,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="ability">The ability to search for the cooldown</param>
         /// <returns>The given ability cooldown info. Null if ability is not set in the slots</returns>
-        public CooldownInfo GetCooldownInfo(TAbility ability)
+        public CooldownInfo GetCooldownInfo(IAbilityBase ability)
         {
             int index = Array.FindIndex(_abilities, 0, _abilities.Length, x => x == ability);
             return GetCooldownInfo(index);
@@ -131,7 +130,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="ability">The ability to reset the cooldown</param>
         /// <returns>True if ability exists in the slots and was reset. False otherwise</returns>
-        public bool ResetCooldown(TAbility ability)
+        public bool ResetCooldown(IAbilityBase ability)
         {
             int index = Array.FindIndex(_abilities, 0, _abilities.Length, x => x == ability);
             return ResetCooldown(index);
@@ -182,6 +181,19 @@ namespace INUlib.RPG.AbilitiesSystem
 
             ClampAbilityCooldown(slot, _cooldowns[slot] - amount);
             return true;
+        }
+
+        /// <summary>
+        /// Checks if the ability in the given slot is on cooldown right now
+        /// </summary>
+        /// <param name="slot">Slot for the ability</param>
+        /// <returns>True if on cooldown. False if spell is on cooldown or slot is invalid</returns>
+        public bool IsAbilityOnCd(int slot)
+        {
+            if(slot < 0 || slot >= _cooldowns.Length)
+                return false;
+            
+            return _cooldowns[slot] > 0.001f;
         }
         #endregion
 

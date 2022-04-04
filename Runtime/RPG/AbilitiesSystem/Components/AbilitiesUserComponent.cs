@@ -23,6 +23,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Methods
+        public CooldownHandler GetCooldownHandler() => _controller.CooldownsHandler;
         public virtual void Initialize(uint slotAmount, TCaster dataHub) => 
             _controller = new AbilitiesController<TAbility, TCaster>(slotAmount, dataHub);
         public virtual void StartChanneling(uint slot) => _controller.StartChanneling(slot);
@@ -31,7 +32,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public virtual float GetElapsedChannelingTime() => _controller.ElapsedChannelingTime;
         public virtual void SetAbility(uint slot, TAbility ability) => _controller.SetAbility(slot, ability);
         public virtual TAbility GetAbility(uint slot) => _controller.GetAbility(slot);
-        public virtual bool IsAbilityOnCD(uint slot) => _controller.IsAbilityOnCd(slot);
+        public virtual bool IsAbilityOnCD(uint slot) => _controller.CooldownsHandler.IsAbilityOnCd((int)slot);
         public virtual bool HasAbilityInSlot(uint slot) => _controller.HasAbilityInSlot(slot);
         #endregion
     }

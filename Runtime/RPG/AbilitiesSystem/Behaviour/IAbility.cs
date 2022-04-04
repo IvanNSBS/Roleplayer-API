@@ -2,11 +2,30 @@ using System;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
+    public interface IAbilityBase
+    {
+        /// <summary>
+        /// Getter for the ability max cooldown.
+        /// </summary>
+        /// <value></value>
+        float Cooldown {get; set;}
+
+        /// <summary>
+        /// Getter for the time that is necessary
+        /// to charge the ability to finaly cast it
+        /// 0 should mean that the ability is cast instantly
+        /// </summary>
+        /// <value></value>
+        float ChannelingTime {get;}
+
+        // int Category {get; }
+    }
+
     /// <summary>
     /// Interface for a game Ability and the Ability System 
     /// for the INUlib
     /// </summary>
-    public interface IAbility<TCaster> where TCaster : IAbilityCaster
+    public interface IAbility<TCaster> : IAbilityBase where TCaster : IAbilityCaster
     {
         /// <summary>
         /// Casts the ability, unleashing it's effect in the world
@@ -38,19 +57,5 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <value>Returns the current ability cooldown</value>
         float CurrentCooldown {get; set;}
-
-        /// <summary>
-        /// Getter for the ability max cooldown.
-        /// </summary>
-        /// <value></value>
-        float Cooldown {get; set;}
-
-        /// <summary>
-        /// Getter for the time that is necessary
-        /// to charge the ability to finaly cast it
-        /// 0 should mean that the ability is cast instantly
-        /// </summary>
-        /// <value></value>
-        float ChannelingTime {get;}
     }
 }

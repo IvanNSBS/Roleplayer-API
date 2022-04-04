@@ -8,7 +8,7 @@ namespace Tests.Runtime.RPG.Abilities
     public class CooldownHandlerTests
     {
         #region Setup
-        private class MockCooldownHandler : CooldownHandler<IAbility<IAbilityCaster>, IAbilityCaster>
+        private class MockCooldownHandler : CooldownHandler
         {
             public MockCooldownHandler(IAbility<IAbilityCaster>[] abilities) : base(abilities) { }
 
@@ -238,6 +238,36 @@ namespace Tests.Runtime.RPG.Abilities
 
             Assert.IsNull(info1);
             Assert.IsNull(info2);
+        }
+
+        [Test]
+        [TestCase(0, 0.00f)]
+        [TestCase(0, 1.20f)]
+        [TestCase(0, 7.50f)]
+        [TestCase(0, 3.00f)]
+        [TestCase(1, 0.00f)]
+        [TestCase(1, 1.20f)]
+        [TestCase(1, 7.50f)]
+        [TestCase(1, 3.00f)]
+        [TestCase(2, 0.00f)]
+        [TestCase(2, 1.20f)]
+        [TestCase(2, 7.50f)]
+        [TestCase(2, 3.00f)]
+        [TestCase(3, 0.00f)]
+        [TestCase(3, 1.20f)]
+        [TestCase(3, 7.50f)]
+        [TestCase(3, 3.00f)]
+        [TestCase(4, 0.00f)]
+        [TestCase(4, 1.20f)]
+        [TestCase(4, 7.50f)]
+        [TestCase(4, 3.00f)]
+        public void CooldownHandler_Properly_Returns_If_Ability_Is_On_Cooldown(int slot, float currentCd)
+        {
+            _handler.IncreaseCooldown(slot, currentCd);
+            bool expected = currentCd > 0;
+
+
+            Assert.AreEqual(expected, _handler.IsAbilityOnCd(slot));
         }
         #endregion
     }

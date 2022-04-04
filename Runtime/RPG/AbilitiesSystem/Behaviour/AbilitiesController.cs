@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
@@ -16,6 +15,7 @@ namespace INUlib.RPG.AbilitiesSystem
         protected TAbility _casting;
         protected float _elapsedChanneling;
         protected CastingState _castingState;
+        protected CooldownHandler _cdHandler;
         #endregion
 
         #region Properties
@@ -29,6 +29,11 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Returns the number of AbilitySlots assigned in the constructor
         /// </summary>
         public uint AbilitySlots {get; private set;}
+
+        /// <summary>
+        /// Returns the current cooldown handler that manages everything related to abilities cooldowns
+        /// </summary>
+        public CooldownHandler CooldownsHandler => _cdHandler;
 
         /// <summary>
         /// Getter for the AbilityController Data Hub
@@ -49,6 +54,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _caster = caster;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
+            _cdHandler = new CooldownHandler(_abilities);
         }
         #endregion
 
@@ -61,13 +67,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="deltaTime">How much time elapsed since the last frame</param>
         public virtual void Update(float deltaTime)
         {
-            foreach(var ability in _abilities)
-            {
-                if(ability != null && ability.CurrentCooldown >= 0.0f && ability != _casting) {
-                    ability.CurrentCooldown -= deltaTime;
-                    ability.CurrentCooldown = Mathf.Clamp(ability.CurrentCooldown, 0, ability.Cooldown);
-                }
-            }
+            _cdHandler.Update(deltaTime);
 
             if(_casting != null && _castingState == CastingState.Channeling)
             {
@@ -85,7 +85,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="slot">The ability slot index</param>
         public virtual void StartChanneling(uint slot)
         {
-            if(HasAbilityInSlot(slot) && !IsAbilityOnCd(slot) && _casting == null)
+            if(HasAbilityInSlot(slot) && !_cdHandler.IsAbilityOnCd((int)slot) && _casting == null)
             {
                 _casting = _abilities[slot];
                 _casting.OnChannelingStarted(_caster);
@@ -132,20 +132,6 @@ namespace INUlib.RPG.AbilitiesSystem
         }
 
         /// <summary>
-        /// Checks if the ability in the given slot is on cooldown right now
-        /// </summary>
-        /// <param name="slot">Slot for the ability</param>
-        /// <returns>True if on cooldown. False if spell is on cooldown or slot is invalid</returns>
-        public bool IsAbilityOnCd(uint slot) => HasAbilityInSlot(slot) && _abilities[slot].CurrentCooldown > 0;
-
-        /// <summary>
-        /// Helper method to check if there's an ability in the given slot
-        /// </summary>
-        /// <param name="slot">The slot index</param>
-        /// <returns>True if there's an ability in the slot. False othwerwise</returns>
-        public bool HasAbilityInSlot(uint slot) => _abilities.Length > slot && _abilities[slot] != null;
-
-        /// <summary>
         /// Gets the ability that is currently being cast
         /// </summary>
         /// <returns>The ability being cast. Null if no ability is being cast</returns>
@@ -155,6 +141,13 @@ namespace INUlib.RPG.AbilitiesSystem
 
         #region Helper Methods
         /// <summary>
+        /// Helper method to check if there's an ability in the given slot
+        /// </summary>
+        /// <param name="slot">The slot index</param>
+        /// <returns>True if there's an ability in the slot. False othwerwise</returns>
+        public bool HasAbilityInSlot(uint slot) => _abilities.Length > slot && _abilities[slot] != null;
+
+        /// <summary>
         /// Helper method to cast the ability after it is ready to be cast
         /// </summary>
         protected void UnleashAbility()
@@ -162,7 +155,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _castingState = CastingState.Casting;
 
             _casting.OnChannelingCompleted(_caster);
-            _casting.CurrentCooldown = _casting.Cooldown;
+            _cdHandler.ResetCooldown(_casting);
             _casting.Cast(_caster, FinishAbilityCasting);
 
             _elapsedChanneling = 0f;
