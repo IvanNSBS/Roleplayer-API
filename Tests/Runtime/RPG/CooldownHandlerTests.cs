@@ -2,6 +2,8 @@ using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
 using UnityEngine;
+using System.Linq.Expressions;
+using System;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -27,8 +29,10 @@ namespace Tests.Runtime.RPG.Abilities
             _abilities = new IAbility<IAbilityCaster>[_slotCount];
             for(int i = 0; i < _slotCount; i++)
             {
+                int idx = i;
                 IAbility<IAbilityCaster> ability = Substitute.For<IAbility<IAbilityCaster>>();
                 ability.Cooldown.Returns(_abilityMaxCd);
+                ability.Category.Returns(idx);
 
                 _abilities[i] = ability;
             }
@@ -40,23 +44,52 @@ namespace Tests.Runtime.RPG.Abilities
 
         #region Tests
         [Test]
-        [TestCase(0.0f, 0.8f)]
-        [TestCase(0.2f, 0.8f)]
-        [TestCase(0.3f, 0.8f)]
-        [TestCase(0.45f, 0.8f)]
-        [TestCase(0.6f, 0.8f)]
-        [TestCase(0.75f, 0.8f)]
-        [TestCase(0.75f, 0.6f)]
-        [TestCase(0.9f, 0.7f)]
-        public void Cooldown_Handler_Correctly_Calculates_Cooldown_Reduction(float cdr, float maxCdr)
+        [TestCase(0, 0.00f, 0.00f, 0.8f)]
+        [TestCase(0, 0.20f, 0.10f, 0.8f)]
+        [TestCase(1, 0.30f, 0.20f, 0.8f)]
+        [TestCase(1, 0.45f, 0.45f, 0.8f)]
+        [TestCase(2, 0.60f, 0.60f, 0.8f)]
+        [TestCase(2, 0.75f, 0.00f, 0.8f)]
+        [TestCase(3, 0.75f, 0.50f, 0.6f)]
+        [TestCase(3, 0.90f, 0.20f, 0.7f)]
+        [TestCase(4, 0.40f, 0.04f, 0.7f)]
+        [TestCase(4, 0.30f, 0.40f, 0.7f)]
+        public void Cooldown_Handler_Correctly_Calculates_Cooldown_Reduction(int category, float gcd, float ccd, float maxCdr)
         {
-            _handler.GlobalCDR = cdr;
+            _handler.GlobalCDR = gcd;
             _handler.MaxCdrValue = maxCdr;
+            _handler.AddCategoryCdr(category, ccd);
 
-            float value = _handler.GetCooldownWithCdr(0);
+            float value = _handler.GetCooldownWithCdr(category);
+            float clampedCdr = 1 - Mathf.Clamp(gcd + ccd, 0, maxCdr);
+            float expected = _abilityMaxCd * clampedCdr;
 
-            float clampedCdr = Mathf.Clamp(cdr, 0, maxCdr);
-            float expected = Mathf.Clamp(_abilityMaxCd, 0, _abilityMaxCd * (1 - clampedCdr));
+            Assert.AreEqual(expected, value);
+        }
+
+        [Test]
+        [TestCase(0, 0.00f, 0.00f, 0.8f)]
+        [TestCase(0, 0.20f, 0.10f, 0.8f)]
+        [TestCase(1, 0.30f, 0.30f, 0.8f)]
+        [TestCase(1, 0.45f, 0.45f, 0.8f)]
+        [TestCase(2, 0.60f, 0.60f, 0.8f)]
+        [TestCase(2, 0.75f, 0.00f, 0.8f)]
+        [TestCase(3, 0.75f, 0.50f, 0.6f)]
+        [TestCase(3, 0.90f, 0.20f, 0.7f)]
+        [TestCase(4, 0.40f, 0.04f, 0.7f)]
+        [TestCase(4, 0.30f, 0.40f, 0.7f)]
+        public void CooldownHandler_Correctly_Uses_CDR_Function_To_Calculate_Cdr(int category, float gcd, float ccd, float maxCdr)
+        {
+            Func<float, float, float> testFunc = (gcd, ccd) => 0.7f * Mathf.Clamp01(gcd) + 0.3f * Mathf.Clamp01(ccd);
+            _handler.SetCdrFunction(testFunc);
+
+            _handler.GlobalCDR = gcd;
+            _handler.MaxCdrValue = maxCdr;
+            _handler.AddCategoryCdr(category, ccd);
+
+            float value = _handler.GetCooldownWithCdr(category);
+            float clampedCdr = 1 - Mathf.Clamp(testFunc(gcd, ccd), 0, maxCdr);
+            float expected = _abilityMaxCd * clampedCdr;
 
             Assert.AreEqual(expected, value);
         }

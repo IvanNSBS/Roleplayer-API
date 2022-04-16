@@ -18,7 +18,11 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <value></value>
         float ChannelingTime {get;}
 
-        // int Category {get; }
+        /// <summary>
+        /// Ability category ID. Primarily used for specific Cooldown Reductions
+        /// </summary>
+        /// <value></value>
+        int Category { get; }
     }
 
     /// <summary>

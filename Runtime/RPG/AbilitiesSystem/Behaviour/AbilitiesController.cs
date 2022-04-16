@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
@@ -41,20 +42,20 @@ namespace INUlib.RPG.AbilitiesSystem
         public TCaster DataHub => _caster;
 
         /// <summary>
-        /// 
+        /// Getter for the current actor casting state
         /// </summary>
         public CastingState CastingState => _castingState;
         #endregion
 
 
         #region Constructor
-        public AbilitiesController(uint slotAmnt, TCaster caster)
+        public AbilitiesController(uint slotAmnt, TCaster caster, Func<float, float, float> cdrCalcFunc = null)
         {
             AbilitySlots = slotAmnt;
             _caster = caster;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
-            _cdHandler = new CooldownHandler(_abilities);
+            _cdHandler = new CooldownHandler(_abilities, cdrCalcFunc);
         }
         #endregion
 

@@ -19,7 +19,6 @@ namespace INUlib.RPG.AbilitiesSystem
             currentCooldown = ccd;
             totalCooldown = tcd;
             totalCooldownWithoutCdr = tcdwcdr;
-
         }
     }
 
@@ -36,6 +35,7 @@ namespace INUlib.RPG.AbilitiesSystem
         protected float[] _cooldowns;
         protected IAbilityBase[] _abilities;
         protected Dictionary<int, float> _categoriesCdr;
+        protected Func<float, float, float> _cdrCalcFunction;
         #endregion
 
 
@@ -44,7 +44,8 @@ namespace INUlib.RPG.AbilitiesSystem
         public IReadOnlyDictionary<int, float> CategoriesCDR => _categoriesCdr;
 
         /// <summary>
-        /// Global CDR of abilities. Value is normalized
+        /// Global CDR of abilities. Value can never go below zero.
+        /// If a CDR Calculation function wasn't given, the value will be clamped between 0 and Max Cdr Value
         /// </summary>
         public float GlobalCDR 
         {
@@ -53,26 +54,35 @@ namespace INUlib.RPG.AbilitiesSystem
         }
 
         /// <summary>
-        /// Max CDR value. It is normalized
+        /// Max CDR value. It is normalized between 0 and 1.
+        /// Category CDR + Global CDR, or the function that calculates the total CDR from the Global and
+        /// Category CDR will have the values clamped to between 0 and Max CDR Value
         /// </summary>
-        /// <value></value>
         public float MaxCdrValue
         {
             get => _maxCdrValue;
             set 
             {
                 _maxCdrValue = Mathf.Clamp01(value);
+                if(_cdrCalcFunction != null)
+                    return;
+
                 if(_globalCdr > _maxCdrValue)
                     _globalCdr = _maxCdrValue;
+
+                foreach(var cdr in _categoriesCdr)
+                    if(cdr.Value > _maxCdrValue)
+                        _categoriesCdr[cdr.Key] = _maxCdrValue;
             }
         }
         #endregion
 
 
         #region Constructor
-        public CooldownHandler(IAbilityBase[] abilities)
+        public CooldownHandler(IAbilityBase[] abilities, Func<float, float, float> cdrCalcFunction = null)
         {
             _abilities = abilities;
+            _cdrCalcFunction = cdrCalcFunction;
             _cooldowns = new float[abilities.Length];
             _categoriesCdr = new Dictionary<int, float>();
         } 
@@ -97,7 +107,7 @@ namespace INUlib.RPG.AbilitiesSystem
         }
 
         /// <summary>
-        /// Tries to get the cooldown of a ability.
+        /// Tries to get the cooldown of a ability, considering the cooldown reductions
         /// </summary>
         /// <param name="ability">The ability to search for the cooldown</param>
         /// <returns>The given ability cooldown info. Null if ability is not set in the slots</returns>
@@ -195,6 +205,58 @@ namespace INUlib.RPG.AbilitiesSystem
             
             return _cooldowns[slot] > 0.001f;
         }
+
+        /// <summary>
+        /// Sets the amount of cooldown reduction for a ability category
+        /// </summary>
+        /// <param name="category">The ability category</param>
+        /// <param name="cdr">The new CDR amount</param>
+        public void SetCategoryCdr(int category, float cdr)
+        {
+            if(_categoriesCdr.ContainsKey(category))
+                _categoriesCdr[category] = cdr;
+            else
+                _categoriesCdr.Add(category, cdr);
+
+            _categoriesCdr[category] = Mathf.Clamp(_categoriesCdr[category], 0, _maxCdrValue);
+        }
+
+
+        /// <summary>
+        /// Sums an amount of CDR to the ability CDR category
+        /// </summary>
+        /// <param name="category">The ability category</param>
+        /// <param name="cdr">The CDR amount to sum</param>
+        public void AddCategoryCdr(int category, float cdr)
+        {
+            if(_categoriesCdr.ContainsKey(category))
+                _categoriesCdr[category] += cdr;
+            else
+                _categoriesCdr.Add(category, cdr);
+
+            _categoriesCdr[category] = Mathf.Clamp(_categoriesCdr[category], 0, _maxCdrValue);
+        }
+
+        /// <summary>
+        // Gets the amount of CDR for the given ability category
+        /// </summary>
+        /// <param name="category">The ability category</param>
+        /// <returns>The current ability CDR for the given category. 0 if the category doesn't exist</returns>
+        public float GetCategoryCdr(int category) 
+        {
+            return _categoriesCdr.ContainsKey(category) ? _categoriesCdr[category] : 0;
+        }
+
+        /// <summary>
+        /// Sets the CDR Calculation function.
+        /// Returns a float, from the Global CDR and Category CDR, respectively.
+        /// The value will be clamped between 0-MaxCdr.
+        /// </summary>
+        /// <param name="func">
+        /// The new CDR calculation function. If the function is null, the default function will be used.
+        /// The default function simply sums GlobalCDR and CategoryCdr.
+        /// </param>
+        public void SetCdrFunction(Func<float, float, float> func) => _cdrCalcFunction = func;
         #endregion
 
 
@@ -212,8 +274,13 @@ namespace INUlib.RPG.AbilitiesSystem
 
         protected float GetAbilityCooldownWithCdr(int slot)
         {
-            float categoryCdr = 0;
-            float maxCooldown = _abilities[slot].Cooldown * (1 - GlobalCDR + categoryCdr);
+            float categoryCdr = GetCategoryCdr(_abilities[slot].Category);
+            float maxCooldown;
+            float cd = _abilities[slot].Cooldown;
+            if(_cdrCalcFunction == null)
+                maxCooldown = cd * (1 - Mathf.Clamp(GlobalCDR + categoryCdr, 0, _maxCdrValue));
+            else
+                maxCooldown = cd * (1 - Mathf.Clamp(_cdrCalcFunction(GlobalCDR, categoryCdr), 0, _maxCdrValue));
 
             return maxCooldown;
         }

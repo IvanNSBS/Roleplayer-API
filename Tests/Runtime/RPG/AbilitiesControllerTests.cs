@@ -10,12 +10,24 @@ namespace Tests.Runtime.RPG.Abilities
         #region Test Factory Ability
         public class TestFactoryAbility : IAbility<IAbilityCaster>
         {   
+            public int Category => _category;
+
+            private int _category = 0;
             private IAbilityCaster _factoryRef;
             private Action _actionRef;
             public bool isEqual;
 
             public TestFactoryAbility(float cd, float castTime, IAbilityCaster factoryRef, Action notifyFinish)
             {
+                _actionRef = notifyFinish;
+                _factoryRef = factoryRef;
+                Cooldown = cd;
+                ChannelingTime = castTime;
+            }
+
+            public TestFactoryAbility(int cat, float cd, float castTime, IAbilityCaster factoryRef, Action notifyFinish)
+            {
+                _category = cat;
                 _actionRef = notifyFinish;
                 _factoryRef = factoryRef;
                 Cooldown = cd;
