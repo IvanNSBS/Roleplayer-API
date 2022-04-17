@@ -2,6 +2,7 @@ using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
 using System;
+using NUnit.Framework.Internal;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -55,22 +56,38 @@ namespace Tests.Runtime.RPG.Abilities
         }
         #endregion
 
+
+        #region Test Abilities Controller
+        public class TestAbilitiesController : AbilitiesController<IAbility<IAbilityCaster>, IAbilityCaster>
+        {
+            public bool casted = false;
+            public TestAbilitiesController(uint slotAmnt, IAbilityCaster caster) : base(slotAmnt, caster)
+            {
+            }
+
+            protected override void UnleashAbility()
+            {
+                base.UnleashAbility();
+                casted = true;
+            }
+        }
+        #endregion
+ 
+
         #region Mock Tests
         private IAbilityCaster _mockFactory;
-        private AbilitiesController<IAbility<IAbilityCaster>, IAbilityCaster> _controller;
+        private TestAbilitiesController _controller;
         private IAbility<IAbilityCaster> _mockAbility1;
         private IAbility<IAbilityCaster> _mockAbility2;
         private IAbility<IAbilityCaster> _mockAbility3;
-        private bool _casted;
         private float _cd = 5;
         private float _castTime = 1;
         
         [SetUp]
         public void Setup() 
         {
-            _casted = false;
             _mockFactory = Substitute.For<IAbilityCaster>();
-            _controller = new AbilitiesController<IAbility<IAbilityCaster>, IAbilityCaster>(3, _mockFactory);
+            _controller = new TestAbilitiesController(3, _mockFactory);
 
             PrepareMockAbility(_mockAbility1, 0);
             PrepareMockAbility(_mockAbility2, 1);
@@ -79,15 +96,7 @@ namespace Tests.Runtime.RPG.Abilities
 
         private void PrepareMockAbility(IAbility<IAbilityCaster> ability, uint slot, bool reset = true)
         {
-            ability = Substitute.For<IAbility<IAbilityCaster>>();
-            ability.Cooldown.Returns(_cd);
-            ability.ChannelingTime.Returns(_castTime);
-            ability.When(x => x.Cast(_mockFactory)).Do(x => {
-                _casted = true;
-                if(reset)
-                    _controller.FinishAbilityCasting();
-            });
-
+            ability = new TestFactoryAbility((int)slot, _cd, _castTime, _mockFactory, null);
             _controller.SetAbility(slot, ability);
         }
         #endregion
@@ -134,7 +143,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(1);
-            Assert.IsTrue(_casted);
+            Assert.IsTrue(_controller.casted);
         }
 
         [Test]
@@ -227,9 +236,10 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Spell_With_No_Cast_Time_Are_Cast_Instantly(uint slot)
         {
-            _controller.GetAbility(slot).ChannelingTime.Returns(0);
+            TestFactoryAbility ab = new TestFactoryAbility(_cd, 0, _mockFactory, null);
+            _controller.SetAbility(slot, ab);
             _controller.StartChanneling(slot);
-            Assert.IsTrue(_casted);
+            Assert.IsTrue(_controller.casted);
         }
 
         [Test]
@@ -241,6 +251,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(1f);
             _controller.Update(1f);
+            _controller.FinishAbilityCasting();
             _controller.StartChanneling(slot);
 
             Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.CooldownsHandler.IsAbilityOnCd((int)slot));

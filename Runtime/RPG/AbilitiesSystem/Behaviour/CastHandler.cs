@@ -1,4 +1,4 @@
-using UnityEngine.AI;
+using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
@@ -40,8 +40,6 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Methods
-        public void OnDrawGizmos() => _abilityObject.OnDrawGizmos();
-
         public void OnCast()
         {
             _timesCastCalled++;

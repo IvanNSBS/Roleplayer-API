@@ -113,11 +113,10 @@ namespace INUlib.RPG.AbilitiesSystem
             _castingState = CastingState.None;
         } 
 
-        
         /// <summary>
         /// Helper method to cast the ability after it is ready to be cast
         /// </summary>
-        protected void UnleashAbility()
+        protected virtual void UnleashAbility()
         {
             _castingState = CastingState.Casting;
             _cdHandler.ResetCooldown(_casting);
@@ -132,7 +131,9 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>        
         public void FinishAbilityCasting()
         {
+            //TODO: This is wrong. Some spells might still be active after finishing casting.
             _activeAbilities.Remove(_castHandler.AbilityObject);
+
             _castingState = CastingState.None;
             _casting = null;
             _castHandler = null;
