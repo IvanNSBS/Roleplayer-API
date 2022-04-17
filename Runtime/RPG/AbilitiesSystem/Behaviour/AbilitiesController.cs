@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
@@ -18,6 +19,7 @@ namespace INUlib.RPG.AbilitiesSystem
         protected CastingState _castingState;
         protected CooldownHandler _cdHandler;
         protected CastHandler<TAbility, TCaster> _castHandler;
+        protected List<IAbilityObject> _activeAbilities;
         #endregion
 
         #region Properties
@@ -56,6 +58,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _caster = caster;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
+            _activeAbilities = new List<IAbilityObject>();
             _cdHandler = new CooldownHandler(_abilities, cdrCalcFunc);
         }
         #endregion
@@ -76,9 +79,14 @@ namespace INUlib.RPG.AbilitiesSystem
             if(!_cdHandler.IsAbilityOnCd((int)slot) && _casting == null)
             {
                 _casting = _abilities[slot];
-                _casting.OnChannelingStarted(_caster);
                 _castingState = CastingState.Channeling;
-                _castHandler = new CastHandler<TAbility, TCaster>(this, _casting, _caster);
+                CastObjects castInfo = _casting.Cast(_caster);
+
+                _castHandler = new CastHandler<TAbility, TCaster>(this, _caster, castInfo);
+                _activeAbilities.Add(castInfo.abilityObject);
+
+                castInfo.abilityObject.Disable();
+                castInfo.abilityObject.OnFinish += FinishAbilityCasting;
 
                 // If the cast time for the spell is zero, 
                 // just cast it instantly
@@ -98,9 +106,9 @@ namespace INUlib.RPG.AbilitiesSystem
         public virtual void CancelChanneling() 
         {
             _castHandler.OnCastCanceled();
-            _casting.OnChannelingCanceled(_caster);
-            _casting = null;
 
+            _casting = null;
+            _castHandler = null;
             _elapsedChanneling = 0f;
             _castingState = CastingState.None;
         } 
@@ -112,10 +120,8 @@ namespace INUlib.RPG.AbilitiesSystem
         protected void UnleashAbility()
         {
             _castingState = CastingState.Casting;
-
-            _casting.OnChannelingCompleted(_caster);
             _cdHandler.ResetCooldown(_casting);
-            _casting.Cast(_caster, FinishAbilityCasting);
+            _castHandler.AbilityObject.UnleashAbility();
 
             _elapsedChanneling = 0f;
         }
@@ -126,12 +132,13 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>        
         public void FinishAbilityCasting()
         {
+            _activeAbilities.Remove(_castHandler.AbilityObject);
             _castingState = CastingState.None;
             _casting = null;
-            
-            // _castHandler = null;
+            _castHandler = null;
         }
         #endregion
+
 
         #region Methods
         /// <summary>
@@ -141,6 +148,9 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="deltaTime">How much time elapsed since the last frame</param>
         public virtual void Update(float deltaTime)
         {
+            foreach(var activeAb in _activeAbilities)
+                activeAb.OnUpdate(deltaTime);
+
             _cdHandler.Update(deltaTime);
 
             if(_casting != null && _castingState == CastingState.Channeling)
@@ -149,6 +159,12 @@ namespace INUlib.RPG.AbilitiesSystem
                 if(_elapsedChanneling >= _casting.ChannelingTime)
                     UnleashAbility();
             }
+        }
+
+        public void OnDrawGizmos()
+        {
+            foreach(var activeAb in _activeAbilities)
+                activeAb.OnDrawGizmos();
         }
 
     

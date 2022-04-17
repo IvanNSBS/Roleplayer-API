@@ -4,12 +4,11 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Defines the Cast Handler behaviour when it receives requests from the user, passing the 
     /// information to the AbilityObject
     /// </summary>
-    public abstract class CastHandlerPolicy<IAbilityObject, TCaster> 
-           where IAbilityObject : class, IAbilityObject<TCaster> where TCaster : IAbilityCaster
+    public abstract class CastHandlerPolicy
     {
         #region Fields
         protected float castTimer;
-        private IAbilityObject<TCaster> _abilityObj;
+        private IAbilityObject _abilityObj;
         #endregion
 
 

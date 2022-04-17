@@ -11,29 +11,28 @@ namespace INUlib.RPG.AbilitiesSystem
     {
         #region Fields
         private int _timesCastCalled;
-        private TAbility _ability;
         private TCaster _caster;
 
-        private IAbilityObject<TCaster> _abilityObject;
-        private CastHandlerPolicy<IAbilityObject<TCaster>, TCaster> _policy;
+        private IAbilityObject _abilityObject;
+        private CastHandlerPolicy _policy;
         private AbilitiesController<TAbility, TCaster> _controller;
         #endregion
 
 
         #region Properties
+        public IAbilityObject AbilityObject => _abilityObject;
         #endregion
 
 
         #region Constructor
-        public CastHandler(AbilitiesController<TAbility, TCaster> ctrl, TAbility ability, TCaster caster)
+        public CastHandler(AbilitiesController<TAbility, TCaster> ctrl, TCaster caster, CastObjects castInfo)
         {
             _timesCastCalled = 0;
-            _ability = ability;
             _caster = caster;
             _controller = ctrl;
 
-            // _abilityObject = _ability.CreateObject();
-            // _policy = _ability.GetCastPolicy();
+            _policy = castInfo.policy;
+            _abilityObject = castInfo.abilityObject;
 
             OnCast();
         }
@@ -46,12 +45,12 @@ namespace INUlib.RPG.AbilitiesSystem
         public void OnCast()
         {
             _timesCastCalled++;
-            _policy.OnCastRequested(_timesCastCalled, _controller.CastingState);
+            _policy?.OnCastRequested(_timesCastCalled, _controller.CastingState);
         }
         
-        public void OnCastCanceled() => _policy.OnStopCastRequested(_controller.CastingState);
-        public void OnChannelingCompleted() => _policy.OnChannelingCompleted();
-
+        public void OnCastCanceled() => _policy?.OnStopCastRequested(_controller.CastingState);
+        public void OnChannelingCompleted() => _policy?.OnChannelingCompleted();
+        // public void OnCastCompleted() =>
         #endregion
     }
 }

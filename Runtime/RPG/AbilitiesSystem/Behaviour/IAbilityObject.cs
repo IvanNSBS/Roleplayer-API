@@ -7,12 +7,12 @@ namespace INUlib.RPG.AbilitiesSystem
     /// such as Adding status effect, instantiating a fireball, etc.
     /// The Ability Object is created as soon as the casting stats, and can gather info about the cast
     /// </summary>
-    public interface IAbilityObject<TCaster> where TCaster : IAbilityCaster
+    public interface IAbilityObject
     {
         event Action OnFinish;
         void Disable();
-        void Activate();
-        void Finish();
+        void UnleashAbility();
+        void FinishAndDiscard();
 
         void OnUpdate(float deltaTime);
         void OnDrawGizmos();
