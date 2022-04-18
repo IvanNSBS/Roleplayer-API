@@ -9,12 +9,53 @@ namespace INUlib.RPG.AbilitiesSystem
     /// </summary>
     public interface IAbilityObject
     {
-        event Action OnFinish;
+        event Action OnFinishCast;
+        event Action OnAbilityFinished;
+
         void Disable();
         void UnleashAbility();
-        void FinishAndDiscard();
-
         void OnUpdate(float deltaTime);
         void OnDrawGizmos();
+    }
+
+    public abstract class AbilityObject : IAbilityObject 
+    {
+        #region Fields
+        protected bool _hasUnleashed;
+        #endregion
+
+        #region Events
+        public event Action OnFinishCast;
+        public event Action OnAbilityFinished;
+        #endregion
+
+
+        #region IAbilityObject Methods
+        public abstract void Disable();
+        public virtual void UnleashAbility() => _hasUnleashed = true;
+        public abstract void OnUpdate(float deltaTime);
+        public abstract void OnDrawGizmos();
+        #endregion
+
+
+        #region Methods
+        public abstract void OnFinishCasting();
+
+        public virtual void FinishCast()
+        {
+            OnFinishCast?.Invoke();
+            OnFinishCasting();
+        }
+
+        public virtual void FinishAbility()
+        {
+            OnAbilityFinished?.Invoke();
+            Discard();
+        }
+
+        public abstract void Discard();
+        #endregion
+
+
     }
 }

@@ -271,53 +271,32 @@ namespace Tests.Runtime.RPG.Abilities
             Assert.IsNull(_controller.GetCastingAbility());
         }
 
-        // [Test]
-        // [TestCase(0u)]
-        // [TestCase(1u)]
-        // [TestCase(2u)]
-        // public void On_Channeling_Start_Is_Called(uint slot)
-        // {
-        //     bool evtCalled = false;
-        //     var ability = _controller.GetAbility(slot);
-        //     ability.When(x => x.OnChannelingStarted(Arg.Any<IAbilityCaster>())).Do(x => evtCalled = true);
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void AbilityObject_Correctly_Finishes_Casting(uint slot)
+        {
+            
+        }
 
-        //     _controller.StartChanneling(slot);
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void AbilityObject_Correctly_Finishes_The_Effect(uint slot)
+        {
 
-        //     Assert.IsTrue(evtCalled);
-        // }
+        }
 
-        // [Test]
-        // [TestCase(0u)]
-        // [TestCase(1u)]
-        // [TestCase(2u)]
-        // public void On_Channeling_Completed_Is_Called(uint slot)
-        // {
-        //     bool evtCalled = false;
-        //     var ability = _controller.GetAbility(slot);
-        //     ability.When(x => x.OnChannelingCompleted(Arg.Any<IAbilityCaster>())).Do(x => evtCalled = true);
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cast_Policy_Correctly_Calls_On_Cast_Again_After_First_Cast(uint slot)
+        {
 
-        //     _controller.StartChanneling(slot);
-        //     _controller.Update(_castTime);
-
-        //     Assert.IsTrue(evtCalled);
-        // }
-
-        // [Test]
-        // [TestCase(0u)]
-        // [TestCase(1u)]
-        // [TestCase(2u)]
-        // public void On_Channeling_Canceled_Is_Called(uint slot)
-        // {
-        //     bool evtCalled = false;
-        //     var ability = _controller.GetAbility(slot);
-        //     ability.When(x => x.OnChannelingCanceled(Arg.Any<IAbilityCaster>())).Do(x => evtCalled = true);
-
-        //     _controller.StartChanneling(slot);
-        //     _controller.Update(_castTime*0.1f);
-        //     _controller.CancelChanneling();
-
-        //     Assert.IsTrue(evtCalled);
-        // }
+        }
 
         [Test]
         [TestCase(0u)]

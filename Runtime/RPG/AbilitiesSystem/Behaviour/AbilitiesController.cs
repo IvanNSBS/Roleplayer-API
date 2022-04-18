@@ -86,7 +86,8 @@ namespace INUlib.RPG.AbilitiesSystem
                 _activeAbilities.Add(castInfo.abilityObject);
 
                 castInfo.abilityObject.Disable();
-                castInfo.abilityObject.OnFinish += FinishAbilityCasting;
+                castInfo.abilityObject.OnFinishCast += FinishAbilityCasting;
+                castInfo.abilityObject.OnAbilityFinished += () => RemoveAbility(castInfo.abilityObject);
 
                 // If the cast time for the spell is zero, 
                 // just cast it instantly
@@ -131,13 +132,12 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>        
         public void FinishAbilityCasting()
         {
-            //TODO: This is wrong. Some spells might still be active after finishing casting.
-            _activeAbilities.Remove(_castHandler.AbilityObject);
-
             _castingState = CastingState.None;
             _casting = null;
             _castHandler = null;
         }
+
+        public void RemoveAbility(IAbilityObject abilityObject) => _activeAbilities.Remove(abilityObject);
         #endregion
 
 
