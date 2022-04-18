@@ -19,6 +19,8 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             _controller?.Update(Time.deltaTime);
         }
+
+        protected virtual void OnDrawGizmos() => _controller.OnDrawGizmos();
         #endregion
 
 

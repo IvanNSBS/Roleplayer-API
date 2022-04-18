@@ -22,6 +22,7 @@ namespace INUlib.RPG.AbilitiesSystem
     {
         #region Fields
         protected bool _hasUnleashed;
+        protected float _elapsedTime;
         #endregion
 
         #region Events
@@ -33,7 +34,7 @@ namespace INUlib.RPG.AbilitiesSystem
         #region IAbilityObject Methods
         public abstract void Disable();
         public virtual void UnleashAbility() => _hasUnleashed = true;
-        public abstract void OnUpdate(float deltaTime);
+        public virtual void OnUpdate(float deltaTime) => _elapsedTime += deltaTime;
         public abstract void OnDrawGizmos();
         #endregion
 

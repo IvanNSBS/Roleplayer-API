@@ -151,8 +151,8 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="deltaTime">How much time elapsed since the last frame</param>
         public virtual void Update(float deltaTime)
         {
-            foreach(var activeAb in _activeAbilities)
-                activeAb.OnUpdate(deltaTime);
+            for(int i = _activeAbilities.Count - 1; i >= 0; i--)
+                _activeAbilities[i].OnUpdate(deltaTime);
 
             _cdHandler.Update(deltaTime);
 
@@ -166,10 +166,9 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public void OnDrawGizmos()
         {
-            foreach(var activeAb in _activeAbilities)
-                activeAb.OnDrawGizmos();
+            for(int i = _activeAbilities.Count - 1; i >= 0; i--)
+                _activeAbilities[i].OnDrawGizmos();
         }
-
     
         /// <summary>
         /// Sets the ability on the given index
