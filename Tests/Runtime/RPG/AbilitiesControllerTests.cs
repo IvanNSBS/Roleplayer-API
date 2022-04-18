@@ -3,6 +3,7 @@ using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
 using System;
 using NUnit.Framework.Internal;
+using System.Linq;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -17,6 +18,7 @@ namespace Tests.Runtime.RPG.Abilities
             private IAbilityCaster _factoryRef;
             private Action _actionRef;
             public bool isEqual;
+            public AbilityObject obj;
 
             public TestFactoryAbility(float cd, float castTime, IAbilityCaster factoryRef, Action notifyFinish)
             {
@@ -39,8 +41,8 @@ namespace Tests.Runtime.RPG.Abilities
             {
                 isEqual = dataFactory == _factoryRef;
                 CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
-                IAbilityObject abilityObject = Substitute.For<IAbilityObject>();
-
+                AbilityObject abilityObject = Substitute.ForPartsOf<AbilityObject>();
+                obj = abilityObject;
                 return new CastObjects(policy, abilityObject);
             }
 
@@ -61,6 +63,9 @@ namespace Tests.Runtime.RPG.Abilities
         public class TestAbilitiesController : AbilitiesController<IAbility<IAbilityCaster>, IAbilityCaster>
         {
             public bool casted = false;
+            public int Clicks => _castHandler.TimesCastCalled;
+            
+
             public TestAbilitiesController(uint slotAmnt, IAbilityCaster caster) : base(slotAmnt, caster)
             {
             }
@@ -277,7 +282,26 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void AbilityObject_Correctly_Finishes_Casting(uint slot)
         {
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.obj.FinishCast();
             
+            Assert.IsTrue(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.AreEqual(_controller.CastingState, CastingState.None);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Controller_Keeps_On_Cast_State_If_Finish_Cast_Is_Not_Called(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            
+            Assert.AreEqual(_controller.CastingState, CastingState.Casting);
         }
 
         [Test]
@@ -286,16 +310,29 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void AbilityObject_Correctly_Finishes_The_Effect(uint slot)
         {
-
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.obj.FinishCast();
+            ability.obj.FinishAbility();
+            
+            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
 
         [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
-        public void Cast_Policy_Correctly_Calls_On_Cast_Again_After_First_Cast(uint slot)
+        [TestCase(0u, 5)]
+        [TestCase(1u, 3)]
+        [TestCase(2u, 7)]
+        [TestCase(0u, 1)]
+        [TestCase(1u, 3)]
+        [TestCase(2u, 6)]
+        public void Cast_Policy_Correctly_Calls_On_Cast_Again_After_First_Cast(uint slot, int castTimes)
         {
-
+            for(int i = 0; i < castTimes; i++)
+                _controller.StartChanneling(slot);
+            
+            Assert.AreEqual(castTimes, _controller.Clicks);
         }
 
         [Test]

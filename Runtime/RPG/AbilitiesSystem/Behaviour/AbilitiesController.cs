@@ -48,6 +48,8 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Getter for the current actor casting state
         /// </summary>
         public CastingState CastingState => _castingState;
+
+        public IReadOnlyList<IAbilityObject> ActiveObjects => _activeAbilities;
         #endregion
 
 

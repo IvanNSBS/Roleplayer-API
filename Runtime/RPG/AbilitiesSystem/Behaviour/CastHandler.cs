@@ -21,6 +21,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         #region Properties
         public IAbilityObject AbilityObject => _abilityObject;
+        public int TimesCastCalled => _timesCastCalled;
         #endregion
 
 
@@ -46,9 +47,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _policy?.OnCastRequested(_timesCastCalled, _controller.CastingState);
         }
         
-        public void OnCastCanceled() => _policy?.OnStopCastRequested(_controller.CastingState);
-        public void OnChannelingCompleted() => _policy?.OnChannelingCompleted();
-        // public void OnCastCompleted() =>
+        public void OnCastCanceled() => _policy?.OnCancelRequested(_controller.CastingState);
         #endregion
     }
 }

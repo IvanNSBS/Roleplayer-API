@@ -22,7 +22,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public virtual void OnChannelingCompleted() { }
         public abstract void OnCastRequested(int castAmount, CastingState state);
-        public abstract void OnStopCastRequested(CastingState state);
+        public abstract void OnCancelRequested(CastingState state);
         #endregion
     }
 }
