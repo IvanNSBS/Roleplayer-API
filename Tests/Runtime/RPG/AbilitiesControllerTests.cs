@@ -289,6 +289,20 @@ namespace Tests.Runtime.RPG.Abilities
 
         [Test]
         [TestCase(0u)]
+        [TestCase(0u)]
+        [TestCase(0u)]
+        public void Cant_Recast_Spell_While_Chaneling(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime*0.1f);
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime*0.1f);
+        
+            Assert.AreEqual(1, _controller.ActiveObjects.Count);
+        }
+
+        [Test]
+        [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
         public void AbilityObject_Correctly_Finishes_Casting_During_His_Update(uint slot)
