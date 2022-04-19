@@ -17,11 +17,32 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Methods
-        public void Update(float deltaTime) => castTimer += deltaTime;
+        /// <summary>
+        /// Updates the elapsed cast time and calls te OnUpdate event for the CastHandler Policy
+        /// </summary>
+        /// <param name="deltaTime">How much time has passed since the last frame</param>
+        public void Update(float deltaTime) 
+        {
+            castTimer += deltaTime;
+            OnUpdate();
+        }
+
+        /// <summary>
+        /// Defines the behavior for the CastHandler update
+        /// </summary>
         protected abstract void OnUpdate();
 
-        public virtual void OnChannelingCompleted() { }
+        /// <summary>
+        /// Behaviour for when the user calls the cast function
+        /// </summary>
+        /// <param name="castAmount">How many times the cast has been called so far</param>
+        /// <param name="state">The current casting state for the ability</param>
         public abstract void OnCastRequested(int castAmount, CastingState state);
+
+        /// <summary>
+        /// Behaviour for when the user cancels the channeling/cast of the spell 
+        /// </summary>
+        /// <param name="state">The state that the cast was in</param>
         public abstract void OnCancelRequested(CastingState state);
         #endregion
     }

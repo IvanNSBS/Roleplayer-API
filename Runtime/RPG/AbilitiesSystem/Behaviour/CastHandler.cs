@@ -1,10 +1,8 @@
-using UnityEngine;
-
 namespace INUlib.RPG.AbilitiesSystem
 {
     /// <summary>
-    /// Default controller for agents that can use the ability system
-    /// Fully manages the abilities cooldown and their casting process
+    /// Communicates cast input and state to the CastPolicy, so the user can
+    /// customize how input will be handled for the AbilityObject
     /// </summary>
     public class CastHandler<TAbility, TCaster> 
            where TAbility : class, IAbility<TCaster> where TCaster : IAbilityCaster
@@ -41,12 +39,19 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Methods
+        /// <summary>
+        /// Receives a cast request, incrementing how many times the cast was called
+        /// and invoking the OnCastRequested for the CastHandlerPolicy
+        /// </summary>
         public void OnCast()
         {
             _timesCastCalled++;
             _policy?.OnCastRequested(_timesCastCalled, _controller.CastingState);
         }
         
+        /// <summary>
+        /// Communicates to the CastPolicy that a cancel cast was requested
+        /// </summary>
         public void OnCastCanceled() => _policy?.OnCancelRequested(_controller.CastingState);
         #endregion
     }

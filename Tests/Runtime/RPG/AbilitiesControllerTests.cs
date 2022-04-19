@@ -314,7 +314,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             ability.obj.FinishCast();
-            ability.obj.FinishAbility();
+            ability.obj.DiscardAbility();
             
             Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
