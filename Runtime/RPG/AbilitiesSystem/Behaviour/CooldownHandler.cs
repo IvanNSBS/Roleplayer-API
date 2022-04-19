@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
@@ -70,9 +71,9 @@ namespace INUlib.RPG.AbilitiesSystem
                 if(_globalCdr > _maxCdrValue)
                     _globalCdr = _maxCdrValue;
 
-                foreach(var cdr in _categoriesCdr)
-                    if(cdr.Value > _maxCdrValue)
-                        _categoriesCdr[cdr.Key] = _maxCdrValue;
+                foreach(int key in _categoriesCdr.Keys.ToList())
+                    if(_categoriesCdr[key] > _maxCdrValue)
+                        _categoriesCdr[key] = _maxCdrValue;
             }
         }
         #endregion

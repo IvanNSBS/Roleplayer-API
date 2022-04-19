@@ -147,6 +147,22 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void CooldownHandler_Wont_Decrease_Cooldown_Of_Casted_Spell(uint slotIdx)
+        {
+            _handler.GlobalCDR = 0f;
+            _handler.ResetCooldown(slotIdx);
+            _handler.Update(0.5f, _abilities[slotIdx]);
+            CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
+
+            Assert.AreEqual(info.totalCooldown, info.currentCooldown);
+        }
+
+        [Test]
         [TestCase(0.00f)]
         [TestCase(0.10f)]
         [TestCase(0.20f)]
@@ -206,6 +222,48 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void CooldownHandler_Correctly_Resets_Cooldown_By_Reference(uint slot)
+        {
+            var ability = _abilities[slot];
+
+            Assert.IsTrue(_handler.ResetCooldown(ability));
+        }
+
+        [Test]
+        public void CooldownHandler_Returns_Null_For_Invalid_Slot_Of_Cooldown_Info()
+        {
+            CooldownInfo info = _handler.GetCooldownInfo(100);
+        
+            Assert.IsNull(info);
+        }
+
+        [Test]
+        public void Cooldown_Handler_Properly_Returns_CooldownInfo_By_Ability_Reference()
+        {
+            var ability = _abilities[0];
+            CooldownInfo info = _handler.GetCooldownInfo(ability);
+            
+            Assert.NotNull(info);
+        }
+
+        [Test]
+        public void CooldownHandler_Returns_False_For_Reset_Cooldown_On_Invalid_Slot()
+        {
+            Assert.IsFalse(_handler.ResetCooldown(1000));
+        }
+
+        [Test]
+        public void CooldownHandler_Returns_False_When_Checking_If_Invalid_Slot_Is_On_Cooldown()
+        {
+            Assert.IsFalse(_handler.IsAbilityOnCd(1000));
+        }
+
+        [Test]
         [TestCase(1.0f)]
         [TestCase(2.4f)]
         [TestCase(0.5f)]
@@ -215,6 +273,47 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _handler.MaxCdrValue = maxCdr;
             Assert.AreEqual(Mathf.Clamp01(maxCdr), _handler.MaxCdrValue);
+        }
+
+        [Test]
+        public void CooldownHandler_Properly_Updates_Category_Cdr_When_Updating_Max_Cdr()
+        {
+            _handler.AddCategoryCdr(0, 0.5f);
+            _handler.MaxCdrValue = 0.3f;
+
+            Assert.AreEqual(0.3f, _handler.GetCategoryCdr(0));
+        }
+
+        [Test]
+        [TestCase(0.1f)]
+        [TestCase(0.4f)]
+        [TestCase(0.22f)]
+        [TestCase(0.98f)]
+        public void CooldownHandler_Properly_Sets_CategoryCdr(float cdr)
+        {
+            _handler.SetCategoryCdr(0, cdr);
+            float expected = Mathf.Clamp(cdr, 0, _handler.MaxCdrValue);
+
+            Assert.AreEqual(expected, _handler.GetCategoryCdr(0));
+        }
+
+        [Test]
+        [TestCase(0.3f)]
+        [TestCase(2.0f)]
+        public void CooldownHandler_Properly_Sets_Category_Cdr(float cdr)
+        {
+            _handler.AddCategoryCdr(0, cdr);
+
+            Assert.AreEqual(Mathf.Clamp(cdr, 0, _handler.MaxCdrValue), _handler.GetCategoryCdr(0));
+        }
+
+        [Test]
+        public void CooldownHandler_Properly_Accumulates_Category_Cdr()
+        {
+            _handler.AddCategoryCdr(0, 0.2f);
+            _handler.AddCategoryCdr(0, 0.2f);
+        
+            Assert.AreEqual(_handler.GetCategoryCdr(0), 0.4f);
         }
 
         [Test]
