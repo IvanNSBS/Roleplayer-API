@@ -12,7 +12,7 @@ namespace Tests.Runtime.RPG.Abilities
         #region Setup
         private class MockCooldownHandler : CooldownHandler
         {
-            public MockCooldownHandler(IAbility<IAbilityCaster>[] abilities) : base(abilities) { }
+            public MockCooldownHandler(IAbility<ICasterInfo>[] abilities) : base(abilities) { }
 
             public bool ClampCooldown(uint slot, float newValue) => this.ClampAbilityCooldown(slot, newValue);
             public float GetCooldownWithCdr(uint slot) => this.GetAbilityCooldownWithCdr(slot);
@@ -20,17 +20,17 @@ namespace Tests.Runtime.RPG.Abilities
 
         private int _slotCount = 5;
         private float _abilityMaxCd = 10f;
-        private IAbility<IAbilityCaster>[] _abilities;
+        private IAbility<ICasterInfo>[] _abilities;
         private MockCooldownHandler _handler;
 
         [SetUp]
         public void Setup()
         {
-            _abilities = new IAbility<IAbilityCaster>[_slotCount];
+            _abilities = new IAbility<ICasterInfo>[_slotCount];
             for(int i = 0; i < _slotCount; i++)
             {
                 int idx = i;
-                IAbility<IAbilityCaster> ability = Substitute.For<IAbility<IAbilityCaster>>();
+                IAbility<ICasterInfo> ability = Substitute.For<IAbility<ICasterInfo>>();
                 ability.Cooldown.Returns(_abilityMaxCd);
                 ability.Category.Returns(idx);
 
@@ -220,7 +220,7 @@ namespace Tests.Runtime.RPG.Abilities
         [Test]
         public void CooldownHandler_Wont_Do_Anything_When_Reseting_Invalid_Spell()
         {
-            IAbility<IAbilityCaster> ab = Substitute.For<IAbility<IAbilityCaster>>();
+            IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             bool result = _handler.ResetCooldown(null);
             bool result2 = _handler.ResetCooldown(ab);
 
@@ -231,7 +231,7 @@ namespace Tests.Runtime.RPG.Abilities
         [Test]
         public void CooldownHandler_Wont_Do_Anything_When_Trying_To_Increase_Cd_Of_Invalid_Spell()
         {
-            IAbility<IAbilityCaster> ab = Substitute.For<IAbility<IAbilityCaster>>();
+            IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             bool result = _handler.IncreaseCooldown(10, 1);
 
             Assert.IsFalse(result);
@@ -240,7 +240,7 @@ namespace Tests.Runtime.RPG.Abilities
         [Test]
         public void CooldownHandler_Wont_Do_Anything_When_Trying_To_Decrease_Cd_Of_Invalid_Spell()
         {
-            IAbility<IAbilityCaster> ab = Substitute.For<IAbility<IAbilityCaster>>();
+            IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             bool result = _handler.DecreaseCooldown(10, 1);
 
             Assert.IsFalse(result);
@@ -249,7 +249,7 @@ namespace Tests.Runtime.RPG.Abilities
         [Test]
         public void CooldownHandler_Wont_Do_Anything_When_Clamping_Invalid_Spell_Cooldown()
         {
-            IAbility<IAbilityCaster> ab = Substitute.For<IAbility<IAbilityCaster>>();
+            IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             bool result = _handler.ClampCooldown(10, 1);
 
             Assert.IsFalse(result);
@@ -265,7 +265,7 @@ namespace Tests.Runtime.RPG.Abilities
         [Test]
         public void CooldownHandler_Returns_Null_For_Invalid_Spell_Info()
         {
-            IAbility<IAbilityCaster> ab = Substitute.For<IAbility<IAbilityCaster>>();
+            IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             CooldownInfo info1 = _handler.GetCooldownInfo(null);
             CooldownInfo info2 = _handler.GetCooldownInfo(ab);
 

@@ -10,24 +10,24 @@ namespace Tests.Runtime.RPG.Abilities
     public class AbilitiesControllerTests
     {
         #region Test Factory Ability
-        public class TestFactoryAbility : IAbility<IAbilityCaster>
+        public class TestFactoryAbility : IAbility<ICasterInfo>
         {   
             public int Category => _category;
 
             private int _category = 0;
-            private IAbilityCaster _factoryRef;
+            private ICasterInfo _factoryRef;
             public bool isEqual;
             public AbilityObject obj;
             public bool removeOnUpdate;
 
-            public TestFactoryAbility(float cd, float castTime, IAbilityCaster factoryRef)
+            public TestFactoryAbility(float cd, float castTime, ICasterInfo factoryRef)
             {
                 _factoryRef = factoryRef;
                 Cooldown = cd;
                 ChannelingTime = castTime;
             }
 
-            public TestFactoryAbility(int cat, float cd, float castTime, IAbilityCaster factoryRef)
+            public TestFactoryAbility(int cat, float cd, float castTime, ICasterInfo factoryRef)
             {
                 _category = cat;
                 _factoryRef = factoryRef;
@@ -35,7 +35,7 @@ namespace Tests.Runtime.RPG.Abilities
                 ChannelingTime = castTime;
             }
 
-            public CastObjects Cast(IAbilityCaster dataFactory) 
+            public CastObjects Cast(ICasterInfo dataFactory) 
             {
                 isEqual = dataFactory == _factoryRef;
                 CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
@@ -56,13 +56,13 @@ namespace Tests.Runtime.RPG.Abilities
 
 
         #region Test Abilities Controller
-        public class TestAbilitiesController : AbilitiesController<IAbility<IAbilityCaster>, IAbilityCaster>
+        public class TestAbilitiesController : AbilitiesController<IAbility<ICasterInfo>, ICasterInfo>
         {
             public bool casted = false;
             public int Clicks => _castHandler.TimesCastCalled;
             
 
-            public TestAbilitiesController(uint slotAmnt, IAbilityCaster caster) : base(slotAmnt, caster)
+            public TestAbilitiesController(uint slotAmnt, ICasterInfo caster) : base(slotAmnt, caster)
             {
             }
 
@@ -76,18 +76,18 @@ namespace Tests.Runtime.RPG.Abilities
  
 
         #region Mock Tests
-        private IAbilityCaster _mockFactory;
+        private ICasterInfo _mockFactory;
         private TestAbilitiesController _controller;
-        private IAbility<IAbilityCaster> _mockAbility1;
-        private IAbility<IAbilityCaster> _mockAbility2;
-        private IAbility<IAbilityCaster> _mockAbility3;
+        private IAbility<ICasterInfo> _mockAbility1;
+        private IAbility<ICasterInfo> _mockAbility2;
+        private IAbility<ICasterInfo> _mockAbility3;
         private float _cd = 5;
         private float _castTime = 1;
         
         [SetUp]
         public void Setup() 
         {
-            _mockFactory = Substitute.For<IAbilityCaster>();
+            _mockFactory = Substitute.For<ICasterInfo>();
             _controller = new TestAbilitiesController(3, _mockFactory);
 
             PrepareMockAbility(_mockAbility1, 0);
@@ -95,7 +95,7 @@ namespace Tests.Runtime.RPG.Abilities
             PrepareMockAbility(_mockAbility3, 2);
         }
 
-        private void PrepareMockAbility(IAbility<IAbilityCaster> ability, uint slot, bool reset = true)
+        private void PrepareMockAbility(IAbility<ICasterInfo> ability, uint slot, bool reset = true)
         {
             ability = new TestFactoryAbility((int)slot, _cd, _castTime, _mockFactory);
             _controller.SetAbility(slot, ability);
@@ -130,7 +130,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Is_Set_In_Slot(uint slot)
         {
-            var mockAbility = Substitute.For<IAbility<IAbilityCaster>>();
+            var mockAbility = Substitute.For<IAbility<ICasterInfo>>();
             _controller.SetAbility(slot, mockAbility);
 
             Assert.IsTrue(_controller.GetAbility(slot) == mockAbility);

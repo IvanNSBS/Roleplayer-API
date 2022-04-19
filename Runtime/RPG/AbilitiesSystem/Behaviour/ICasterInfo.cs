@@ -5,7 +5,7 @@ namespace INUlib.RPG.AbilitiesSystem
     /// The Ability Caster should contain the data used
     /// by the abilities so they can instantiate their effects
     /// </summary>
-    public interface IAbilityCaster
+    public interface ICasterInfo
     {
     }
 }

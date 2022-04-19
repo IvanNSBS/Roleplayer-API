@@ -5,7 +5,7 @@ namespace INUlib.RPG.AbilitiesSystem
     /// customize how input will be handled for the AbilityObject
     /// </summary>
     public class CastHandler<TAbility, TCaster> 
-           where TAbility : class, IAbility<TCaster> where TCaster : IAbilityCaster
+           where TAbility : class, IAbility<TCaster> where TCaster : ICasterInfo
     {
         #region Fields
         private int _timesCastCalled;

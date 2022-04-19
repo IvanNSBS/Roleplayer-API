@@ -9,7 +9,7 @@ namespace INUlib.RPG.AbilitiesSystem
     /// Fully manages the abilities cooldown and their casting process
     /// </summary>
     public class AbilitiesController<TAbility, TCaster> 
-           where TAbility : class, IAbility<TCaster> where TCaster : IAbilityCaster
+           where TAbility : class, IAbility<TCaster> where TCaster : ICasterInfo
     {
         #region Fields
         protected TCaster _caster;

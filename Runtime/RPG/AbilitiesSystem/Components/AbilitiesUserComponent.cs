@@ -7,7 +7,7 @@ namespace INUlib.RPG.AbilitiesSystem
     /// to be used on the Unity Environment 
     /// </summary>
     public abstract class AbilitiesUserComponent<TAbility, TCaster> : MonoBehaviour where TAbility: class, 
-    IAbility<TCaster> where TCaster: IAbilityCaster
+    IAbility<TCaster> where TCaster: ICasterInfo
     {
         #region Fields
         protected AbilitiesController<TAbility, TCaster> _controller;
