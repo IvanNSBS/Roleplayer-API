@@ -18,6 +18,7 @@ namespace Tests.Runtime.RPG.Abilities
             private IAbilityCaster _factoryRef;
             public bool isEqual;
             public AbilityObject obj;
+            public bool removeOnUpdate;
 
             public TestFactoryAbility(float cd, float castTime, IAbilityCaster factoryRef)
             {
@@ -39,17 +40,15 @@ namespace Tests.Runtime.RPG.Abilities
                 isEqual = dataFactory == _factoryRef;
                 CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
                 AbilityObject abilityObject = Substitute.ForPartsOf<AbilityObject>();
+                if(removeOnUpdate)
+                    abilityObject.When(x => x.OnUpdate(Arg.Any<float>())).Do(x => {
+                        abilityObject.FinishCast();
+                        abilityObject.DiscardAbility();
+                    });
                 obj = abilityObject;
                 return new CastObjects(policy, abilityObject);
             }
 
-            public void OnChannelingStarted(IAbilityCaster dataFactory) { }
-            public void OnChannelingCompleted(IAbilityCaster dataFactory) { }
-            public void OnChannelingCanceled(IAbilityCaster dataFactory) { }
-            public CastHandlerPolicy CreateCastHandler() => Substitute.For<CastHandlerPolicy>();
-            public IAbilityObject CreateAbilityObject() => Substitute.For<IAbilityObject>();
-
-            public float CurrentCooldown {get; set;}
             public float Cooldown {get; set;}
             public float ChannelingTime {get;}
         }
@@ -285,6 +284,21 @@ namespace Tests.Runtime.RPG.Abilities
             ability.obj.FinishCast();
             
             Assert.IsTrue(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.AreEqual(_controller.CastingState, CastingState.None);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void AbilityObject_Correctly_Finishes_Casting_During_His_Update(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.removeOnUpdate = true;
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            
+            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
 
