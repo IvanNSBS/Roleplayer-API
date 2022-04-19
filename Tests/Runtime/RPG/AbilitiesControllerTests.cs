@@ -2,71 +2,102 @@ using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
 using System;
+using NUnit.Framework.Internal;
+using System.Linq;
 
 namespace Tests.Runtime.RPG.Abilities
 {
     public class AbilitiesControllerTests
     {
         #region Test Factory Ability
-        public class TestFactoryAbility : IAbility<IAbilityDataHub>
+        public class TestFactoryAbility : IAbility<ICasterInfo>
         {   
-            private IAbilityDataHub _factoryRef;
-            private Action _actionRef;
-            public bool isEqual;
+            public int Category => _category;
 
-            public TestFactoryAbility(float cd, float castTime, IAbilityDataHub factoryRef, Action notifyFinish)
+            private int _category = 0;
+            private ICasterInfo _factoryRef;
+            public bool isEqual;
+            public AbilityObject obj;
+            public bool removeOnUpdate;
+
+            public TestFactoryAbility(float cd, float castTime, ICasterInfo factoryRef)
             {
-                _actionRef = notifyFinish;
                 _factoryRef = factoryRef;
                 Cooldown = cd;
                 ChannelingTime = castTime;
             }
 
-            public void Cast(IAbilityDataHub dataFactory, Action notifyFinishCast) 
-                            => isEqual = dataFactory == _factoryRef && _actionRef == notifyFinishCast;
-            public void OnChannelingStarted(IAbilityDataHub dataFactory) { }
-            public void OnChannelingCompleted(IAbilityDataHub dataFactory) { }
-            public void OnChannelingCanceled(IAbilityDataHub dataFactory) { }
+            public TestFactoryAbility(int cat, float cd, float castTime, ICasterInfo factoryRef)
+            {
+                _category = cat;
+                _factoryRef = factoryRef;
+                Cooldown = cd;
+                ChannelingTime = castTime;
+            }
 
-            public float CurrentCooldown {get; set;}
+            public CastObjects Cast(ICasterInfo dataFactory) 
+            {
+                isEqual = dataFactory == _factoryRef;
+                CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
+                AbilityObject abilityObject = Substitute.ForPartsOf<AbilityObject>();
+                if(removeOnUpdate)
+                    abilityObject.When(x => x.OnUpdate(Arg.Any<float>())).Do(x => {
+                        abilityObject.FinishCast();
+                        abilityObject.DiscardAbility();
+                    });
+                obj = abilityObject;
+                return new CastObjects(policy, abilityObject);
+            }
+
             public float Cooldown {get; set;}
             public float ChannelingTime {get;}
         }
         #endregion
 
+
+        #region Test Abilities Controller
+        public class TestAbilitiesController : AbilitiesController<IAbility<ICasterInfo>, ICasterInfo>
+        {
+            public bool casted = false;
+            public int Clicks => _castHandler.TimesCastCalled;
+            
+
+            public TestAbilitiesController(uint slotAmnt, ICasterInfo caster) : base(slotAmnt, caster)
+            {
+            }
+
+            protected override void UnleashAbility()
+            {
+                base.UnleashAbility();
+                casted = true;
+            }
+        }
+        #endregion
+ 
+
         #region Mock Tests
-        private IAbilityDataHub _mockFactory;
-        private AbilitiesController<IAbility<IAbilityDataHub>, IAbilityDataHub> _controller;
-        private IAbility<IAbilityDataHub> _mockAbility1;
-        private IAbility<IAbilityDataHub> _mockAbility2;
-        private IAbility<IAbilityDataHub> _mockAbility3;
-        private bool _casted;
+        private ICasterInfo _mockFactory;
+        private TestAbilitiesController _controller;
+        private IAbility<ICasterInfo> _mockAbility1;
+        private IAbility<ICasterInfo> _mockAbility2;
+        private IAbility<ICasterInfo> _mockAbility3;
         private float _cd = 5;
         private float _castTime = 1;
         
         [SetUp]
         public void Setup() 
         {
-            _casted = false;
-            _mockFactory = Substitute.For<IAbilityDataHub>();
-            _controller = new AbilitiesController<IAbility<IAbilityDataHub>, IAbilityDataHub>(3, _mockFactory);
+            _mockFactory = Substitute.For<ICasterInfo>();
+            _controller = new TestAbilitiesController(3, _mockFactory);
 
             PrepareMockAbility(_mockAbility1, 0);
             PrepareMockAbility(_mockAbility2, 1);
             PrepareMockAbility(_mockAbility3, 2);
         }
 
-        private void PrepareMockAbility(IAbility<IAbilityDataHub> ability, uint slot, bool reset = true)
+        private void PrepareMockAbility(IAbility<ICasterInfo> ability, uint slot, bool reset = true)
         {
-            ability = Substitute.For<IAbility<IAbilityDataHub>>();
-            ability.Cooldown.Returns(_cd);
-            ability.ChannelingTime.Returns(_castTime);
-            ability.When(x => x.Cast(_mockFactory, _controller.FinishAbilityCasting)).Do(x => {
-                _casted = true;
-                if(reset)
-                    _controller.FinishAbilityCasting();
-            });
-
+            ability = new TestFactoryAbility((int)slot, _cd, _castTime, _mockFactory);
             _controller.SetAbility(slot, ability);
         }
         #endregion
@@ -86,7 +117,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Receives_Correct_Data_Factory_For_Casting(uint slot)
         {
-            var testAbility = new TestFactoryAbility(_cd, 0, _mockFactory, _controller.FinishAbilityCasting);
+            var testAbility = new TestFactoryAbility(_cd, 0, _mockFactory);
             _controller.SetAbility(slot, testAbility);
             _controller.StartChanneling(slot);
 
@@ -99,7 +130,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Is_Set_In_Slot(uint slot)
         {
-            var mockAbility = Substitute.For<IAbility<IAbilityDataHub>>();
+            var mockAbility = Substitute.For<IAbility<ICasterInfo>>();
             _controller.SetAbility(slot, mockAbility);
 
             Assert.IsTrue(_controller.GetAbility(slot) == mockAbility);
@@ -113,7 +144,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(1);
-            Assert.IsTrue(_casted);
+            Assert.IsTrue(_controller.casted);
         }
 
         [Test]
@@ -124,8 +155,8 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
-            Assert.IsTrue(_controller.IsAbilityOnCd(slot));
-            Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == 5f);
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == 5f);
         }
 
         [Test]
@@ -135,9 +166,9 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Doesnt_Go_In_CD_Right_After_Start_Casting(uint slot)
         {
             _controller.StartChanneling(slot);
-            Assert.IsFalse(_controller.IsAbilityOnCd(slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
             _controller.Update(_castTime - 0.2f);
-            Assert.IsFalse(_controller.IsAbilityOnCd(slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
         }
 
         [Test]
@@ -147,9 +178,9 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_CurrentCD_Doesnt_Change_While_Casting(uint slot)
         {
             _controller.StartChanneling(slot);
-            Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == 0);
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == 0);
             _controller.Update(_castTime - 0.2f);
-            Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == 0);
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == 0);
         }
 
         [Test]
@@ -166,7 +197,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.Update(elapsed);
 
-            Assert.IsTrue(_controller.GetAbility(slot).CurrentCooldown == _cd - elapsed);
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == _cd - elapsed);
         }
 
         [Test]
@@ -206,9 +237,10 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Spell_With_No_Cast_Time_Are_Cast_Instantly(uint slot)
         {
-            _controller.GetAbility(slot).ChannelingTime.Returns(0);
+            TestFactoryAbility ab = new TestFactoryAbility(_cd, 0, _mockFactory);
+            _controller.SetAbility(slot, ab);
             _controller.StartChanneling(slot);
-            Assert.IsTrue(_casted);
+            Assert.IsTrue(_controller.casted);
         }
 
         [Test]
@@ -220,9 +252,10 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(1f);
             _controller.Update(1f);
+            _controller.FinishAbilityCasting();
             _controller.StartChanneling(slot);
 
-            Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.IsAbilityOnCd(slot));
+            Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.CooldownsHandler.IsAbilityOnCd(slot));
         }
 
         [Test]
@@ -235,7 +268,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime*0.5f);
             _controller.CancelChanneling();
 
-            Assert.IsFalse(_controller.IsAbilityOnCd(slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
             Assert.IsNull(_controller.GetCastingAbility());
         }
 
@@ -243,48 +276,88 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void On_Channeling_Start_Is_Called(uint slot)
+        public void AbilityObject_Correctly_Finishes_Casting(uint slot)
         {
-            bool evtCalled = false;
-            var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingStarted(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
-
-            _controller.StartChanneling(slot);
-
-            Assert.IsTrue(evtCalled);
-        }
-
-        [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
-        public void On_Channeling_Completed_Is_Called(uint slot)
-        {
-            bool evtCalled = false;
-            var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingCompleted(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
-
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.obj.FinishCast();
+            
+            Assert.IsTrue(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.AreEqual(_controller.CastingState, CastingState.None);
+        }
 
-            Assert.IsTrue(evtCalled);
+        [Test]
+        [TestCase(0u)]
+        [TestCase(0u)]
+        [TestCase(0u)]
+        public void Cant_Recast_Spell_While_Chaneling(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime*0.1f);
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime*0.1f);
+        
+            Assert.AreEqual(1, _controller.ActiveObjects.Count);
         }
 
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void On_Channeling_Canceled_Is_Called(uint slot)
+        public void AbilityObject_Correctly_Finishes_Casting_During_His_Update(uint slot)
         {
-            bool evtCalled = false;
-            var ability = _controller.GetAbility(slot);
-            ability.When(x => x.OnChannelingCanceled(Arg.Any<IAbilityDataHub>())).Do(x => evtCalled = true);
-
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.removeOnUpdate = true;
             _controller.StartChanneling(slot);
-            _controller.Update(_castTime*0.1f);
-            _controller.CancelChanneling();
+            _controller.Update(_castTime);
+            
+            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.AreEqual(_controller.CastingState, CastingState.None);
+        }
 
-            Assert.IsTrue(evtCalled);
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Controller_Keeps_On_Cast_State_If_Finish_Cast_Is_Not_Called(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            
+            Assert.AreEqual(_controller.CastingState, CastingState.Casting);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void AbilityObject_Correctly_Finishes_The_Effect(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.obj.FinishCast();
+            ability.obj.DiscardAbility();
+            
+            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.AreEqual(_controller.CastingState, CastingState.None);
+        }
+
+        [Test]
+        [TestCase(0u, 5)]
+        [TestCase(1u, 3)]
+        [TestCase(2u, 7)]
+        [TestCase(0u, 1)]
+        [TestCase(1u, 3)]
+        [TestCase(2u, 6)]
+        public void Cast_Policy_Correctly_Calls_On_Cast_Again_After_First_Cast(uint slot, int castTimes)
+        {
+            for(int i = 0; i < castTimes; i++)
+                _controller.StartChanneling(slot);
+            
+            Assert.AreEqual(castTimes, _controller.Clicks);
         }
 
         [Test]

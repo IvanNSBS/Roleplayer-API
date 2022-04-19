@@ -2,43 +2,8 @@ using System;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
-    /// <summary>
-    /// Interface for a game Ability and the Ability System 
-    /// for the INUlib
-    /// </summary>
-    public interface IAbility<TDataHub> where TDataHub : IAbilityDataHub
+    public interface IAbilityBase
     {
-        /// <summary>
-        /// Casts the ability, unleashing it's effect in the world
-        /// </summary>
-        void Cast(TDataHub dataHub, Action NotifyFinishCast);
-
-        /// <summary>
-        /// Function to be called when the Channeling proccess 
-        /// of the ability has started
-        /// </summary>
-        void OnChannelingStarted(TDataHub dataHub);
-
-        /// <summary>
-        /// Function to be called when the Channeling proccess 
-        /// of the ability has completed and the ability will
-        /// then be cast
-        /// </summary>
-        void OnChannelingCompleted(TDataHub dataHub);
-
-
-        /// <summary>
-        /// Function to be called when the Channeling proccess 
-        /// of the ability was canceled
-        /// </summary>
-        void OnChannelingCanceled(TDataHub dataHub);
-
-        /// <summary>
-        /// Getter for the current ability Cooldown
-        /// </summary>
-        /// <value>Returns the current ability cooldown</value>
-        float CurrentCooldown {get; set;}
-
         /// <summary>
         /// Getter for the ability max cooldown.
         /// </summary>
@@ -52,5 +17,35 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <value></value>
         float ChannelingTime {get;}
+
+        /// <summary>
+        /// Ability category ID. Primarily used for specific Cooldown Reductions
+        /// </summary>
+        /// <value></value>
+        int Category { get; }
     }
+
+    /// <summary>
+    /// Interface for a game Ability and the Ability System 
+    /// for the INUlib
+    /// </summary>
+    public interface IAbility<TCaster> : IAbilityBase where TCaster : ICasterInfo
+    {
+        /// <summary>
+        /// Casts the ability, unleashing it's effect in the world
+        /// </summary>
+        CastObjects Cast(TCaster caster);
+    }
+
+    public class CastObjects
+    {
+        public readonly CastHandlerPolicy policy;
+        public readonly IAbilityObject abilityObject;
+        
+        public CastObjects(CastHandlerPolicy policy, IAbilityObject abilityObject)
+        {
+            this.policy = policy;
+            this.abilityObject = abilityObject;
+        }
+    } 
 }
