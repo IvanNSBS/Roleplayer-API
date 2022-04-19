@@ -96,7 +96,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="deltaTime"></param>
         public void Update(float deltaTime, IAbilityBase spellCasted = null)
         {
-            for(int i = 0; i < _abilities.Length; i++)
+            for(uint i = 0; i < _abilities.Length; i++)
             {
                 IAbilityBase ability = _abilities[i];
                 if(ability == null || ability == spellCasted)
@@ -114,7 +114,9 @@ namespace INUlib.RPG.AbilitiesSystem
         public CooldownInfo GetCooldownInfo(IAbilityBase ability)
         {
             int index = Array.FindIndex(_abilities, 0, _abilities.Length, x => x == ability);
-            return GetCooldownInfo(index);
+            if(index < 0)
+                return null;
+            return GetCooldownInfo((uint)index);
         }
 
         /// <summary>
@@ -122,7 +124,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="slot">The ability slot</param>
         /// <returns>The ability cooldown at the given slot. Null if slot is invalid</returns>
-        public CooldownInfo GetCooldownInfo(int slot)
+        public CooldownInfo GetCooldownInfo(uint slot)
         {
             if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
                 return null;
@@ -143,7 +145,9 @@ namespace INUlib.RPG.AbilitiesSystem
         public bool ResetCooldown(IAbilityBase ability)
         {
             int index = Array.FindIndex(_abilities, 0, _abilities.Length, x => x == ability);
-            return ResetCooldown(index);
+            if(index < 0)
+                return false;
+            return ResetCooldown((uint)index);
         }
 
         /// <summary>
@@ -152,7 +156,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="slot">The ability to reset the cooldown</param>
         /// <returns>True if there was an ability in the given slot. False otherwise</returns>
-        public bool ResetCooldown(int slot)
+        public bool ResetCooldown(uint slot)
         {
             if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
                 return false;
@@ -168,7 +172,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="slot">Index of the ability</param>
         /// <param name="amount">how much to increase the cooldown</param>
         /// <returns>True if the ability was valid and the CD was changed. False otherwise<returns>
-        public bool IncreaseCooldown(int slot, float amount)
+        public bool IncreaseCooldown(uint slot, float amount)
         {
             if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
                 return false;
@@ -184,7 +188,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="slot">Index of the ability</param>
         /// <param name="amount">how much to decrease the cooldown</param>
         /// <returns>True if the ability was valid and the CD was changed. False otherwise<returns>
-        public bool DecreaseCooldown(int slot, float amount)
+        public bool DecreaseCooldown(uint slot, float amount)
         {
             if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
                 return false;
@@ -198,7 +202,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="slot">Slot for the ability</param>
         /// <returns>True if on cooldown. False if spell is on cooldown or slot is invalid</returns>
-        public bool IsAbilityOnCd(int slot)
+        public bool IsAbilityOnCd(uint slot)
         {
             if(slot < 0 || slot >= _cooldowns.Length)
                 return false;
@@ -261,7 +265,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Helper Methods
-        protected bool ClampAbilityCooldown(int slot, float newValue)
+        protected bool ClampAbilityCooldown(uint slot, float newValue)
         {
             if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
                 return false;
@@ -272,7 +276,7 @@ namespace INUlib.RPG.AbilitiesSystem
             return true;
         }
 
-        protected float GetAbilityCooldownWithCdr(int slot)
+        protected float GetAbilityCooldownWithCdr(uint slot)
         {
             float categoryCdr = GetCategoryCdr(_abilities[slot].Category);
             float maxCooldown;

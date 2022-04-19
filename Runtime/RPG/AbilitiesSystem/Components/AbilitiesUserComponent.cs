@@ -34,7 +34,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public virtual float GetElapsedChannelingTime() => _controller.ElapsedChannelingTime;
         public virtual void SetAbility(uint slot, TAbility ability) => _controller.SetAbility(slot, ability);
         public virtual TAbility GetAbility(uint slot) => _controller.GetAbility(slot);
-        public virtual bool IsAbilityOnCD(uint slot) => _controller.CooldownsHandler.IsAbilityOnCd((int)slot);
+        public virtual bool IsAbilityOnCD(uint slot) => _controller.CooldownsHandler.IsAbilityOnCd(slot);
         public virtual bool HasAbilityInSlot(uint slot) => _controller.HasAbilityInSlot(slot);
         #endregion
     }

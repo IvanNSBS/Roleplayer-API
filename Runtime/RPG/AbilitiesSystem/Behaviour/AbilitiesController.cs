@@ -78,7 +78,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if(!HasAbilityInSlot(slot))
                 return;
 
-            if(!_cdHandler.IsAbilityOnCd((int)slot) && _casting == null)
+            if(!_cdHandler.IsAbilityOnCd(slot) && _casting == null)
             {
                 _casting = _abilities[slot];
                 _castingState = CastingState.Channeling;

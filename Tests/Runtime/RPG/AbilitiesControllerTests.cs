@@ -16,22 +16,19 @@ namespace Tests.Runtime.RPG.Abilities
 
             private int _category = 0;
             private IAbilityCaster _factoryRef;
-            private Action _actionRef;
             public bool isEqual;
             public AbilityObject obj;
 
-            public TestFactoryAbility(float cd, float castTime, IAbilityCaster factoryRef, Action notifyFinish)
+            public TestFactoryAbility(float cd, float castTime, IAbilityCaster factoryRef)
             {
-                _actionRef = notifyFinish;
                 _factoryRef = factoryRef;
                 Cooldown = cd;
                 ChannelingTime = castTime;
             }
 
-            public TestFactoryAbility(int cat, float cd, float castTime, IAbilityCaster factoryRef, Action notifyFinish)
+            public TestFactoryAbility(int cat, float cd, float castTime, IAbilityCaster factoryRef)
             {
                 _category = cat;
-                _actionRef = notifyFinish;
                 _factoryRef = factoryRef;
                 Cooldown = cd;
                 ChannelingTime = castTime;
@@ -101,7 +98,7 @@ namespace Tests.Runtime.RPG.Abilities
 
         private void PrepareMockAbility(IAbility<IAbilityCaster> ability, uint slot, bool reset = true)
         {
-            ability = new TestFactoryAbility((int)slot, _cd, _castTime, _mockFactory, null);
+            ability = new TestFactoryAbility((int)slot, _cd, _castTime, _mockFactory);
             _controller.SetAbility(slot, ability);
         }
         #endregion
@@ -121,7 +118,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Receives_Correct_Data_Factory_For_Casting(uint slot)
         {
-            var testAbility = new TestFactoryAbility(_cd, 0, _mockFactory, _controller.FinishAbilityCasting);
+            var testAbility = new TestFactoryAbility(_cd, 0, _mockFactory);
             _controller.SetAbility(slot, testAbility);
             _controller.StartChanneling(slot);
 
@@ -159,8 +156,8 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd((int)slot));
-            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo((int)slot).currentCooldown == 5f);
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == 5f);
         }
 
         [Test]
@@ -170,9 +167,9 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Doesnt_Go_In_CD_Right_After_Start_Casting(uint slot)
         {
             _controller.StartChanneling(slot);
-            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd((int)slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
             _controller.Update(_castTime - 0.2f);
-            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd((int)slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
         }
 
         [Test]
@@ -182,9 +179,9 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_CurrentCD_Doesnt_Change_While_Casting(uint slot)
         {
             _controller.StartChanneling(slot);
-            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo((int)slot).currentCooldown == 0);
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == 0);
             _controller.Update(_castTime - 0.2f);
-            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo((int)slot).currentCooldown == 0);
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == 0);
         }
 
         [Test]
@@ -201,7 +198,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.Update(elapsed);
 
-            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo((int)slot).currentCooldown == _cd - elapsed);
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == _cd - elapsed);
         }
 
         [Test]
@@ -241,7 +238,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Spell_With_No_Cast_Time_Are_Cast_Instantly(uint slot)
         {
-            TestFactoryAbility ab = new TestFactoryAbility(_cd, 0, _mockFactory, null);
+            TestFactoryAbility ab = new TestFactoryAbility(_cd, 0, _mockFactory);
             _controller.SetAbility(slot, ab);
             _controller.StartChanneling(slot);
             Assert.IsTrue(_controller.casted);
@@ -259,7 +256,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.FinishAbilityCasting();
             _controller.StartChanneling(slot);
 
-            Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.CooldownsHandler.IsAbilityOnCd((int)slot));
+            Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.CooldownsHandler.IsAbilityOnCd(slot));
         }
 
         [Test]
@@ -272,7 +269,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime*0.5f);
             _controller.CancelChanneling();
 
-            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd((int)slot));
+            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
             Assert.IsNull(_controller.GetCastingAbility());
         }
 

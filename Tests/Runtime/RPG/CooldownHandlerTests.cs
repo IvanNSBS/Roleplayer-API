@@ -14,8 +14,8 @@ namespace Tests.Runtime.RPG.Abilities
         {
             public MockCooldownHandler(IAbility<IAbilityCaster>[] abilities) : base(abilities) { }
 
-            public bool ClampCooldown(int slot, float newValue) => this.ClampAbilityCooldown(slot, newValue);
-            public float GetCooldownWithCdr(int slot) => this.GetAbilityCooldownWithCdr(slot);
+            public bool ClampCooldown(uint slot, float newValue) => this.ClampAbilityCooldown(slot, newValue);
+            public float GetCooldownWithCdr(uint slot) => this.GetAbilityCooldownWithCdr(slot);
         }
 
         private int _slotCount = 5;
@@ -60,7 +60,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.MaxCdrValue = maxCdr;
             _handler.AddCategoryCdr(category, ccd);
 
-            float value = _handler.GetCooldownWithCdr(category);
+            float value = _handler.GetCooldownWithCdr((uint)category);
             float clampedCdr = 1 - Mathf.Clamp(gcd + ccd, 0, maxCdr);
             float expected = _abilityMaxCd * clampedCdr;
 
@@ -87,7 +87,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.MaxCdrValue = maxCdr;
             _handler.AddCategoryCdr(category, ccd);
 
-            float value = _handler.GetCooldownWithCdr(category);
+            float value = _handler.GetCooldownWithCdr((uint)category);
             float clampedCdr = 1 - Mathf.Clamp(testFunc(gcd, ccd), 0, maxCdr);
             float expected = _abilityMaxCd * clampedCdr;
 
@@ -95,22 +95,22 @@ namespace Tests.Runtime.RPG.Abilities
         }
         
         [Test]
-        [TestCase(0, 1.00f)]
-        [TestCase(0, 0.25f)]
-        [TestCase(0, 2.23f)]
-        [TestCase(0, 6.23f)]
-        [TestCase(0, 9.34f)]
-        [TestCase(2, 1.00f)]
-        [TestCase(2, 0.25f)]
-        [TestCase(2, 2.23f)]
-        [TestCase(2, 6.23f)]
-        [TestCase(2, 9.34f)]
-        [TestCase(4, 1.00f)]
-        [TestCase(4, 0.25f)]
-        [TestCase(4, 2.23f)]
-        [TestCase(4, 6.23f)]
-        [TestCase(4, 9.34f)]
-        public void CooldownHandler_Correctly_Increases_Cooldown(int slotIdx, float inc)
+        [TestCase(0u, 1.00f)]
+        [TestCase(0u, 0.25f)]
+        [TestCase(0u, 2.23f)]
+        [TestCase(0u, 6.23f)]
+        [TestCase(0u, 9.34f)]
+        [TestCase(2u, 1.00f)]
+        [TestCase(2u, 0.25f)]
+        [TestCase(2u, 2.23f)]
+        [TestCase(2u, 6.23f)]
+        [TestCase(2u, 9.34f)]
+        [TestCase(4u, 1.00f)]
+        [TestCase(4u, 0.25f)]
+        [TestCase(4u, 2.23f)]
+        [TestCase(4u, 6.23f)]
+        [TestCase(4u, 9.34f)]
+        public void CooldownHandler_Correctly_Increases_Cooldown(uint slotIdx, float inc)
         {
             _handler.IncreaseCooldown(slotIdx, inc);
             CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
@@ -120,22 +120,22 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
-        [TestCase(0, 1.00f)]
-        [TestCase(0, 0.25f)]
-        [TestCase(0, 2.23f)]
-        [TestCase(0, 6.23f)]
-        [TestCase(0, 9.34f)]
-        [TestCase(2, 1.00f)]
-        [TestCase(2, 0.25f)]
-        [TestCase(2, 2.23f)]
-        [TestCase(2, 6.23f)]
-        [TestCase(2, 9.34f)]
-        [TestCase(4, 1.00f)]
-        [TestCase(4, 0.25f)]
-        [TestCase(4, 2.23f)]
-        [TestCase(4, 6.23f)]
-        [TestCase(4, 9.34f)]
-        public void CooldownHandler_Correctly_Decreases_Cooldown(int slotIdx, float dec)
+        [TestCase(0u, 1.00f)]
+        [TestCase(0u, 0.25f)]
+        [TestCase(0u, 2.23f)]
+        [TestCase(0u, 6.23f)]
+        [TestCase(0u, 9.34f)]
+        [TestCase(2u, 1.00f)]
+        [TestCase(2u, 0.25f)]
+        [TestCase(2u, 2.23f)]
+        [TestCase(2u, 6.23f)]
+        [TestCase(2u, 9.34f)]
+        [TestCase(4u, 1.00f)]
+        [TestCase(4u, 0.25f)]
+        [TestCase(4u, 2.23f)]
+        [TestCase(4u, 6.23f)]
+        [TestCase(4u, 9.34f)]
+        public void CooldownHandler_Correctly_Decreases_Cooldown(uint slotIdx, float dec)
         {
             _handler.ResetCooldown(slotIdx);
             _handler.DecreaseCooldown(slotIdx, dec);
@@ -155,7 +155,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(7.75f)]
         public void CooldownHandler_Correctly_Updates_Cooldowns(float deltaTime)
         {
-            for(int i = 0; i < _slotCount; i++)
+            for(uint i = 0; i < _slotCount; i++)
                 _handler.ResetCooldown(i);
 
             _handler.Update(deltaTime);
@@ -163,7 +163,7 @@ namespace Tests.Runtime.RPG.Abilities
             float maxCd = _abilityMaxCd * (1 - _handler.GlobalCDR);
             float expected = Mathf.Clamp(maxCd - deltaTime, 0, _abilityMaxCd);
 
-            for(int i = 0; i < _slotCount; i++)
+            for(uint i = 0; i < _slotCount; i++)
             {
                 CooldownInfo info = _handler.GetCooldownInfo(i);
                 Assert.AreEqual(expected, info.currentCooldown);                
@@ -171,32 +171,32 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
-        [TestCase(0, 0.9f)]
-        [TestCase(0, 0.5f)]
-        [TestCase(0, 0.45f)]
-        [TestCase(0, 0.3f)]
-        [TestCase(0, 0.8f)]
-        [TestCase(1, 0.9f)]
-        [TestCase(1, 0.5f)]
-        [TestCase(1, 0.45f)]
-        [TestCase(1, 0.3f)]
-        [TestCase(1, 0.8f)]
-        [TestCase(2, 0.9f)]
-        [TestCase(2, 0.5f)]
-        [TestCase(2, 0.45f)]
-        [TestCase(2, 0.3f)]
-        [TestCase(2, 0.8f)]
-        [TestCase(3, 0.9f)]
-        [TestCase(3, 0.5f)]
-        [TestCase(3, 0.45f)]
-        [TestCase(3, 0.3f)]
-        [TestCase(3, 0.8f)]
-        [TestCase(4, 0.9f)]
-        [TestCase(4, 0.5f)]
-        [TestCase(4, 0.45f)]
-        [TestCase(4, 0.3f)]
-        [TestCase(4, 0.8f)]
-        public void CooldownHandler_Correctly_Resets_Ability_Cooldown(int slot, float cdr)
+        [TestCase(0u, 0.9f)]
+        [TestCase(0u, 0.5f)]
+        [TestCase(0u, 0.45f)]
+        [TestCase(0u, 0.3f)]
+        [TestCase(0u, 0.8f)]
+        [TestCase(1u, 0.9f)]
+        [TestCase(1u, 0.5f)]
+        [TestCase(1u, 0.45f)]
+        [TestCase(1u, 0.3f)]
+        [TestCase(1u, 0.8f)]
+        [TestCase(2u, 0.9f)]
+        [TestCase(2u, 0.5f)]
+        [TestCase(2u, 0.45f)]
+        [TestCase(2u, 0.3f)]
+        [TestCase(2u, 0.8f)]
+        [TestCase(3u, 0.9f)]
+        [TestCase(3u, 0.5f)]
+        [TestCase(3u, 0.45f)]
+        [TestCase(3u, 0.3f)]
+        [TestCase(3u, 0.8f)]
+        [TestCase(4u, 0.9f)]
+        [TestCase(4u, 0.5f)]
+        [TestCase(4u, 0.45f)]
+        [TestCase(4u, 0.3f)]
+        [TestCase(4u, 0.8f)]
+        public void CooldownHandler_Correctly_Resets_Ability_Cooldown(uint slot, float cdr)
         {
             _handler.GlobalCDR = cdr;
             _handler.ResetCooldown(slot);
@@ -221,7 +221,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Wont_Do_Anything_When_Reseting_Invalid_Spell()
         {
             IAbility<IAbilityCaster> ab = Substitute.For<IAbility<IAbilityCaster>>();
-            bool result = _handler.ResetCooldown(-1);
+            bool result = _handler.ResetCooldown(null);
             bool result2 = _handler.ResetCooldown(ab);
 
             Assert.IsFalse(result);
@@ -266,7 +266,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Returns_Null_For_Invalid_Spell_Info()
         {
             IAbility<IAbilityCaster> ab = Substitute.For<IAbility<IAbilityCaster>>();
-            CooldownInfo info1 = _handler.GetCooldownInfo(-1);
+            CooldownInfo info1 = _handler.GetCooldownInfo(null);
             CooldownInfo info2 = _handler.GetCooldownInfo(ab);
 
             Assert.IsNull(info1);
@@ -274,27 +274,27 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
-        [TestCase(0, 0.00f)]
-        [TestCase(0, 1.20f)]
-        [TestCase(0, 7.50f)]
-        [TestCase(0, 3.00f)]
-        [TestCase(1, 0.00f)]
-        [TestCase(1, 1.20f)]
-        [TestCase(1, 7.50f)]
-        [TestCase(1, 3.00f)]
-        [TestCase(2, 0.00f)]
-        [TestCase(2, 1.20f)]
-        [TestCase(2, 7.50f)]
-        [TestCase(2, 3.00f)]
-        [TestCase(3, 0.00f)]
-        [TestCase(3, 1.20f)]
-        [TestCase(3, 7.50f)]
-        [TestCase(3, 3.00f)]
-        [TestCase(4, 0.00f)]
-        [TestCase(4, 1.20f)]
-        [TestCase(4, 7.50f)]
-        [TestCase(4, 3.00f)]
-        public void CooldownHandler_Properly_Returns_If_Ability_Is_On_Cooldown(int slot, float currentCd)
+        [TestCase(0u, 0.00f)]
+        [TestCase(0u, 1.20f)]
+        [TestCase(0u, 7.50f)]
+        [TestCase(0u, 3.00f)]
+        [TestCase(1u, 0.00f)]
+        [TestCase(1u, 1.20f)]
+        [TestCase(1u, 7.50f)]
+        [TestCase(1u, 3.00f)]
+        [TestCase(2u, 0.00f)]
+        [TestCase(2u, 1.20f)]
+        [TestCase(2u, 7.50f)]
+        [TestCase(2u, 3.00f)]
+        [TestCase(3u, 0.00f)]
+        [TestCase(3u, 1.20f)]
+        [TestCase(3u, 7.50f)]
+        [TestCase(3u, 3.00f)]
+        [TestCase(4u, 0.00f)]
+        [TestCase(4u, 1.20f)]
+        [TestCase(4u, 7.50f)]
+        [TestCase(4u, 3.00f)]
+        public void CooldownHandler_Properly_Returns_If_Ability_Is_On_Cooldown(uint slot, float currentCd)
         {
             _handler.IncreaseCooldown(slot, currentCd);
             bool expected = currentCd > 0;
