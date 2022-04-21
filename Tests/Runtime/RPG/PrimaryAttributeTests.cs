@@ -2,13 +2,15 @@ using System;
 using INUlib.RPG.RPGAttributes;
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Tests.Runtime.RPG.Attributes
 {
     public class PrimaryAttributeTests
     {
         #region Setup
-        private float _dfValue = 1;
+        private float _dfValue = 10;
+        private float _minValue = 1;
         private float _maxValue = 100;
         private bool _changed;
         private PrimaryAttribute _mockAttr;
@@ -17,7 +19,7 @@ namespace Tests.Runtime.RPG.Attributes
         public void Setup()
         {
             _changed = false;
-            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue, _maxValue);
+            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue, _minValue, _maxValue);
             _mockAttr.onAttributeChanged += () => _changed = true;
             _mockAttr.When(x => x.CalculateMods()).Do(x => {
                 float total = 0;
@@ -70,7 +72,7 @@ namespace Tests.Runtime.RPG.Attributes
             _mockAttr.Increase(10);
             _mockAttr.Decrease(100f);
 
-            Assert.AreEqual(_dfValue, _mockAttr.CurrentValue);
+            Assert.AreEqual(_minValue, _mockAttr.CurrentValue);
         }
 
         [Test]
@@ -83,7 +85,7 @@ namespace Tests.Runtime.RPG.Attributes
         [Test]
         public void PrimaryAttribute_Wont_Clamp_When_Increasing_Without_Max_Val()
         {
-            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue);
+            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue, _minValue);
             _mockAttr.Increase(300f);
             Assert.AreEqual(300f + _dfValue, _mockAttr.CurrentValue);
         }
@@ -95,7 +97,7 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(9.8786f, 9)]
         public void PrimaryAttribute_Correctly_Increases_With_Float_When_Type_Is_Integer(float inc, int expected)
         {
-            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Integer, _dfValue);
+            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Integer, _dfValue, _minValue);
             _mockAttr.Increase(inc);
 
             Assert.AreEqual((float)expected + _dfValue, _mockAttr.CurrentValue);
@@ -106,11 +108,10 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(24, 17.321f, 7)]
         [TestCase(99, 5f, 94)]
         [TestCase(10, 9.8786f, 1)]
+        [TestCase(10, 20.3f, 1)]
         public void PrimaryAttribute_Correctly_Decreases_With_Float_When_Type_Is_Integer(int startingVal, float dec, int expected)
         {
-            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Integer, _dfValue);
-            _mockAttr.Increase(startingVal - _dfValue);
-            
+            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Integer, startingVal, _minValue);
             _mockAttr.Decrease(dec);
             Assert.AreEqual((float)expected, _mockAttr.CurrentValue);
         }
@@ -122,7 +123,7 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(9.8786f)]
         public void PrimaryAttribute_Correctly_Increases_With_Float_When_Type_Is_Float(float inc)
         {
-            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue);
+            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue, _minValue);
             _mockAttr.Increase(inc);
 
             Assert.AreEqual(inc + _dfValue, _mockAttr.CurrentValue);
@@ -133,12 +134,12 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(24f, 17.3f, 6.7f)]
         [TestCase(99f, 5f, 94f)]
         [TestCase(11f, 9.43f, 1.57f)]
+        [TestCase(11f, 12f, 1f)]
         public void PrimaryAttribute_Correctly_Decreases_With_Float_When_Type_Is_Float(float startingVal, float dec, float expected)
         {
-            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue);
-            _mockAttr.Increase(startingVal - _dfValue);
-            
+            _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, startingVal, _minValue);
             _mockAttr.Decrease(dec);
+
             // Need to check range instead of value since there's floating point imprecision
             Assert.IsTrue(InRange(_mockAttr.CurrentValue, expected));
         }
@@ -146,7 +147,7 @@ namespace Tests.Runtime.RPG.Attributes
         [Test]
         public void PrimaryIntAttribute_Correctly_Calculates_Mods()
         {
-            PrimaryIntAttribute attr = new PrimaryIntAttribute(5);
+            PrimaryIntAttribute attr = new PrimaryIntAttribute(5, 1);
             attr.AddFlatModifier(10.5f);
             attr.AddFlatModifier(12.5f);
             attr.AddPercentModifier(2);
@@ -157,7 +158,7 @@ namespace Tests.Runtime.RPG.Attributes
         [Test]
         public void PrimaryFloatAttribute_Correctly_Calculates_Mods()
         {
-            PrimaryFloatAttribute attr = new PrimaryFloatAttribute(5f);
+            PrimaryFloatAttribute attr = new PrimaryFloatAttribute(5f, 1f);
             attr.AddFlatModifier(10.5f);
             attr.AddFlatModifier(12.2f);
             attr.AddPercentModifier(2.5f);

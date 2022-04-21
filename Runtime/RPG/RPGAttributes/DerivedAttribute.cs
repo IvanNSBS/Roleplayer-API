@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace INUlib.RPG.RPGAttributes
 {
@@ -36,7 +37,7 @@ namespace INUlib.RPG.RPGAttributes
         /// </summary>
         /// <param name="t">The attribute type</param>
         /// <param name="dfVal">The attribute defaultValue</param>
-        public DerivedAttribute(AttributeType t, float dfVal) : base(t, dfVal) { }
+        public DerivedAttribute(AttributeType t, float dfVal, float minVal) : base(t, dfVal, minVal) { } 
         
         /// <summary>
         /// Constructor that sets the DerivedAttribute Type, default and max value
@@ -44,7 +45,7 @@ namespace INUlib.RPG.RPGAttributes
         /// <param name="t">The attribute type</param>
         /// <param name="dfVal">The attribute defaultValue</param>
         /// <param name="maxVal">The attribute maxVal</param>
-        public DerivedAttribute(AttributeType t, float dfVal, float maxVal) : base(t, dfVal, maxVal) { }
+        public DerivedAttribute(AttributeType t, float dfVal, float minVal, float maxVal) : base(t, dfVal, minVal, maxVal) { }
         #endregion
 
 
@@ -53,12 +54,19 @@ namespace INUlib.RPG.RPGAttributes
         /// Method that defines how the currentValue will be updated, given the list of parents
         /// </summary>
         /// <returns>The updated attribute currentValue</returns>
-        public abstract float UpdateAttribute();
+        protected abstract float UpdateAttribute();
 
         /// <summary>
         /// Applies the UpdateAttribute to the _currentValue field
         /// </summary>
-        protected virtual void ApplyUpdate() => _currentValue = UpdateAttribute();
+        protected virtual void ApplyUpdate() 
+        {
+            float updated = UpdateAttribute();
+            if(maxValue > 0)
+                _currentValue = Mathf.Clamp(updated, minValue, maxValue);
+            else 
+                _currentValue = updated < minValue ? minValue : updated;
+        }
         #endregion
 
 
@@ -69,7 +77,7 @@ namespace INUlib.RPG.RPGAttributes
         /// </summary>
         /// <param name="parent">The required parent to link</param>
         /// <param name="others">Params to link N other parents</param>
-        protected void LinkParents(IAttribute parent, params IAttribute[] others)
+        public virtual void LinkParents(IAttribute parent, params IAttribute[] others)
         {
             UnlinkParents();
             _parents = new IAttribute[others.Length + 1];

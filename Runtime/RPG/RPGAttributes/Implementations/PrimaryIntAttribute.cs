@@ -4,7 +4,7 @@ namespace INUlib.RPG.RPGAttributes
     /// PrimaryAttribute that is created with Integer type
     /// and calculates the mods using their sum of integer value
     /// </summary>
-    public class PrimaryIntAttribute : RPGAttribute
+    public class PrimaryIntAttribute : PrimaryAttribute
     {
         #region Constructors
         /// <summary>
@@ -16,14 +16,14 @@ namespace INUlib.RPG.RPGAttributes
         /// Creates the Attribute with a given default value
         /// </summary>
         /// <param name="dfVal">The default attribute value</param>
-        public PrimaryIntAttribute(float dfVal) : base(AttributeType.Integer, dfVal) { }
+        public PrimaryIntAttribute(int dfVal, int minVal) : base(AttributeType.Integer, dfVal, minVal) { }
 
         /// <summary>
         /// Creates the attribute with a given default and max value
         /// </summary>
         /// <param name="dfVal">The default attribute value</param>
         /// <param name="maxVal">The default attribute max value</param>
-        public PrimaryIntAttribute(float dfVal, float maxVal) : base(AttributeType.Integer, dfVal, maxVal) { }
+        public PrimaryIntAttribute(int dfVal, int minVal, int maxVal) : base(AttributeType.Integer, dfVal, minVal, maxVal) { }
         #endregion
 
 

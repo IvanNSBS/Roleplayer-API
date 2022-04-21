@@ -10,6 +10,7 @@ namespace Tests.Runtime.RPG.Attributes
     {
         #region Setup
         private float _dfValue = 10f;
+        private float _minValue = 1f;
         private float _maxValue = 100f;
         private bool _changed = false;
         private RPGAttribute _mockAttr;
@@ -20,7 +21,7 @@ namespace Tests.Runtime.RPG.Attributes
         public void SetupMockAttribute()
         {
             _changed = false;
-            _mockAttr = Substitute.ForPartsOf<RPGAttribute>(AttributeType.Float, _dfValue, _maxValue);
+            _mockAttr = Substitute.ForPartsOf<RPGAttribute>(AttributeType.Float, _dfValue, _minValue, _maxValue);
 
             _mockAttr.onAttributeChanged += () => _changed = true;
 
@@ -45,8 +46,9 @@ namespace Tests.Runtime.RPG.Attributes
         {
             RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(type);
             
-            Assert.AreEqual(0, attr.defaultValue);
             Assert.AreEqual(-1, attr.maxValue);
+            Assert.AreEqual(0, attr.minValue);
+            Assert.AreEqual(0, attr.defaultValue);
             Assert.AreEqual(0, attr.ValueAsFloat());
 
             Assert.NotNull(attr.FlatMods);
@@ -54,27 +56,31 @@ namespace Tests.Runtime.RPG.Attributes
         }
 
         [Test]
-        [TestCase(AttributeType.Integer, 2.5f)]
-        [TestCase(AttributeType.Integer, 2f)]
-        [TestCase(AttributeType.Integer, 9.434f)]
-        [TestCase(AttributeType.Float, 2.5f)]
-        [TestCase(AttributeType.Float, 32.32f)]
-        [TestCase(AttributeType.Float, 54.98f)]
+        [TestCase(AttributeType.Integer, 2.5f   , 0.0f)]
+        [TestCase(AttributeType.Integer, 2f     , 2.4f)]
+        [TestCase(AttributeType.Integer, 9.434f , 2.0f)]
+        [TestCase(AttributeType.Float, 2.5f     , 9.0f)]
+        [TestCase(AttributeType.Float, 32.32f   , 3.0f)]
+        [TestCase(AttributeType.Float, 54.98f   , 20.0f)]
         public void RPG_Attribute_Default_Value_Constructor_Correctly_Initializes_Attribute(
-            AttributeType type, float dfVal
+            AttributeType type, float dfVal, float minVal
         )
         {
-            RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(type, dfVal);
+            RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(type, dfVal, minVal);
             
             if(type == AttributeType.Integer)
             {
-                Assert.AreEqual((int)dfVal, attr.defaultValue);
-                Assert.AreEqual((int)dfVal, attr.ValueAsFloat());
+                int expected = (int)dfVal < (int)minVal ? (int)minVal : (int)dfVal; 
+                Assert.AreEqual((int)minVal, attr.minValue);
+                Assert.AreEqual(expected, attr.defaultValue);
+                Assert.AreEqual(expected, attr.ValueAsFloat());
             }
             else
             {
-                Assert.AreEqual(dfVal, attr.defaultValue);
-                Assert.AreEqual(dfVal, attr.ValueAsFloat());
+                float expected = dfVal < minVal ? minVal : dfVal; 
+                Assert.AreEqual(minVal, attr.minValue);
+                Assert.AreEqual(expected, attr.defaultValue);
+                Assert.AreEqual(expected, attr.ValueAsFloat());
             }
             
             Assert.AreEqual(-1, attr.maxValue);
@@ -84,28 +90,32 @@ namespace Tests.Runtime.RPG.Attributes
         }
 
         [Test]
-        [TestCase(AttributeType.Integer, 2.5f, 5f)]
-        [TestCase(AttributeType.Integer, 2f, 4.322f)]
-        [TestCase(AttributeType.Integer, 9.434f, 123.3213f)]
-        [TestCase(AttributeType.Float, 2.5f, 998.32f)]
-        [TestCase(AttributeType.Float, 32.32f, 212f)]
-        [TestCase(AttributeType.Float, 54.98f, 100.55f)]
+        [TestCase(AttributeType.Integer, 2.5f,  0f, 5f)]
+        [TestCase(AttributeType.Integer, 2f,    3f, 4.322f)]
+        [TestCase(AttributeType.Integer, 9.434f,1f, 123.3213f)]
+        [TestCase(AttributeType.Float, 2.5f,    1f, 998.32f)]
+        [TestCase(AttributeType.Float, 32.32f,  1f, 212f)]
+        [TestCase(AttributeType.Float, 54.98f,  1f, 100.55f)]
         public void RPG_Attribute_Full_Constructor_Correctly_Initializes_Attribute(
-            AttributeType type, float dfVal, float maxVal
+            AttributeType type, float dfVal, float minVal, float maxVal
         )
         {
-            RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(type, dfVal, maxVal);
+            RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(type, dfVal, minVal, maxVal);
             
             if(type == AttributeType.Integer)
             {
-                Assert.AreEqual((int)dfVal, attr.defaultValue);
-                Assert.AreEqual((int)dfVal, attr.ValueAsFloat());
+                int expected = (int)dfVal < (int)minVal ? (int)minVal : (int)dfVal; 
+                Assert.AreEqual(expected, attr.defaultValue);
+                Assert.AreEqual(expected, attr.ValueAsFloat());
+                Assert.AreEqual((int)minVal, attr.minValue);
                 Assert.AreEqual((int)maxVal, attr.maxValue);
             }
             else
             {
-                Assert.AreEqual(dfVal, attr.defaultValue);
-                Assert.AreEqual(dfVal, attr.ValueAsFloat());
+                float expected = dfVal < minVal ? minVal : dfVal; 
+                Assert.AreEqual(expected, attr.defaultValue);
+                Assert.AreEqual(expected, attr.ValueAsFloat());
+                Assert.AreEqual(minVal, attr.minValue);
                 Assert.AreEqual(maxVal, attr.maxValue);
             }
 
@@ -136,7 +146,7 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(3, 1.3f, 3)]
         public void Integer_Attribute_Correctly_Adds_Percent_Mod(int dfValue, float pctMod, int expected)
         {
-            RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(AttributeType.Integer, dfValue);
+            RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(AttributeType.Integer, dfValue, _minValue);
             IAttributeMod mod = attr.AddPercentModifier(pctMod);
 
             Assert.AreEqual(expected, mod.ValueAsInt());
@@ -166,7 +176,7 @@ namespace Tests.Runtime.RPG.Attributes
         [TestCase(3, 1.3f)]
         public void Float_Attribute_Correctly_Adds_Percent_Mod(float dfValue, float pctMod)
         {
-            RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(AttributeType.Float, dfValue);
+            RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(AttributeType.Float, dfValue, _minValue);
             IAttributeMod mod = attr.AddPercentModifier(pctMod);
             
             float expected = dfValue * pctMod;

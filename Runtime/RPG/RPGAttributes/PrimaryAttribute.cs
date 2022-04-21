@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace INUlib.RPG.RPGAttributes
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace INUlib.RPG.RPGAttributes
         /// </summary>
         /// <param name="t"The Attribute Math Type></param>
         /// <param name="dfVal">the Attribute default value</param>
-        public PrimaryAttribute(AttributeType t, float dfVal) : base(t, dfVal) { }
+        public PrimaryAttribute(AttributeType t, float dfVal, float minVal) : base(t, dfVal, minVal) { }
 
         /// <summary>
         /// Creates the primary attribute, with a type, default and max value
@@ -28,7 +30,7 @@ namespace INUlib.RPG.RPGAttributes
         /// <param name="t">The attribute Math Type</param>
         /// <param name="dfVal">The Attribute default value</param>
         /// <param name="maxVal">The attribute max value</param>
-        public PrimaryAttribute(AttributeType t, float dfVal, float maxVal) : base(t, dfVal, maxVal) { }
+        public PrimaryAttribute(AttributeType t, float dfVal, float minVal, float maxVal) : base(t, dfVal, minVal, maxVal) { }
         #endregion
 
 
@@ -109,8 +111,8 @@ namespace INUlib.RPG.RPGAttributes
         /// </summary>
         protected void ClampCurrentValue()
         {
-            if(_currentValue < defaultValue)
-                _currentValue = defaultValue;
+            if(_currentValue < minValue)
+                _currentValue = minValue;
             if(maxValue != -1 && _currentValue > maxValue)
                 _currentValue = maxValue;
         }

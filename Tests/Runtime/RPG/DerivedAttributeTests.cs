@@ -15,7 +15,7 @@ namespace Tests.Runtime.RPG.Attributes
 
             public override float CalculateMods() => 0f;
 
-            public override float UpdateAttribute()
+            protected override float UpdateAttribute()
             {
                 float currentValue = 0;
                 if(Parents == null)

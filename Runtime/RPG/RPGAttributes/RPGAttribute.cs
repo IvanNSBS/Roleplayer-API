@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace INUlib.RPG.RPGAttributes
 {
@@ -25,11 +26,17 @@ namespace INUlib.RPG.RPGAttributes
     public abstract class RPGAttribute : IAttribute
     {
         #region Fields
+
         /// <summary>
-        /// The default and initial Attribute Value
+        /// The default/initial Attribute Value
         /// </summary>
         public readonly float defaultValue;
 
+        /// <summary>
+        /// The minimum value an attribute can reach. Mandatory value
+        /// </summary>
+        public readonly float minValue;
+        
         /// <summary>
         /// The max value an attribute can reach. -1 means that there's no max value
         /// Note: RPGAttribute does not use it, but it's left here for the inherotors usage
@@ -99,9 +106,11 @@ namespace INUlib.RPG.RPGAttributes
         /// <param name="t">AttributeType math type. Integer or Float</param>
         public RPGAttribute(AttributeType t)
         {
-            _type = t;
-            defaultValue = 0;
+            minValue = 0;
             maxValue = -1;
+            defaultValue = 0;
+
+            _type = t;
             _currentValue = 0;
 
             _flatMods = new List<IAttributeMod>();
@@ -114,18 +123,27 @@ namespace INUlib.RPG.RPGAttributes
         /// </summary>
         /// <param name="t">AttributeType math type. Integer or Float</param>
         /// <param name="dfVal">The attribute default value</param>
-        public RPGAttribute(AttributeType t, float dfVal)
+        /// <param name="minVal">The attribute minimum value</param>
+        public RPGAttribute(AttributeType t, float dfVal, float minVal)
         {
             _type = t;
             if(t == AttributeType.Integer)
             {
+                minValue = (int)minVal;
                 defaultValue = (int)dfVal;
-                _currentValue = (int)dfVal;
+                if(defaultValue < minValue)
+                    defaultValue = minValue;
+
+                _currentValue = defaultValue;
             }
             else
             {
+                minValue = minVal;
                 defaultValue = dfVal;
-                _currentValue = dfVal;
+                if(defaultValue < minVal)
+                    defaultValue = minVal;
+                    
+                _currentValue = defaultValue;
             }
 
             maxValue = -1;
@@ -138,21 +156,24 @@ namespace INUlib.RPG.RPGAttributes
         /// </summary>
         /// <param name="t">AttributeType math type. Integer or Float</param>
         /// <param name="dfVal">The attribute default value</param>
+        /// <param name="minVal">The attribute minimum value</param>
         /// <param name="maxVal">The attribute max possible value</param>
-        public RPGAttribute(AttributeType t, float dfVal, float maxVal)
+        public RPGAttribute(AttributeType t, float dfVal, float minVal, float maxVal)
         {
             _type = t;
             if(t == AttributeType.Integer)
             {
-                defaultValue = (int)dfVal;
+                defaultValue = Mathf.Clamp((int)dfVal, (int)minVal, (int)maxVal);
+                minValue = (int)minVal;
                 maxValue = (int)maxVal;
-                _currentValue = (int)dfVal;
+                _currentValue = defaultValue;
             }
             else
             {
-                defaultValue = dfVal;
+                defaultValue = Mathf.Clamp(dfVal, minVal, maxVal);
+                minValue = minVal;
                 maxValue = maxVal;
-                _currentValue = dfVal;
+                _currentValue = defaultValue;
             }
             
             _flatMods = new List<IAttributeMod>();
