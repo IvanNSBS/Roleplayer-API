@@ -46,9 +46,6 @@ namespace INUlib.RPG.RPGAttributes
             foreach(var flatMod in _flatMods)
                 total += flatMod.ValueAsInt();
         
-            if(total < 0)
-                total = 0;
-
             return total;
         }
         #endregion
