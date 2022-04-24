@@ -12,6 +12,7 @@ namespace INUlib.BackendToolkit
 
 
         public static void InitSingleton() => _instance = new T();
+        public static void InitSingleton(T instance) => _instance = instance;
         public static void DestroySingleton() => _instance = null;
     }
 }
