@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace INUlib.BackendToolkit
 {
@@ -20,6 +21,18 @@ namespace INUlib.BackendToolkit
         
         #region Methods
         public bool HasService<T>() => m_services.ContainsKey(typeof(T).Name);
+
+        public object GetService(Type t)
+        {
+            string key = t.Name;
+            if (!m_services.ContainsKey(key))
+            {
+                Debug.LogError($"{key} not registered with {GetType().Name}");
+                return null;
+            }
+
+            return m_services[key];
+        }
 
         public T GetService<T>() where T : class
         {
