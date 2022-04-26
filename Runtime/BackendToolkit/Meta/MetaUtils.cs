@@ -169,7 +169,8 @@ namespace INUlib.BackendToolkit.Meta
 
                 foreach(FieldInfo prop in props)
                 {
-                    bool propertyIsSet = prop.GetValue(component) != null;
+                    object value = prop.GetValue(component);
+                    bool propertyIsSet = !value.Equals(null);
                     allValid &= propertyIsSet;
 
                     if(!propertyIsSet)
