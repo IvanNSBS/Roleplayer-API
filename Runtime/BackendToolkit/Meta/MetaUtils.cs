@@ -109,6 +109,29 @@ namespace INUlib.BackendToolkit.Meta
         }
 
         /// <summary>
+        /// Checks if every entry in a list passes a condition check.
+        /// Used to see if a data present in a meta file has been properly loaded or setup
+        /// </summary>
+        /// <param name="data">List to check validity</param>
+        /// <param name="checkValid">Function that will perform the check</param>
+        /// <param name="errorMsg">Optional Function to print an error when an entry is invalid</param>
+        /// <typeparam name="T1">Type of the data</typeparam>
+        /// <returns>True if all entries pass the test, false otherwise</returns>
+        public static bool AreAllMetaValuesValid(IReadOnlyList<string> data, Func<string, bool> checkValid, 
+            Func<string, string> errorMsg = null)
+        {
+            bool allValid = true;
+            foreach (var value in data)
+            {
+                bool valid = checkValid(value);
+                allValid &= valid;
+                if(!valid && errorMsg != null) Debug.Log(errorMsg(value));
+            }
+
+            return allValid;
+        }
+
+        /// <summary>
         /// Checks if a prefab has components of all the given types in his object tree
         /// </summary>
         /// <param name="prefab">The prefab to check</param>
