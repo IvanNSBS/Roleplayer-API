@@ -193,9 +193,14 @@ namespace INUlib.BackendToolkit.Meta
                 foreach(FieldInfo prop in props)
                 {
                     object value = prop.GetValue(component);
-                    bool propertyIsSet = !value.Equals(null);
-                    allValid &= propertyIsSet;
+                    bool propertyIsSet;
 
+                    if(component is MonoBehaviour)
+                        propertyIsSet = value != null;
+                    else
+                        propertyIsSet = !value.Equals(null);
+
+                    allValid &= propertyIsSet;
                     if(!propertyIsSet)
                         unsetVariables.Add(prop.Name);
                 }
