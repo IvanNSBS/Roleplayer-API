@@ -90,7 +90,8 @@ namespace INUlib.RPG.StatusEffectSystem
         /// Also Creates and/or updates the EffectApplyStats for the StatusEffect
         /// </summary>
         /// <param name="effect">The effect to be added</param>
-        public void ApplyEffect(T effect)
+        /// <returns>True if effect was reapplied. False otherwise</returns>
+        public bool ApplyEffect(T effect)
         {
             IStatusEffect sameEffect = null;
 
@@ -104,7 +105,7 @@ namespace INUlib.RPG.StatusEffectSystem
             }
 
             AddOrUpdateEffectStats(effect);
-
+            bool reapplied = sameEffect != null;
             if(sameEffect != null) {
                 sameEffect.Reapply(effect, GetEffectApplyStats(effect));
             }
@@ -114,6 +115,7 @@ namespace INUlib.RPG.StatusEffectSystem
                 effect.Apply(GetEffectApplyStats(effect));
             }
 
+            return reapplied;
         }
 
         /// <summary>

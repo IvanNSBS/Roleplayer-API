@@ -47,7 +47,8 @@ namespace INUlib.RPG.StatusEffectSystem
         /// Calls the ApplyEffect from the StatusEffectManager that the receiver contains
         /// </summary>
         /// <param name="e">The StatusEffect to be applied</param>
-        public virtual void ApplyEffect(TEffect e) => _manager.ApplyEffect(e);
+        /// <returns>True if effect was reapplied. False otherwise</returns>
+        public virtual bool ApplyEffect(TEffect e) => _manager.ApplyEffect(e);
 
         /// <summary>
         /// Calls the DispelEffect from the StatusEffectManager that the receiver contains
@@ -56,7 +57,7 @@ namespace INUlib.RPG.StatusEffectSystem
         public virtual bool DispelEffect(TEffect e) => _manager.DispelEffect(e);
 
         public void AddOnStatusEffectFinished(Action<TEffect> func) => _manager.onStatusEffectFinished += func;
-        public void RemoveOnStatusEffectFinished(Action<TEffect> func) => _manager.onStatusEffectFinished -= func;
+        public void RemoveOnStatusEffectFinished(Action<TEffect> func) => _manager.onStatusEffectFinished += func;
         #endregion
     }
 }
