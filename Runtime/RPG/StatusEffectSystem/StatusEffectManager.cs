@@ -23,6 +23,10 @@ namespace INUlib.RPG.StatusEffectSystem
         private Dictionary<Type, EffectApplyStats> _addedEffectsStats;
         #endregion
 
+        #region Events
+        public event Action<T> onStatusEffectFinished;
+        #endregion
+
 
         #region Properties
         /// <summary>
@@ -138,7 +142,7 @@ namespace INUlib.RPG.StatusEffectSystem
         {
             for(int i = _activeEffects.Count - 1; i >= 0; i--)
             {
-                IStatusEffect effect = _activeEffects[i];
+                T effect = _activeEffects[i];
                 bool completed = effect.Update(deltaTime);
 
                 if(completed) 
@@ -146,6 +150,7 @@ namespace INUlib.RPG.StatusEffectSystem
                     effect.OnComplete();
                     _activeEffects.RemoveAt(i);
                     _activeEffectsDict.Remove(effect.GetType());
+                    onStatusEffectFinished?.Invoke(effect);
                 }
             }
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace INUlib.RPG.StatusEffectSystem
 {
@@ -46,13 +47,16 @@ namespace INUlib.RPG.StatusEffectSystem
         /// Calls the ApplyEffect from the StatusEffectManager that the receiver contains
         /// </summary>
         /// <param name="e">The StatusEffect to be applied</param>
-        public void ApplyEffect(TEffect e) => _manager.ApplyEffect(e);
+        public virtual void ApplyEffect(TEffect e) => _manager.ApplyEffect(e);
 
         /// <summary>
         /// Calls the DispelEffect from the StatusEffectManager that the receiver contains
         /// </summary>
         /// <param name="e">The StatusEffect to be dispeled</param>
-        public bool DispelEffect(TEffect e) => _manager.DispelEffect(e);
+        public virtual bool DispelEffect(TEffect e) => _manager.DispelEffect(e);
+
+        public void AddOnStatusEffectFinished(Action<TEffect> func) => _manager.onStatusEffectFinished += func;
+        public void RemoveOnStatusEffectFinished(Action<TEffect> func) => _manager.onStatusEffectFinished -= func;
         #endregion
     }
 }
