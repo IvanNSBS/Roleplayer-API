@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using INUlib.BackendToolkit.SceneBehaviours;
+using UnityEngine.SceneManagement;
 
 namespace INUlib.BackendToolkit.Meta
 {
@@ -210,6 +212,58 @@ namespace INUlib.BackendToolkit.Meta
             }
 
             return allValid;
+        }
+
+        /// <summary>
+        /// Checks if a scene SceneBehaviours are all valid, given the validator function
+        /// </summary>
+        /// <param name="scenePath">The path of the scene to be tested</param>
+        /// <param name="validator">The validation function</param>
+        /// <param name="errorMsg">Optional function to be called to log a message when validation fails</param>
+        /// <typeparam name="T">The type of the SceneBehaviour</typeparam>
+        /// <returns>
+        /// True if all SceneBehaviours are valid, false otherwise.
+        /// A SceneBehaviour is valid if the validator function returns true for all objects 
+        /// and there are no duplicate ids;
+        /// </returns>
+        public static bool ValidateSceneBehaviours<T>(Scene scene, Func<T, bool> validator, 
+                                                      Func<T, string> errorMsg=null) where T : SceneBehaviour
+        {
+            HashSet<string> idsFound = new HashSet<string>();
+            Dictionary<string, List<string>> duplicates = new Dictionary<string, List<string>>();
+            bool result = true;
+
+            foreach(GameObject obj in scene.GetRootGameObjects())
+            {
+                T[] childs = obj.GetComponentsInChildren<T>();
+                foreach(T child in childs)
+                {
+                    bool duplicateId = !idsFound.Add(child.Id);
+                    bool valid = validator(child);
+                    result &= valid && !duplicateId;
+
+                    if(!valid)
+                    {
+                        if(errorMsg != null)
+                            Debug.Log(errorMsg(child));
+                        else
+                            Debug.Log($"GameObject {child.gameObject.name} failed the validation");
+                    }
+                    if(!duplicates.ContainsKey(child.Id))
+                        duplicates.Add(child.Id, new List<string>() { child.gameObject.name });
+                    else
+                        duplicates[child.Id].Add(child.gameObject.name);
+                }
+            }
+
+            foreach(var kp in duplicates)
+            {
+                List<string> values = duplicates[kp.Key];
+                if(values.Count > 1)
+                    Debug.Log($"Duplicates found for id <{kp.Key}>: [{string.Join(", ", values)}]");
+            }
+            
+            return result;
         }
     }
 }

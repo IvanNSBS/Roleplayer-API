@@ -16,7 +16,7 @@ public class AudioTests
             
         }
 
-        protected override AudioSource CreateSound(AudioData data)
+        protected override AudioSource CreateSound(AudioData data, bool persist=false)
         {
             GameObject go = new GameObject($"Sound_{data.Id}");
             return go.AddComponent<AudioSource>();

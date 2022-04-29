@@ -15,6 +15,7 @@ namespace INUlib.BackendToolkit.Audio
         private IReadOnlyDictionary<string, AudioData> m_bgmHash;
         private IReadOnlyDictionary<string, AudioData> m_collectionsHash;
         private GameObject m_soundsContainer;
+        private GameObject m_persistentSoundsContainer;
         private AudioSource m_currentBgm;
         #endregion Fields
 
@@ -27,7 +28,7 @@ namespace INUlib.BackendToolkit.Audio
         
         
         #region Methods
-        public void PlayBackgroundMusic(string id, float fadeTime = 0f)
+        public void PlayBackgroundMusic(string id, float fadeTime = 0f, bool persist=true)
         {
             var bgmData = m_bgmHash[id];
 
@@ -38,7 +39,7 @@ namespace INUlib.BackendToolkit.Audio
                 sequence.AppendCallback(() =>
                 {
                     MonoBehaviour.Destroy(m_currentBgm.gameObject);
-                    m_currentBgm = CreateSound(bgmData);
+                    m_currentBgm = CreateSound(bgmData, persist);
                     float targetVolume = m_currentBgm.volume;
                     
                     m_currentBgm.spatialize = false;
@@ -49,8 +50,13 @@ namespace INUlib.BackendToolkit.Audio
                 });
                 return;
             }
+            else if(m_currentBgm)
+            {
+                MonoBehaviour.Destroy(m_currentBgm.gameObject);
+                m_currentBgm = null;
+            }
             
-            m_currentBgm = CreateSound(bgmData);
+            m_currentBgm = CreateSound(bgmData, persist);
             m_currentBgm.spatialize = false;
             m_currentBgm.spatialBlend = 0f;
             m_currentBgm.Play();
@@ -62,10 +68,11 @@ namespace INUlib.BackendToolkit.Audio
         /// </summary>
         /// <param name="id">The audio ID</param>
         /// <param name="position">The Wold Position to spawn the audio</param>
+        /// <param name="persist">Whether or not the sound should persist when loading a new scene</param>
         /// <returns>The Instantiated Audio Source</returns>
-        public AudioSource PlaySoundAtLocation(string id, Vector3 position)
+        public AudioSource PlaySoundAtLocation(string id, Vector3 position, bool persist=false)
         {
-            var sound = CreateSound(m_collectionsHash[id]);
+            var sound = CreateSound(m_collectionsHash[id], persist);
             sound.transform.position = position;
             sound.Play();
 
@@ -78,23 +85,25 @@ namespace INUlib.BackendToolkit.Audio
         /// </summary>
         /// <param name="ids">List of AudioData IDs</param>
         /// <param name="position">The World Position to spawn the audio</param>
+        /// <param name="persist">Whether or not the sound should persist when loading a new scene</param>
         /// <returns>The Instantiated Audio Source</returns>
-        public AudioSource PlaySoundAtLocation(string[] ids, Vector3 position)
+        public AudioSource PlaySoundAtLocation(string[] ids, Vector3 position, bool persist=false)
         {
             Random rand = new Random();
             int idx = rand.Next(0, ids.Length);
             
-            return PlaySoundAtLocation(ids[idx], position);
+            return PlaySoundAtLocation(ids[idx], position, persist);
         }
 
         /// <summary>
         /// Plays a sound and removes spatialization, even if the sound is set to 3D.
         /// </summary>
         /// <param name="id">The AudioData Id</param>
+        /// <param name="persist">Whether or not the sound should persist when loading a new scene</param>
         /// <returns>The Instantiated Audio Source</returns>
-        public AudioSource PlaySound(string id)
+        public AudioSource PlaySound(string id, bool persist=false)
         {
-            var sound = CreateSound(m_collectionsHash[id]);
+            var sound = CreateSound(m_collectionsHash[id], persist);
             sound.spatialize = false;
             sound.Play();
 
@@ -106,17 +115,19 @@ namespace INUlib.BackendToolkit.Audio
         /// set to 3D.
         /// </summary>
         /// <param name="ids">An Array of AudioData IDs</param>
+        /// <param name="persist">Whether or not the sound should persist when loading a new scene</param>
         /// <returns>The Instantiated Audio Source</returns>
-        public AudioSource PlaySound(string[] ids)
+        public AudioSource PlaySound(string[] ids, bool persist=false)
         {
             Random rand = new Random();
             int idx = rand.Next(0, ids.Length);
             
-            return PlaySound(ids[idx]);
+            return PlaySound(ids[idx], persist);
         }
 
         /// <summary>
-        /// Destroys an audio over time(or instantly, if destroy time is )
+        /// Destroys an audio over time, fading the audio, or instantly, 
+        /// if destroy time is less than or equal to 0.
         /// </summary>
         /// <param name="destroyTime"></param>
         /// <param name="easing"></param>
@@ -178,16 +189,26 @@ namespace INUlib.BackendToolkit.Audio
                 .ToDictionary(x => x.Key, y => y.Value);
         }
         
-        protected virtual AudioSource CreateSound(AudioData data)
+        protected virtual AudioSource CreateSound(AudioData data, bool persist=false)
         {
             if (!m_soundsContainer)
             {
                 m_soundsContainer = new GameObject("Sounds Container");
                 m_soundsContainer.transform.position = Vector3.zero;
             }
+            if(persist && ! m_persistentSoundsContainer)
+            {
+                m_persistentSoundsContainer = new GameObject("Sounds Container");
+                m_persistentSoundsContainer.transform.position = Vector3.zero;
+                MonoBehaviour.DontDestroyOnLoad(m_persistentSoundsContainer);
+            }
             
             var soundGO = new GameObject($"Sound_{data.Id}");
-            soundGO.transform.parent = m_soundsContainer.transform;
+            if(persist)
+                soundGO.transform.parent = m_persistentSoundsContainer.transform;
+            else
+                soundGO.transform.parent = m_soundsContainer.transform;
+
             var source = soundGO.AddComponent<AudioSource>();
             source.playOnAwake = false;
             
