@@ -50,6 +50,11 @@ namespace INUlib.BackendToolkit.Audio
                 });
                 return;
             }
+            else if(m_currentBgm)
+            {
+                MonoBehaviour.Destroy(m_currentBgm.gameObject);
+                m_currentBgm = null;
+            }
             
             m_currentBgm = CreateSound(bgmData, persist);
             m_currentBgm.spatialize = false;
