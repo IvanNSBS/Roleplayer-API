@@ -35,14 +35,14 @@ namespace INUlib.BackendToolkit.SceneBehaviours
             _btn = GetComponent<Button>();
             _btn.onClick.AddListener(() => {
                 if(!string.IsNullOrEmpty(_clickSoundId) && _btn.interactable)
-                    _audioCtrl.PlaySound(_clickSoundId);
+                    _audioCtrl.PlaySound(_clickSoundId, true);
             });
         }
 
         public void OnPointerEnter(PointerEventData data)
         {
             if(!string.IsNullOrEmpty(_hoverSoundId) && _btn.interactable)
-                _audioCtrl.PlaySound(_hoverSoundId);
+                _audioCtrl.PlaySound(_hoverSoundId, true);
         }
         #endregion
 
