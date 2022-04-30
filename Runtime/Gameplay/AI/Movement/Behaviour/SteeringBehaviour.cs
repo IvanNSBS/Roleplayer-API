@@ -125,7 +125,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
             );
             DesiredSpeed = (targetPos - selfPosition).normalized * factor * SteeringData.DesiredSpeed;
             
-            bool hasReachedTarget = factor <= 0.0001f;
+            bool hasReachedTarget = factor <= 0.05f;
             return hasReachedTarget;
         }
 
@@ -137,7 +137,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
             );
             DesiredSpeed = (selfPosition - targetPos).normalized * factor * SteeringData.DesiredSpeed;
             
-            bool hasReachedTarget = factor <= 0.0001f;
+            bool hasReachedTarget = factor <= 0.05f;
             return hasReachedTarget;
         }
         #endregion
@@ -189,7 +189,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
         {
             float distance = Vector3.Distance(from, target);
             float acceptTwo = acceptDst * 2;
-            float factor = 1;
+            float factor = 0;
 
             if(movingTowards && distance <= acceptTwo)
             {
