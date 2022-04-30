@@ -10,6 +10,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
         public event Action OnMoveFinished;
         protected SteeringData _steeringData;
         protected Rigidbody2D _rb;
+        protected bool _hasArrived;
         #endregion
 
         #region Properties
@@ -46,7 +47,10 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                 return;
             }
 
-            CalculateDesiredSpeed(selfPos, targetPos.Value);
+            bool arrived = CalculateDesiredSpeed(selfPos, targetPos.Value);
+            if(arrived && !_hasArrived)
+                OnMoveFinished?.Invoke();
+            _hasArrived = arrived;
         }
 
         public void OnFixedUpdate(Vector3 selfPos, Vector3? targetPos)
@@ -57,13 +61,14 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
             ApplyForces();
         }
 
-        public virtual void CalculateDesiredSpeed(Vector3 selfPosition, Vector3 targetPos)
+        public virtual bool CalculateDesiredSpeed(Vector3 selfPosition, Vector3 targetPos)
         {
+            bool arrived = false;
             switch (SteeringData.MoveType)
             {
                 case MovementType.Follow:
                 {
-                    Follow(selfPosition, targetPos);
+                    arrived = Follow(selfPosition, targetPos);
                     if(SteeringData.AvoidData != null)
                         DesiredSpeed = Avoid(selfPosition, DesiredSpeed, 
                             SteeringData.AvoidData.RayLength, SteeringData.AvoidData.RayAmount, 
@@ -73,29 +78,28 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                 }
                 case MovementType.Flee:
                 {
-                    Flee(selfPosition, targetPos);
+                    arrived = Flee(selfPosition, targetPos);
                     break;
                 }
                 case MovementType.KeepDistance:
                 {
                     float distance = Vector3.Distance(selfPosition, targetPos);
                     if(distance >= SteeringData.AcceptDistance)
-                    {
-                        Follow(selfPosition, targetPos);
-                    }
+                        arrived = Follow(selfPosition, targetPos);
                     else
-                    {
-                        Flee(selfPosition, targetPos);
-                    }
+                        arrived = Flee(selfPosition, targetPos);
 
                     break;
                 }
                 default:
                 {
+                    arrived = true;
                     DesiredSpeed = Vector3.zero;
                     break;
                 }
             }
+
+            return arrived;
         }
 
         protected void ApplyForces()
@@ -114,7 +118,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
 
 
         #region Behaviour Methods
-        private void Follow(Vector3 selfPosition, Vector3 targetPos)
+        private bool Follow(Vector3 selfPosition, Vector3 targetPos)
         {
             float factor = ArriveFactor(
                 selfPosition, targetPos, SteeringData.AcceptDistance, 
@@ -123,14 +127,10 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
             DesiredSpeed = (targetPos - selfPosition).normalized * factor * SteeringData.DesiredSpeed;
             
             bool hasReachedTarget = factor <= 0.0001f;
-            if(hasReachedTarget)
-            {
-                Debug.Log("Follow finished");
-                OnMoveFinished?.Invoke();
-            }
+            return hasReachedTarget;
         }
 
-        private void Flee(Vector3 selfPosition, Vector3 targetPos)
+        private bool Flee(Vector3 selfPosition, Vector3 targetPos)
         {
             float factor = ArriveFactor(
                 selfPosition, targetPos, SteeringData.AcceptDistance, 
@@ -139,11 +139,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
             DesiredSpeed = (selfPosition - targetPos).normalized * factor * SteeringData.DesiredSpeed;
             
             bool hasReachedTarget = factor <= 0.0001f;
-            if(hasReachedTarget)
-            {
-                Debug.Log("Flee finished");
-                OnMoveFinished?.Invoke();
-            }
+            return hasReachedTarget;
         }
         #endregion
 
