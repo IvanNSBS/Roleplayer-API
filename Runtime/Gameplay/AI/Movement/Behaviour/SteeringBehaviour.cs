@@ -73,7 +73,6 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                         DesiredSpeed = Avoid(selfPosition, DesiredSpeed, 
                             SteeringData.AvoidData.RayLength, SteeringData.AvoidData.RayAmount, 
                             SteeringData.AvoidData.LayerMask, DebugAvoid);
-
                     break;
                 }
                 case MovementType.Flee:
@@ -192,7 +191,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
             float acceptTwo = acceptDst * 2;
             float factor = 1;
 
-            if(movingTowards && distance <= acceptTwo && distance >= acceptDst)
+            if(movingTowards && distance <= acceptTwo)
             {
                 factor = GetFollowArriveFactor(distance, acceptDst, scalingFactor);
             }

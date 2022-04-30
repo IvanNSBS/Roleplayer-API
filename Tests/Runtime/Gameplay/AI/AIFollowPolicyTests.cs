@@ -43,11 +43,11 @@ namespace Tests.Runtime.Gameplay.AI
         [Test]
         public void Follow_Policy_Target_Was_Reached()
         {
-            Vector3 selfPos = new Vector3(0.0f, 1.0f, 0.0f);
+            Vector3 selfPos = new Vector3(0.0f, 1.001f, 0.0f);
             bool hasReached = false;
             _behaviour.OnMoveFinished += () => hasReached = true;
 
-            _behaviour.CalculateDesiredSpeed(selfPos, _behaviour.TargetPos);
+            _behaviour.OnUpdate(selfPos, _behaviour.TargetPos);
             Assert.IsTrue(hasReached);
         }
 
