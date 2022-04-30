@@ -14,6 +14,8 @@ namespace INUlib.Gameplay.AI.Movement
         [EnumMember(Value = "follow")]
         Follow = 1,
         [EnumMember(Value = "flee")]
-        Flee = 2
+        Flee = 2,
+        [EnumMember(Value = "keep_distance")]
+        KeepDistance = 3
     }
 }

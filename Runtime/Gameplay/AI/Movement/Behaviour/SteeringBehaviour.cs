@@ -76,6 +76,20 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                     Flee(selfPosition, targetPos);
                     break;
                 }
+                case MovementType.KeepDistance:
+                {
+                    float distance = Vector3.Distance(selfPosition, targetPos);
+                    if(distance >= SteeringData.AcceptDistance)
+                    {
+                        Follow(selfPosition, targetPos);
+                    }
+                    else
+                    {
+                        Flee(selfPosition, targetPos);
+                    }
+
+                    break;
+                }
                 default:
                 {
                     DesiredSpeed = Vector3.zero;
@@ -102,22 +116,34 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
         #region Behaviour Methods
         private void Follow(Vector3 selfPosition, Vector3 targetPos)
         {
-            float factor = ArriveFactor(selfPosition, targetPos, SteeringData.AcceptDistance, SteeringData.MaxSteerForce);
+            float factor = ArriveFactor(
+                selfPosition, targetPos, SteeringData.AcceptDistance, 
+                SteeringData.MaxSteerForce, movingTowards:true
+            );
             DesiredSpeed = (targetPos - selfPosition).normalized * factor * SteeringData.DesiredSpeed;
             
-            bool hasReachedTarget = factor <= 0.005f;
+            bool hasReachedTarget = factor <= 0.0001f;
             if(hasReachedTarget)
+            {
+                Debug.Log("Follow finished");
                 OnMoveFinished?.Invoke();
+            }
         }
 
         private void Flee(Vector3 selfPosition, Vector3 targetPos)
         {
-            float factor = ArriveFactor(selfPosition, targetPos, SteeringData.AcceptDistance, SteeringData.MaxSteerForce);
+            float factor = ArriveFactor(
+                selfPosition, targetPos, SteeringData.AcceptDistance, 
+                SteeringData.MaxSteerForce, movingTowards:false
+            );
             DesiredSpeed = (selfPosition - targetPos).normalized * factor * SteeringData.DesiredSpeed;
             
-            bool hasReachedTarget = factor <= 0.005f;
+            bool hasReachedTarget = factor <= 0.0001f;
             if(hasReachedTarget)
+            {
+                Debug.Log("Flee finished");
                 OnMoveFinished?.Invoke();
+            }
         }
         #endregion
 
@@ -163,18 +189,39 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
             return result.normalized * desiredLenght;
         }
 
-        public static float ArriveFactor(Vector3 from, Vector3 at, float acceptDst, float scalingFactor)
+        public static float ArriveFactor(Vector3 from, Vector3 target, float acceptDst, 
+                                         float scalingFactor, bool movingTowards)
         {
-            float distance = Vector3.Distance(from, at);
+            float distance = Vector3.Distance(from, target);
             float acceptTwo = acceptDst * 2;
-
             float factor = 1;
-            if(distance <= acceptTwo)
+
+            if(movingTowards && distance <= acceptTwo && distance >= acceptDst)
             {
-                float dst = distance - acceptDst;
-                factor = dst / acceptDst;
-                factor = Mathf.Clamp01(factor*scalingFactor);
+                factor = GetFollowArriveFactor(distance, acceptDst, scalingFactor);
             }
+            else if(distance < acceptDst)
+            {
+                factor = GetFleeArriveFactor(distance, acceptDst, scalingFactor);
+            }
+
+            return factor;
+        }
+
+        private static float GetFleeArriveFactor(float distance, float acceptDst, float scalingFactor)
+        {
+            float alpha = acceptDst - distance;
+            float factor = alpha / acceptDst;
+            factor = Mathf.Clamp01(factor*scalingFactor);
+
+            return factor;
+        }
+
+        private static float GetFollowArriveFactor(float distance, float acceptDst, float scalingFactor)
+        {
+            float delta = distance - acceptDst;
+            float factor = delta / acceptDst;
+            factor = Mathf.Clamp01(factor*scalingFactor);
 
             return factor;
         }
