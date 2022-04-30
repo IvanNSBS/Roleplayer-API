@@ -4,6 +4,13 @@ using System;
 
 namespace INUlib.Gameplay.AI.Movement.Behaviour
 {
+    public enum MoveState
+    {
+        Idle = 0,
+        Fleeing = 1,
+        Following = 2
+    }
+
     public class SteeringBehaviour : IMovement
     {
         #region Fields
@@ -17,6 +24,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
         public virtual SteeringData SteeringData => _steeringData;
         public virtual Vector3 DesiredSpeed { get; protected set; }
         public virtual bool DebugAvoid {get; set;}
+        public MoveState MoveState { get; private set; }
         #endregion
 
 
@@ -25,6 +33,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
         {
             _rb = rb;
             _steeringData = data;
+            MoveState = 0;
         }
 
         public SteeringBehaviour(Rigidbody2D rb, float acceptDst, float desiredSpeed, float maxForce, AvoidData avoid = null)
@@ -49,7 +58,10 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
 
             bool arrived = CalculateDesiredSpeed(selfPos, targetPos.Value);
             if(arrived && !_hasArrived)
+            {
                 OnMoveFinished?.Invoke();
+                MoveState = MoveState.Idle;
+            }
             _hasArrived = arrived;
         }
 
@@ -124,6 +136,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                 SteeringData.MaxSteerForce, movingTowards:true
             );
             DesiredSpeed = (targetPos - selfPosition).normalized * factor * SteeringData.DesiredSpeed;
+            MoveState = MoveState.Following;
             
             bool hasReachedTarget = factor <= 0.05f;
             return hasReachedTarget;
@@ -136,7 +149,8 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                 SteeringData.MaxSteerForce, movingTowards:false
             );
             DesiredSpeed = (selfPosition - targetPos).normalized * factor * SteeringData.DesiredSpeed;
-            
+            MoveState = MoveState.Fleeing;
+
             bool hasReachedTarget = factor <= 0.05f;
             return hasReachedTarget;
         }
