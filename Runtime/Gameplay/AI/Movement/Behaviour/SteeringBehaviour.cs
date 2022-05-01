@@ -204,7 +204,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
         {
             float distance = Vector3.Distance(from, target);
             float acceptTwo = acceptDst * 2;
-            float factor = 0;
+            float factor = 1;
 
             if(movingTowards && distance <= acceptTwo)
             {
