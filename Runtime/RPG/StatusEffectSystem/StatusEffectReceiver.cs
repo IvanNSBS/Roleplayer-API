@@ -66,7 +66,7 @@ namespace INUlib.RPG.StatusEffectSystem
         /// Removes a listener from the onStatusEffectFinished event
         /// </summary>
         /// <param name="func">Function that has the StatusEffect that was removed and the index</param>
-        public void RemoveOnStatusEffectFinished(Action<TEffect, int> func) => _manager.onStatusEffectFinished += func;
+        public void RemoveOnStatusEffectFinished(Action<TEffect, int> func) => _manager.onStatusEffectFinished -= func;
         
         /// <summary>
         /// Adds a listener to the onStatusEffectAdded event
@@ -78,7 +78,7 @@ namespace INUlib.RPG.StatusEffectSystem
         /// Removes a listener to the onStatusEffectAdded event
         /// </summary>
         /// <param name="func">Function that receives the StatusEffect that was applied</param>
-        public void RemoveOnStatusEffectAdded(Action<TEffect> func) => _manager.onStatusEffectAdded += func;
+        public void RemoveOnStatusEffectAdded(Action<TEffect> func) => _manager.onStatusEffectAdded -= func;
         #endregion
     }
 }
