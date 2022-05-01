@@ -133,7 +133,7 @@ namespace INUlib.RPG.StatusEffectSystem
             bool dispeled = _activeEffects.Remove(effect);
             if(dispeled && index != -1)
             {
-                onStatusEffectFinished(effect, index);
+                onStatusEffectFinished?.Invoke(effect, index);
                 effect.OnDispel();
             }
 
