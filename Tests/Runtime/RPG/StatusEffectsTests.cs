@@ -315,6 +315,59 @@ namespace Tests.Runtime.RPG.StatusEffects
         
             Assert.AreEqual(1, _manager.GetEffectApplyStats(_mockBase).TimesApplied);
         }
+
+        [Test]
+        public void StatusEffectAdded_Event_Is_Called_On_Apply()
+        {
+            bool added = false;
+            _manager.onStatusEffectAdded += x => added = true;
+            _manager.ApplyEffect(_mockBase);
+
+            Assert.IsTrue(added);
+        }
+
+        [Test]
+        public void StatusEffectAdded_Event_Is_Not_Called_On_Reapply()
+        {
+            bool added = false;
+            _manager.onStatusEffectAdded += x => added = !added;
+            _manager.ApplyEffect(_mockBase);
+            _manager.ApplyEffect(_mockBase);
+
+            Assert.IsTrue(added);
+        }
+
+        [Test]
+        public void StatusEffectRemoved_Event_Is_Called_On_Finish()
+        {
+            bool removed = false;
+
+            _manager.onStatusEffectFinished += (x,y) => removed = true;
+            _manager.ApplyEffect(_mockBase);
+            _mockBase.Complete();
+            _manager.Update(0.01f);
+
+            Assert.IsTrue(removed);
+        }
+
+        [Test]
+        public void StatusEffectRemoved_Event_Is_Called_On_Dispell()
+        {
+            bool removed = false;
+            int index = -1;
+
+            _manager.onStatusEffectFinished += (x,y) => {
+                removed = true;
+                index = y;
+            };
+
+            _manager.ApplyEffect(_mockBase);
+            _manager.DispelEffect(_mockBase);
+            _manager.Update(0.01f);
+
+            Assert.IsTrue(removed);
+            Assert.AreEqual(0, index);
+        }
         #endregion
     }
 }

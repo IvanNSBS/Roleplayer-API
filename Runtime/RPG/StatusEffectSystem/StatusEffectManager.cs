@@ -24,7 +24,8 @@ namespace INUlib.RPG.StatusEffectSystem
         #endregion
 
         #region Events
-        public event Action<T> onStatusEffectFinished;
+        public event Action<T> onStatusEffectAdded = delegate { };
+        public event Action<T, int> onStatusEffectFinished = delegate { };
         #endregion
 
 
@@ -113,6 +114,7 @@ namespace INUlib.RPG.StatusEffectSystem
                 _activeEffects.Add(effect);
                 _activeEffectsDict.Add(effect.GetType(), effect);
                 effect.Apply(GetEffectApplyStats(effect));
+                onStatusEffectAdded?.Invoke(effect);
             }
 
             return reapplied;
@@ -127,9 +129,13 @@ namespace INUlib.RPG.StatusEffectSystem
         /// <returns>True if the effect was present and thus dispeled. False otherwise</returns>
         public bool DispelEffect(T effect)
         {
+            int index = _activeEffects.FindIndex(x => x.Equals(effect));
             bool dispeled = _activeEffects.Remove(effect);
-            if(dispeled)
+            if(dispeled && index != -1)
+            {
+                onStatusEffectFinished(effect, index);
                 effect.OnDispel();
+            }
 
             return dispeled;
         }
@@ -152,7 +158,7 @@ namespace INUlib.RPG.StatusEffectSystem
                     effect.OnComplete();
                     _activeEffects.RemoveAt(i);
                     _activeEffectsDict.Remove(effect.GetType());
-                    onStatusEffectFinished?.Invoke(effect);
+                    onStatusEffectFinished?.Invoke(effect, i);
                 }
             }
 
