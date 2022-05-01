@@ -47,6 +47,7 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
         #region Methods
         public void SetMovementType(MovementType type) => SteeringData.SetMovementType(type);
         public void SetSteeringData(SteeringData data) => _steeringData = data; 
+        public void ResetArrived() => _hasArrived = false;
 
         public void OnUpdate(Vector3 selfPos, Vector3? targetPos)
         {
