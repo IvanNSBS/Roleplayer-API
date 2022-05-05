@@ -82,10 +82,6 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                 case MovementType.Follow:
                 {
                     arrived = Follow(selfPosition, targetPos);
-                    if(SteeringData.AvoidData != null)
-                        DesiredSpeed = Avoid(selfPosition, DesiredSpeed, 
-                            SteeringData.AvoidData.RayLength, SteeringData.AvoidData.RayAmount, 
-                            SteeringData.AvoidData.LayerMask, DebugAvoid);
                     break;
                 }
                 case MovementType.Flee:
@@ -137,6 +133,11 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                 SteeringData.MaxSteerForce, movingTowards:true
             );
             DesiredSpeed = (targetPos - selfPosition).normalized * factor * SteeringData.DesiredSpeed;
+            if(SteeringData.AvoidData != null)
+                DesiredSpeed = Avoid(selfPosition, DesiredSpeed, 
+                    SteeringData.AvoidData.RayLength, SteeringData.AvoidData.RayAmount, 
+                    SteeringData.AvoidData.LayerMask, DebugAvoid);
+
             MoveState = MoveState.Following;
             
             bool hasReachedTarget = factor <= 0.05f;
@@ -150,6 +151,11 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
                 SteeringData.MaxSteerForce, movingTowards:false
             );
             DesiredSpeed = (selfPosition - targetPos).normalized * factor * SteeringData.DesiredSpeed;
+            if(SteeringData.AvoidData != null)
+                DesiredSpeed = Avoid(selfPosition, DesiredSpeed, 
+                    SteeringData.AvoidData.RayLength, SteeringData.AvoidData.RayAmount, 
+                    SteeringData.AvoidData.LayerMask, DebugAvoid);
+
             MoveState = MoveState.Fleeing;
 
             bool hasReachedTarget = factor <= 0.05f;
@@ -173,15 +179,14 @@ namespace INUlib.Gameplay.AI.Movement.Behaviour
             for (int i = 0; i < rayNumber; i++)
             {
                 Vector3 direction = Vector2.right.RotateDegrees(i*increment);
-                RaycastHit2D hit = Physics2D.Raycast(from, direction, radius, ~(1 << 7));
+                RaycastHit2D hit = Physics2D.Raycast(from, direction, radius, collisionMask);
 
                 if(hit.collider)
                 {
                     length = Vector3.Distance(hit.point, from);
 
                     float normalized = length / radius;
-                    float normalizedDistance = 1 - normalized*normalized;
-                    float finalLength = desiredLenght * normalizedDistance;
+                    float finalLength = desiredLenght * normalized;
 
                     Vector3 desiredRay = -direction * finalLength; // dont need to normalize, Vector3.right is a unit vector
                     result += desiredRay;
