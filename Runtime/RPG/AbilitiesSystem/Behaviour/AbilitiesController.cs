@@ -107,7 +107,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public virtual void CancelChanneling() 
         {
-            _castHandler.OnCastCanceled();
+            _castHandler?.OnCastCanceled();
 
             _casting = null;
             _castHandler = null;

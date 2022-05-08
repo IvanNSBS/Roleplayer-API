@@ -7,7 +7,7 @@ namespace INUlib.RPG.StatusEffectSystem
     /// Manages all status effects present in an entity
     /// </summary>
     /// <typeparam name="T">The base type for the StatusEffects that will be managed</typeparam>
-    public class StatusEffectManager<T> where T : IStatusEffect
+    public class StatusEffectController<T> where T : IStatusEffect
     {
         #region Constants
         /// <summary>
@@ -24,7 +24,8 @@ namespace INUlib.RPG.StatusEffectSystem
         #endregion
 
         #region Events
-        public event Action<T> onStatusEffectFinished;
+        public event Action<T> onStatusEffectAdded = delegate { };
+        public event Action<T, int> onStatusEffectFinished = delegate { };
         #endregion
 
 
@@ -45,7 +46,7 @@ namespace INUlib.RPG.StatusEffectSystem
         /// <summary>
         /// Creates a StatusEffectManager with the default stats reset time.
         /// </summary>
-        public StatusEffectManager()
+        public StatusEffectController()
         {
             _effectStatsResetTime = DEFAULT_EFFECT_STATS_RESET_TIME;
             _activeEffects = new List<T>();
@@ -58,7 +59,7 @@ namespace INUlib.RPG.StatusEffectSystem
         /// A -1 to the custom time means that the Apply Stats will never be reset
         /// </summary>
         /// <param name="effectStatsResetTime"></param>
-        public StatusEffectManager(float effectStatsResetTime)
+        public StatusEffectController(float effectStatsResetTime)
         {
             _effectStatsResetTime = effectStatsResetTime;
             _activeEffects = new List<T>();
@@ -113,6 +114,7 @@ namespace INUlib.RPG.StatusEffectSystem
                 _activeEffects.Add(effect);
                 _activeEffectsDict.Add(effect.GetType(), effect);
                 effect.Apply(GetEffectApplyStats(effect));
+                onStatusEffectAdded?.Invoke(effect);
             }
 
             return reapplied;
@@ -127,9 +129,13 @@ namespace INUlib.RPG.StatusEffectSystem
         /// <returns>True if the effect was present and thus dispeled. False otherwise</returns>
         public bool DispelEffect(T effect)
         {
+            int index = _activeEffects.FindIndex(x => x.Equals(effect));
             bool dispeled = _activeEffects.Remove(effect);
-            if(dispeled)
+            if(dispeled && index != -1)
+            {
+                onStatusEffectFinished?.Invoke(effect, index);
                 effect.OnDispel();
+            }
 
             return dispeled;
         }
@@ -152,7 +158,7 @@ namespace INUlib.RPG.StatusEffectSystem
                     effect.OnComplete();
                     _activeEffects.RemoveAt(i);
                     _activeEffectsDict.Remove(effect.GetType());
-                    onStatusEffectFinished?.Invoke(effect);
+                    onStatusEffectFinished?.Invoke(effect, i);
                 }
             }
 

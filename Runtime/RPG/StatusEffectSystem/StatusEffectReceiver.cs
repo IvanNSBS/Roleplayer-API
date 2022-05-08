@@ -12,7 +12,7 @@ namespace INUlib.RPG.StatusEffectSystem
     public abstract class StatusEffectReceiver<TEffect, TTargets> : MonoBehaviour where TEffect : IStatusEffect where TTargets : IStatusEffectTargets
     {
         #region Fields
-        private StatusEffectManager<TEffect> _manager;
+        private StatusEffectController<TEffect> _manager;
         [SerializeField] private TTargets _targets;
         #endregion
 
@@ -29,7 +29,7 @@ namespace INUlib.RPG.StatusEffectSystem
         /// </summary>
         protected virtual void Awake()
         {
-            _manager = new StatusEffectManager<TEffect>();
+            _manager = new StatusEffectController<TEffect>();
         }
 
         /// <summary>
@@ -56,8 +56,29 @@ namespace INUlib.RPG.StatusEffectSystem
         /// <param name="e">The StatusEffect to be dispeled</param>
         public virtual bool DispelEffect(TEffect e) => _manager.DispelEffect(e);
 
-        public void AddOnStatusEffectFinished(Action<TEffect> func) => _manager.onStatusEffectFinished += func;
-        public void RemoveOnStatusEffectFinished(Action<TEffect> func) => _manager.onStatusEffectFinished += func;
+        /// <summary>
+        /// Add a listener to the onStatusEffectFinished event
+        /// </summary>
+        /// <param name="func">Function that has the StatusEffect that was removed and the index</param>
+        public void AddOnStatusEffectFinished(Action<TEffect, int> func) => _manager.onStatusEffectFinished += func;
+        
+        /// <summary>
+        /// Removes a listener from the onStatusEffectFinished event
+        /// </summary>
+        /// <param name="func">Function that has the StatusEffect that was removed and the index</param>
+        public void RemoveOnStatusEffectFinished(Action<TEffect, int> func) => _manager.onStatusEffectFinished -= func;
+        
+        /// <summary>
+        /// Adds a listener to the onStatusEffectAdded event
+        /// </summary>
+        /// <param name="func">Function that receives the StatusEffect that was applied</param>
+        public void AddOnStatusEffectAdded(Action<TEffect> func) => _manager.onStatusEffectAdded += func;
+        
+        /// <summary>
+        /// Removes a listener to the onStatusEffectAdded event
+        /// </summary>
+        /// <param name="func">Function that receives the StatusEffect that was applied</param>
+        public void RemoveOnStatusEffectAdded(Action<TEffect> func) => _manager.onStatusEffectAdded -= func;
         #endregion
     }
 }

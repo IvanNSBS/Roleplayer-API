@@ -24,7 +24,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             }
         }
 
-        private StatusEffectManager<IStatusEffect> _manager;
+        private StatusEffectController<IStatusEffect> _manager;
         private IStatusEffect _mockEffect;
         private MockBaseStatusEffect _mockBase;
 
@@ -42,7 +42,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _dispelled = false;
             _completed = false;
             _elapsedTime = 0;
-            _manager = new StatusEffectManager<IStatusEffect>();
+            _manager = new StatusEffectController<IStatusEffect>();
             _mockEffect = Substitute.For<IStatusEffect>();
             _mockBase = Substitute.ForPartsOf<MockBaseStatusEffect>(_targetDuration);
 
@@ -300,7 +300,7 @@ namespace Tests.Runtime.RPG.StatusEffects
         {
             _manager.ApplyEffect(_mockBase);
             _manager.Update(_targetDuration);
-            _manager.Update(StatusEffectManager<IStatusEffect>.DEFAULT_EFFECT_STATS_RESET_TIME);
+            _manager.Update(StatusEffectController<IStatusEffect>.DEFAULT_EFFECT_STATS_RESET_TIME);
 
             Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockBase).TimesApplied);
         }
@@ -308,12 +308,65 @@ namespace Tests.Runtime.RPG.StatusEffects
         [Test]
         public void EffectApplyStats_Will_Never_Reset_If_Target_Manager_Inactive_Time_Is_Less_Than_Zero()
         {
-            _manager = new StatusEffectManager<IStatusEffect>(-1);
+            _manager = new StatusEffectController<IStatusEffect>(-1);
             _manager.ApplyEffect(_mockBase);
             _manager.Update(_targetDuration);
-            _manager.Update(StatusEffectManager<IStatusEffect>.DEFAULT_EFFECT_STATS_RESET_TIME);
+            _manager.Update(StatusEffectController<IStatusEffect>.DEFAULT_EFFECT_STATS_RESET_TIME);
         
             Assert.AreEqual(1, _manager.GetEffectApplyStats(_mockBase).TimesApplied);
+        }
+
+        [Test]
+        public void StatusEffectAdded_Event_Is_Called_On_Apply()
+        {
+            bool added = false;
+            _manager.onStatusEffectAdded += x => added = true;
+            _manager.ApplyEffect(_mockBase);
+
+            Assert.IsTrue(added);
+        }
+
+        [Test]
+        public void StatusEffectAdded_Event_Is_Not_Called_On_Reapply()
+        {
+            bool added = false;
+            _manager.onStatusEffectAdded += x => added = !added;
+            _manager.ApplyEffect(_mockBase);
+            _manager.ApplyEffect(_mockBase);
+
+            Assert.IsTrue(added);
+        }
+
+        [Test]
+        public void StatusEffectRemoved_Event_Is_Called_On_Finish()
+        {
+            bool removed = false;
+
+            _manager.onStatusEffectFinished += (x,y) => removed = true;
+            _manager.ApplyEffect(_mockBase);
+            _mockBase.Complete();
+            _manager.Update(0.01f);
+
+            Assert.IsTrue(removed);
+        }
+
+        [Test]
+        public void StatusEffectRemoved_Event_Is_Called_On_Dispell()
+        {
+            bool removed = false;
+            int index = -1;
+
+            _manager.onStatusEffectFinished += (x,y) => {
+                removed = true;
+                index = y;
+            };
+
+            _manager.ApplyEffect(_mockBase);
+            _manager.DispelEffect(_mockBase);
+            _manager.Update(0.01f);
+
+            Assert.IsTrue(removed);
+            Assert.AreEqual(0, index);
         }
         #endregion
     }
