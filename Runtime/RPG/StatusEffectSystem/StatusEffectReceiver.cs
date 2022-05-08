@@ -12,7 +12,7 @@ namespace INUlib.RPG.StatusEffectSystem
     public abstract class StatusEffectReceiver<TEffect, TTargets> : MonoBehaviour where TEffect : IStatusEffect where TTargets : IStatusEffectTargets
     {
         #region Fields
-        private StatusEffectManager<TEffect> _manager;
+        private StatusEffectController<TEffect> _manager;
         [SerializeField] private TTargets _targets;
         #endregion
 
@@ -29,7 +29,7 @@ namespace INUlib.RPG.StatusEffectSystem
         /// </summary>
         protected virtual void Awake()
         {
-            _manager = new StatusEffectManager<TEffect>();
+            _manager = new StatusEffectController<TEffect>();
         }
 
         /// <summary>
