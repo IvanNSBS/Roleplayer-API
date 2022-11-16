@@ -194,6 +194,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <returns>The ability being cast. Null if no ability is being cast</returns>
         public TAbility GetCastingAbility() => _casting;
+        public CastHandler<TAbility, TCaster> GetCastHandler() => _castHandler;
         #endregion
 
 
