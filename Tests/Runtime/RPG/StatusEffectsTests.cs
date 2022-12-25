@@ -95,6 +95,19 @@ namespace Tests.Runtime.RPG.StatusEffects
         }
 
         [Test]
+        public void Effect_Is_Correctly_Applied_After_Dispell()
+        {
+            _manager.ApplyEffect(_mockEffect);
+            bool result = _manager.DispelEffect(_mockEffect);
+
+            Assert.IsTrue(result);
+            Assert.IsTrue(_dispelled);
+            _applied = false;
+            _manager.ApplyEffect(_mockEffect);
+            Assert.IsTrue(_applied);
+        }
+
+        [Test]
         public void Nothing_Happens_When_Dispeling_An_Effect_That_Is_Not_Active()
         {
             bool result = _manager.DispelEffect(_mockEffect);
