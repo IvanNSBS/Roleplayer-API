@@ -148,12 +148,14 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Updates each ability current CD
         /// </summary>
         /// <param name="deltaTime">How much time elapsed since the last frame</param>
+        public virtual void UpdateCDHandler(float deltaTime) => _cdHandler.Update(deltaTime);
+
         public virtual void Update(float deltaTime)
         {
             for(int i = _activeAbilities.Count - 1; i >= 0; i--)
                 _activeAbilities[i].OnUpdate(deltaTime);
 
-            _cdHandler.Update(deltaTime);
+            // _cdHandler.Update(deltaTime);
 
             if(_casting != null && _castingState == CastingState.Channeling)
             {
