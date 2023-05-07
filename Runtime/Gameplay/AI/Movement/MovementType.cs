@@ -1,6 +1,8 @@
 using System;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+
 using System.Runtime.Serialization;
 
 namespace INUlib.Gameplay.AI.Movement
