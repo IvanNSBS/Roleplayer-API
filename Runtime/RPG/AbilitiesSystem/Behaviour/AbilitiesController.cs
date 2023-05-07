@@ -72,10 +72,11 @@ namespace INUlib.RPG.AbilitiesSystem
         /// instantly
         /// </summary>
         /// <param name="slot">The ability slot index</param>
-        public virtual void StartChanneling(uint slot)
+        /// <returns>True if the ability started channeling. False otherwise</returns>
+        public bool StartChanneling(uint slot)
         {
-            if(!HasAbilityInSlot(slot))
-                return;
+            if(!HasAbilityInSlot(slot) || !_abilities[slot].CanCast(_caster))
+                return false;
 
             if(!_cdHandler.IsAbilityOnCd(slot) && _casting == null)
             {
@@ -99,6 +100,8 @@ namespace INUlib.RPG.AbilitiesSystem
             {
                 _castHandler.OnCast();
             }
+
+            return true;
         }
 
         /// <summary>
@@ -155,7 +158,7 @@ namespace INUlib.RPG.AbilitiesSystem
             for(int i = _activeAbilities.Count - 1; i >= 0; i--)
                 _activeAbilities[i].OnUpdate(deltaTime);
 
-            // _cdHandler.Update(deltaTime);
+            _cdHandler.Update(deltaTime);
 
             if(_casting != null && _castingState == CastingState.Channeling)
             {

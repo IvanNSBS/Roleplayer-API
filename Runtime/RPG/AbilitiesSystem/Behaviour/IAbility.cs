@@ -35,6 +35,13 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Casts the ability, unleashing it's effect in the world
         /// </summary>
         CastObjects Cast(TCaster caster);
+
+        /// <summary>
+        /// Whether or not a caster can cast an ability
+        /// </summary>
+        /// <param name="caster"></param>
+        /// <returns></returns>
+        bool CanCast(TCaster caster);
     }
 
     public class CastObjects

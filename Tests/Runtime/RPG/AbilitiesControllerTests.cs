@@ -25,6 +25,7 @@ namespace Tests.Runtime.RPG.Abilities
                 _factoryRef = factoryRef;
                 Cooldown = cd;
                 ChannelingTime = castTime;
+                CanCastAbility = true;
             }
 
             public TestFactoryAbility(int cat, float cd, float castTime, ICasterInfo factoryRef)
@@ -33,6 +34,7 @@ namespace Tests.Runtime.RPG.Abilities
                 _factoryRef = factoryRef;
                 Cooldown = cd;
                 ChannelingTime = castTime;
+                CanCastAbility = true;
             }
 
             public CastObjects Cast(ICasterInfo dataFactory) 
@@ -49,6 +51,9 @@ namespace Tests.Runtime.RPG.Abilities
                 return new CastObjects(policy, abilityObject);
             }
 
+            public bool CanCast(ICasterInfo caster) => CanCastAbility;
+
+            public bool CanCastAbility {get; set;}
             public float Cooldown {get; set;}
             public float ChannelingTime {get;}
         }
@@ -396,6 +401,20 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
 
             Assert.IsTrue(_controller.CastingState == CastingState.Casting);
+        }
+
+        [Test]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        public void Can_Only_Cast_If_Requirements_Are_Met(bool requirementsAreMet, bool expected)
+        {
+            var testAbility = new TestFactoryAbility(_cd, 0, _mockFactory);
+            testAbility.CanCastAbility = requirementsAreMet;
+            _controller.SetAbility(0, testAbility);
+            
+            bool result = _controller.StartChanneling(0);
+
+            Assert.IsTrue(expected == result);
         }
         #endregion
     }
