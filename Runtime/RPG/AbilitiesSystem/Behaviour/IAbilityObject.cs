@@ -44,6 +44,12 @@ namespace INUlib.RPG.AbilitiesSystem
         /// How to draw Unity Gizmos
         /// </summary>
         void OnDrawGizmos();
+        
+        /// <summary>
+        /// Finishes the Ability Cast, invoking the OnFinishCast event and calling the OnFinishCasting 
+        /// behaviour, marking the actor cast state as None.
+        /// </summary>
+        public void FinishCast();
     }
 
     public abstract class AbilityObject : IAbilityObject 

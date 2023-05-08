@@ -1,8 +1,6 @@
 using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
-using System;
-using NUnit.Framework.Internal;
 using System.Linq;
 
 namespace Tests.Runtime.RPG.Abilities
@@ -26,6 +24,9 @@ namespace Tests.Runtime.RPG.Abilities
                 Cooldown = cd;
                 ChannelingTime = castTime;
                 CanCastAbility = true;
+
+                AbilityCastType = AbilityCastType.FireAndPersist;
+                RecoveryTime = 0f;
             }
 
             public TestFactoryAbility(int cat, float cd, float castTime, ICasterInfo factoryRef)
@@ -35,6 +36,8 @@ namespace Tests.Runtime.RPG.Abilities
                 Cooldown = cd;
                 ChannelingTime = castTime;
                 CanCastAbility = true;
+                AbilityCastType = AbilityCastType.FireAndPersist;
+                RecoveryTime = 0f;
             }
 
             public CastObjects Cast(ICasterInfo dataFactory) 
@@ -42,11 +45,22 @@ namespace Tests.Runtime.RPG.Abilities
                 isEqual = dataFactory == _factoryRef;
                 CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
                 AbilityObject abilityObject = Substitute.ForPartsOf<AbilityObject>();
-                if(removeOnUpdate)
+
+                if (removeOnUpdate)
+                {
                     abilityObject.When(x => x.OnUpdate(Arg.Any<float>())).Do(x => {
                         abilityObject.FinishCast();
                         abilityObject.DiscardAbility();
                     });
+                }
+
+                if (AbilityCastType == AbilityCastType.FireAndForget)
+                {
+                    abilityObject.When(x => x.FinishCast()).Do(x => {
+                        abilityObject.DiscardAbility();
+                    });
+                }
+                
                 obj = abilityObject;
                 return new CastObjects(policy, abilityObject);
             }
@@ -56,6 +70,9 @@ namespace Tests.Runtime.RPG.Abilities
             public bool CanCastAbility {get; set;}
             public float Cooldown {get; set;}
             public float ChannelingTime {get;}
+
+            public float RecoveryTime { get; set;  }
+            public AbilityCastType AbilityCastType { get; set; }
         }
         #endregion
 
@@ -267,7 +284,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Can_Cancel_Casting(uint slot)
+        public void Can_Cancel_Channeling(uint slot)
         {
             _controller.StartChanneling(slot);
             _controller.Update(_castTime*0.5f);
@@ -314,6 +331,41 @@ namespace Tests.Runtime.RPG.Abilities
         {
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             ability.removeOnUpdate = true;
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            
+            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.AreEqual(_controller.CastingState, CastingState.None);
+        }
+
+        [Test]
+        [TestCase(0u, 1.2f)]
+        [TestCase(1u, 6.3f)]
+        [TestCase(2u, 3.54f)]
+        public void AbilityObject_Will_Finish_Cast_After_Release_Time_If_Is_Fire_And_Forget(uint slot, float releaseTime)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            ability.RecoveryTime = releaseTime;
+
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            _controller.Update(releaseTime);
+            
+            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.AreEqual(_controller.CastingState, CastingState.None);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void AbilityObject_Will_Finish_Cast_After_Channeling_If_Theres_No_Release_Time_If_Is_Fire_And_Forget(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            ability.RecoveryTime = 0;
+
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
             

@@ -5,10 +5,15 @@ namespace INUlib.RPG.AbilitiesSystem
     public interface IAbilityBase
     {
         /// <summary>
+        /// The cast 
+        /// </summary>
+        AbilityCastType AbilityCastType { get; }
+        
+        /// <summary>
         /// Getter for the ability max cooldown.
         /// </summary>
         /// <value></value>
-        float Cooldown {get; set;}
+        float Cooldown { get; set; }
 
         /// <summary>
         /// Getter for the time that is necessary
@@ -16,7 +21,15 @@ namespace INUlib.RPG.AbilitiesSystem
         /// 0 should mean that the ability is cast instantly
         /// </summary>
         /// <value></value>
-        float ChannelingTime {get;}
+        float ChannelingTime { get; }
+
+        /// <summary>
+        /// Getter for the time that is necessary to finish performing
+        /// the ability after it has been successfully channeled.
+        /// Can be perceived like a cooldown needed to be able to 
+        /// perform other actions again
+        /// </summary>
+        float RecoveryTime { get; }
 
         /// <summary>
         /// Ability category ID. Primarily used for specific Cooldown Reductions

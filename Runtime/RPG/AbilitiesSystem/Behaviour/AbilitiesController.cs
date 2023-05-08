@@ -95,6 +95,12 @@ namespace INUlib.RPG.AbilitiesSystem
                 // just cast it instantly
                 if(_casting.ChannelingTime == 0f)
                     UnleashAbility();
+                
+                // checking if it's equal to 0 with a range to avoid floating point imprecision 
+                bool equalsZero = _casting.RecoveryTime < 0.001f && _casting.RecoveryTime > -0.001f;
+                bool isFireAndForget = _casting.AbilityCastType == AbilityCastType.FireAndForget;
+                if(equalsZero && isFireAndForget)
+                    _castHandler.AbilityObject.FinishCast();
             }
             else if(_casting == GetAbility(slot))
             {
@@ -160,11 +166,22 @@ namespace INUlib.RPG.AbilitiesSystem
 
             _cdHandler.Update(deltaTime);
 
-            if(_casting != null && _castingState == CastingState.Channeling)
+            if(_casting != null)
             {
-                _elapsedChanneling += deltaTime;
-                if(_elapsedChanneling >= _casting.ChannelingTime)
-                    UnleashAbility();
+                if (_castingState == CastingState.Channeling)
+                {
+                    _elapsedChanneling += deltaTime;
+                    if(_elapsedChanneling >= _casting.ChannelingTime)
+                        UnleashAbility();
+                }
+                else if (_castingState == CastingState.Casting && _casting.RecoveryTime > 0)
+                {
+                    _elapsedChanneling += deltaTime;
+                    if (_elapsedChanneling >= _casting.RecoveryTime && _casting.AbilityCastType == AbilityCastType.FireAndForget)
+                    {
+                        _castHandler.AbilityObject.FinishCast();
+                    }
+                }
             }
         }
 
