@@ -49,6 +49,8 @@ namespace INUlib.RPG.AbilitiesSystem
         public CastingState CastingState => _castingState;
 
         public IReadOnlyList<IAbilityObject> ActiveObjects => _activeAbilities;
+        
+        public CooldownUpdateType CooldownUpdateType { get; set; }
         #endregion
 
 
@@ -157,14 +159,15 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Updates each ability current CD
         /// </summary>
         /// <param name="deltaTime">How much time elapsed since the last frame</param>
-        public virtual void UpdateCDHandler(float deltaTime) => _cdHandler.Update(deltaTime);
+        public virtual void UpdateCooldowns(float deltaTime) => _cdHandler.Update(deltaTime);
 
         public virtual void Update(float deltaTime)
         {
             for(int i = _activeAbilities.Count - 1; i >= 0; i--)
                 _activeAbilities[i].OnUpdate(deltaTime);
 
-            _cdHandler.Update(deltaTime);
+            if (CooldownUpdateType == CooldownUpdateType.Auto)
+                UpdateCooldowns(deltaTime);
 
             if(_casting != null)
             {
