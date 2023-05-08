@@ -49,7 +49,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Finishes the Ability Cast, invoking the OnFinishCast event and calling the OnFinishCasting 
         /// behaviour, marking the actor cast state as None.
         /// </summary>
-        public void FinishCast();
+        public void EndAbilityObject();
 
         
         /// <summary>
@@ -88,36 +88,36 @@ namespace INUlib.RPG.AbilitiesSystem
 
         #region Methods
         /// <summary>
-        /// Defines the behaviour for when the ability
+        /// Defines the behaviour for when the ability is ended
         /// </summary>
-        public abstract void OnFinishCasting();
+        public abstract void EndAbilityObjectImpl();
 
         /// <summary>
-        /// Finishes the Ability Cast, invoking the OnFinishCast event and calling the OnFinishCasting 
+        /// Finishes the Ability, invoking the OnFinishCast event and calling the OnFinishCasting 
         /// behaviour, marking the actor cast state as None.
         /// </summary>
-        public void FinishCast()
+        public void EndAbilityObject()
         {
             OnFinishCast?.Invoke();
-            OnFinishCasting();
+            EndAbilityObjectImpl();
         }
 
         /// <summary>
         /// Ends the ability life, calling the Discard logic and removing it from the AbilitiesController
         /// Active Ability Objects, marking it to be collectd by the GC.
         /// </summary>
-        public void DiscardAbility()
+        public void DiscardAbilityObject()
         {
             OnAbilityFinished?.Invoke();
-            Discard();
+            DiscardAbilityImpl();
         }
 
         /// <summary>
-        /// Defines how an ability will be discarded once the effect has finished.
-        /// This functions should define how the garbabe created by the spell will be collected.
+        /// Defines the implementation of how an ability will be discarded.
+        /// This functions should define how the garbage created by the spell will be collected.
         /// Can be empty if nothing should be done.
         /// </summary>
-        public abstract void Discard();
+        public abstract void DiscardAbilityImpl();
         
         public virtual void Cancel() { }
         #endregion

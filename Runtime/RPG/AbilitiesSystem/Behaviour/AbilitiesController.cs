@@ -102,7 +102,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 bool equalsZero = _casting.RecoveryTime < 0.001f && _casting.RecoveryTime > -0.001f;
                 bool isFireAndForget = _casting.AbilityCastType == AbilityCastType.FireAndForget;
                 if(equalsZero && isFireAndForget)
-                    _castHandler.AbilityObject.FinishCast();
+                    _castHandler.AbilityObject.EndAbilityObject();
             }
             else if(_casting == GetAbility(slot))
             {
@@ -190,7 +190,7 @@ namespace INUlib.RPG.AbilitiesSystem
                     _elapsedChanneling += deltaTime;
                     if (_elapsedChanneling >= _casting.RecoveryTime && _casting.AbilityCastType == AbilityCastType.FireAndForget)
                     {
-                        _castHandler.AbilityObject.FinishCast();
+                        _castHandler.AbilityObject.EndAbilityObject();
                     }
                 }
             }

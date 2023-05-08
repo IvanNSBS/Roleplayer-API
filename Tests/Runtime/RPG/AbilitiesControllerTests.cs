@@ -50,15 +50,15 @@ namespace Tests.Runtime.RPG.Abilities
                 if (removeOnUpdate)
                 {
                     abilityObject.When(x => x.OnUpdate(Arg.Any<float>())).Do(x => {
-                        abilityObject.FinishCast();
-                        abilityObject.DiscardAbility();
+                        abilityObject.EndAbilityObject();
+                        abilityObject.DiscardAbilityObject();
                     });
                 }
 
                 if (AbilityCastType == AbilityCastType.FireAndForget)
                 {
-                    abilityObject.When(x => x.FinishCast()).Do(x => {
-                        abilityObject.DiscardAbility();
+                    abilityObject.When(x => x.EndAbilityObject()).Do(x => {
+                        abilityObject.DiscardAbilityObject();
                     });
                 }
                 
@@ -309,7 +309,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
-            ability.obj.FinishCast();
+            ability.obj.EndAbilityObject();
             
             Assert.IsTrue(_controller.ActiveObjects.Contains(ability.obj));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
@@ -401,8 +401,8 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
-            ability.obj.FinishCast();
-            ability.obj.DiscardAbility();
+            ability.obj.EndAbilityObject();
+            ability.obj.DiscardAbilityObject();
             
             Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
