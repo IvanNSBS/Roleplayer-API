@@ -137,7 +137,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(4u, 9.34f)]
         public void CooldownHandler_Correctly_Decreases_Cooldown(uint slotIdx, float dec)
         {
-            _handler.ResetCooldown(slotIdx);
+            _handler.PutOnCooldown(slotIdx);
             _handler.DecreaseCooldown(slotIdx, dec);
             CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
 
@@ -155,7 +155,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Wont_Decrease_Cooldown_Of_Casted_Spell(uint slotIdx)
         {
             _handler.GlobalCDR = 0f;
-            _handler.ResetCooldown(slotIdx);
+            _handler.PutOnCooldown(slotIdx);
             _handler.Update(0.5f, _abilities[slotIdx]);
             CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
 
@@ -172,7 +172,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Correctly_Updates_Cooldowns(float deltaTime)
         {
             for(uint i = 0; i < _slotCount; i++)
-                _handler.ResetCooldown(i);
+                _handler.PutOnCooldown(i);
 
             _handler.Update(deltaTime);
 
@@ -215,7 +215,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Correctly_Resets_Ability_Cooldown(uint slot, float cdr)
         {
             _handler.GlobalCDR = cdr;
-            _handler.ResetCooldown(slot);
+            _handler.PutOnCooldown(slot);
             CooldownInfo cdInfo = _handler.GetCooldownInfo(slot);
 
             Assert.AreEqual(cdInfo.totalCooldown, cdInfo.currentCooldown);
@@ -231,7 +231,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             var ability = _abilities[slot];
 
-            Assert.IsTrue(_handler.ResetCooldown(ability));
+            Assert.IsTrue(_handler.PutOnCooldown(ability));
         }
 
         [Test]
@@ -254,7 +254,7 @@ namespace Tests.Runtime.RPG.Abilities
         [Test]
         public void CooldownHandler_Returns_False_For_Reset_Cooldown_On_Invalid_Slot()
         {
-            Assert.IsFalse(_handler.ResetCooldown(1000));
+            Assert.IsFalse(_handler.PutOnCooldown(1000));
         }
 
         [Test]
@@ -320,8 +320,8 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Wont_Do_Anything_When_Reseting_Invalid_Spell()
         {
             IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
-            bool result = _handler.ResetCooldown(null);
-            bool result2 = _handler.ResetCooldown(ab);
+            bool result = _handler.PutOnCooldown(null);
+            bool result2 = _handler.PutOnCooldown(ab);
 
             Assert.IsFalse(result);
             Assert.IsFalse(result2);

@@ -138,26 +138,26 @@ namespace INUlib.RPG.AbilitiesSystem
         }
 
         /// <summary>
-        /// Tries to reset an ability cooldown, by its reference
+        /// Tries to put an ability cooldown, by its reference
         /// Considers CooldownHandler Cooldown Reductions.
         /// </summary>
-        /// <param name="ability">The ability to reset the cooldown</param>
+        /// <param name="ability">The ability to put on cooldown</param>
         /// <returns>True if ability exists in the slots and was reset. False otherwise</returns>
-        public bool ResetCooldown(IAbilityBase ability)
+        public bool PutOnCooldown(IAbilityBase ability)
         {
             int index = Array.FindIndex(_abilities, 0, _abilities.Length, x => x == ability);
             if(index < 0)
                 return false;
-            return ResetCooldown((uint)index);
+            return PutOnCooldown((uint)index);
         }
 
         /// <summary>
-        /// Tries to reset an ability cooldown through its index. 
+        /// Tries to put an ability cooldown through its index. 
         /// Considers CooldownHandler Cooldown Reductions.
         /// </summary>
         /// <param name="slot">The ability to reset the cooldown</param>
         /// <returns>True if there was an ability in the given slot. False otherwise</returns>
-        public bool ResetCooldown(uint slot)
+        public bool PutOnCooldown(uint slot)
         {
             if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
                 return false;

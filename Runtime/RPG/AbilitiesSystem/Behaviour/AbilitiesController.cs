@@ -130,7 +130,7 @@ namespace INUlib.RPG.AbilitiesSystem
         protected virtual void UnleashAbility()
         {
             _castingState = CastingState.Casting;
-            _cdHandler.ResetCooldown(_casting);
+            _cdHandler.PutOnCooldown(_casting);
             _castHandler.AbilityObject.UnleashAbility();
 
             _elapsedChanneling = 0f;
