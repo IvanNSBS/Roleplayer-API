@@ -17,6 +17,7 @@ namespace Tests.Runtime.RPG.Abilities
             public bool isEqual;
             public AbilityObject obj;
             public bool removeOnUpdate;
+            public bool canceled;
 
             public TestFactoryAbility(float cd, float castTime, ICasterInfo factoryRef)
             {
@@ -60,6 +61,11 @@ namespace Tests.Runtime.RPG.Abilities
                         abilityObject.DiscardAbility();
                     });
                 }
+                
+                abilityObject.When(x => x.Cancel()).Do(x =>
+                {
+                    canceled = true;
+                });
                 
                 obj = abilityObject;
                 return new CastObjects(policy, abilityObject);
@@ -288,7 +294,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_castTime*0.5f);
-            _controller.CancelChanneling();
+            _controller.CancelCast();
 
             Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
             Assert.IsNull(_controller.GetCastingAbility());
@@ -437,9 +443,25 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_castTime*0.1f);
-            _controller.CancelChanneling();
+            _controller.CancelCast();
 
             Assert.IsTrue(_controller.CastingState == CastingState.None);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cast_State_Goes_To_None_After_Cancel_Casting(uint slot)
+        {
+            ((TestFactoryAbility)_controller.GetAbility(slot)).RecoveryTime = _castTime;
+            _controller.StartChanneling(slot);
+            _controller.Update(_castTime);
+            _controller.Update(_castTime * 0.01f);
+            _controller.CancelCast();
+
+            Assert.IsTrue(_controller.CastingState == CastingState.None);
+            Assert.IsTrue(((TestFactoryAbility)_controller.GetAbility(slot)).canceled);
         }
 
         [Test]

@@ -50,6 +50,12 @@ namespace INUlib.RPG.AbilitiesSystem
         /// behaviour, marking the actor cast state as None.
         /// </summary>
         public void FinishCast();
+
+        
+        /// <summary>
+        /// Defines the cancel behaviour of this ability
+        /// </summary>
+        public void Cancel();
     }
 
     public abstract class AbilityObject : IAbilityObject 
@@ -112,6 +118,8 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Can be empty if nothing should be done.
         /// </summary>
         public abstract void Discard();
+        
+        public virtual void Cancel() { }
         #endregion
     }
 }

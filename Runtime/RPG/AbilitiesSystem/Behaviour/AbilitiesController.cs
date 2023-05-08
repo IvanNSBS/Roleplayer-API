@@ -116,10 +116,18 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Cancels the ability channeling for the current spell,
         /// reseting the ElapsedCasting timer and setting the casting spell to null
         /// </summary>
-        public virtual void CancelChanneling() 
+        public virtual void CancelCast() 
         {
-            _castHandler?.OnCastCanceled();
-
+            if (_castingState == CastingState.Channeling)
+            {
+                _castHandler?.OnCastCanceled();
+                
+            }
+            else if (_castingState == CastingState.Casting)
+            {
+                _castHandler.AbilityObject.Cancel();
+            }
+            
             _casting = null;
             _castHandler = null;
             _elapsedChanneling = 0f;
