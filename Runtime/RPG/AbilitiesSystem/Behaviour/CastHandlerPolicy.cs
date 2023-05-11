@@ -11,11 +11,6 @@ namespace INUlib.RPG.AbilitiesSystem
         private IAbilityObject _abilityObj;
         #endregion
 
-
-        #region Constructors
-        #endregion
-
-
         #region Methods
         /// <summary>
         /// Updates the elapsed cast time and calls te OnUpdate event for the CastHandler Policy

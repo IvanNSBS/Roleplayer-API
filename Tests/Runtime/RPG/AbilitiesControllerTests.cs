@@ -16,6 +16,7 @@ namespace Tests.Runtime.RPG.Abilities
             private int _category = 0;
             private ICasterInfo _factoryRef;
             public bool isEqual;
+
             public AbilityObject obj;
             public bool removeOnUpdate;
             public bool canceled;
@@ -302,10 +303,12 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
+
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             ability.obj.EndAbilityObject();
-            
-            Assert.IsTrue(_controller.ActiveObjects.Contains(ability.obj));
+
+            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
 
@@ -320,7 +323,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_castTime*0.1f);
         
-            Assert.AreEqual(1, _controller.ActiveObjects.Count);
+            Assert.AreEqual(1, _controller.ActiveAbilities.Count);
         }
 
         [Test]
@@ -332,9 +335,10 @@ namespace Tests.Runtime.RPG.Abilities
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             ability.removeOnUpdate = true;
             _controller.StartChanneling(slot);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
             _controller.Update(_castTime);
             
-            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
 
@@ -391,12 +395,14 @@ namespace Tests.Runtime.RPG.Abilities
         public void AbilityObject_Correctly_Finishes_The_Effect(uint slot)
         {
             _controller.StartChanneling(slot);
-            _controller.Update(_castTime);
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            _controller.Update(_castTime);
+            
             ability.obj.EndAbilityObject();
             ability.obj.DiscardAbilityObject();
             
-            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
+            Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
 

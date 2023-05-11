@@ -18,8 +18,8 @@ namespace INUlib.RPG.AbilitiesSystem
         protected float _elapsedChanneling;
         protected CastingState _castingState;
         protected CooldownHandler _cdHandler;
-        protected CastHandler<TAbility, TCaster> _castHandler;
-        protected List<IAbilityObject> _activeAbilities;
+        protected CastHandler _castHandler;
+        protected List<CastHandler> _activeAbilities;
         #endregion
 
         #region Properties
@@ -49,7 +49,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public CastingState CastingState => _castingState;
 
-        public IReadOnlyList<IAbilityObject> ActiveObjects => _activeAbilities;
+        public IReadOnlyList<CastHandler> ActiveAbilities => _activeAbilities;
         
         public CooldownUpdateType CooldownUpdateType { get; set; }
         #endregion
@@ -62,7 +62,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _caster = caster;
             _abilities = new TAbility[slotAmnt];
             _casting = null;
-            _activeAbilities = new List<IAbilityObject>();
+            _activeAbilities = new List<CastHandler>();
             _cdHandler = new CooldownHandler(_abilities, cdrCalcFunc);
         }
         #endregion
@@ -87,12 +87,13 @@ namespace INUlib.RPG.AbilitiesSystem
                 _castingState = CastingState.Channeling;
                 CastObjects castInfo = _casting.Cast(_caster);
 
-                _castHandler = new CastHandler<TAbility, TCaster>(this, _caster, castInfo);
-                _activeAbilities.Add(castInfo.abilityObject);
+                var handler = new CastHandler(castInfo, GetCastingState);
+                _castHandler = handler;
+                _activeAbilities.Add(_castHandler);
 
                 castInfo.abilityObject.Disable();
                 castInfo.abilityObject.OnFinishCast += FinishAbilityCasting;
-                castInfo.abilityObject.OnAbilityFinished += () => RemoveAbility(castInfo.abilityObject);
+                castInfo.abilityObject.OnAbilityFinished += () => RemoveAbility(handler);
 
                 // If the cast time for the spell is zero, 
                 // just cast it instantly
@@ -160,7 +161,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _castHandler = null;
         }
 
-        public void RemoveAbility(IAbilityObject abilityObject) => _activeAbilities.Remove(abilityObject);
+        public void RemoveAbility(CastHandler abilityObject) => _activeAbilities.Remove(abilityObject);
         #endregion
 
 
@@ -175,7 +176,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public virtual void Update(float deltaTime)
         {
             for(int i = _activeAbilities.Count - 1; i >= 0; i--)
-                _activeAbilities[i].OnUpdate(deltaTime);
+                _activeAbilities[i].Update(deltaTime);
 
             if (CooldownUpdateType == CooldownUpdateType.Auto)
                 UpdateCooldowns(deltaTime);
@@ -202,7 +203,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public void OnDrawGizmos()
         {
             for(int i = _activeAbilities.Count - 1; i >= 0; i--)
-                _activeAbilities[i].OnDrawGizmos();
+                _activeAbilities[i].DrawGizmos();
         }
     
         /// <summary>
@@ -230,7 +231,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <returns>The ability being cast. Null if no ability is being cast</returns>
         public TAbility GetCastingAbility() => _casting;
-        public CastHandler<TAbility, TCaster> GetCastHandler() => _castHandler;
+        public CastHandler GetCastHandler() => _castHandler;
         #endregion
 
 
@@ -241,6 +242,12 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="slot">The slot index</param>
         /// <returns>True if there's an ability in the slot. False othwerwise</returns>
         public bool HasAbilityInSlot(uint slot) => _abilities.Length > slot && _abilities[slot] != null;
+
+        /// <summary>
+        /// Helper method to provide a getter function to pass to the cast handler
+        /// </summary>
+        /// <returns>The Controller cast state</returns>
+        private CastingState GetCastingState() => CastingState;
         #endregion
     }
 }

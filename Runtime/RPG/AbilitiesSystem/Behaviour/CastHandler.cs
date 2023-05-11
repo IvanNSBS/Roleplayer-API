@@ -1,19 +1,20 @@
+using System;
+
 namespace INUlib.RPG.AbilitiesSystem
 {
     /// <summary>
-    /// Communicates cast input and state to the CastPolicy, so the user can
+    /// Serves as a middle man to handle communication between the
+    /// AbilityObject and the CastPolicy, so the user can
     /// customize how input will be handled for the AbilityObject
     /// </summary>
-    public class CastHandler<TAbility, TCaster> 
-           where TAbility : class, IAbility<TCaster> where TCaster : ICasterInfo
+    public class CastHandler
     {
         #region Fields
         private int _timesCastCalled;
-        private TCaster _caster;
 
         private IAbilityObject _abilityObject;
         private CastHandlerPolicy _policy;
-        private AbilitiesController<TAbility, TCaster> _controller;
+        private Func<CastingState> _castStateGetter;
         #endregion
 
 
@@ -24,12 +25,10 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Constructor
-        public CastHandler(AbilitiesController<TAbility, TCaster> ctrl, TCaster caster, CastObjects castInfo)
+        public CastHandler(CastObjects castInfo, Func<CastingState> castStateGetter)
         {
             _timesCastCalled = 0;
-            _caster = caster;
-            _controller = ctrl;
-
+            _castStateGetter = castStateGetter;
             _policy = castInfo.policy;
             _abilityObject = castInfo.abilityObject;
 
@@ -46,13 +45,23 @@ namespace INUlib.RPG.AbilitiesSystem
         public void OnCast()
         {
             _timesCastCalled++;
-            _policy?.OnCastRequested(_timesCastCalled, _controller.CastingState);
+            _policy?.OnCastRequested(_timesCastCalled, _castStateGetter());
         }
         
         /// <summary>
         /// Communicates to the CastPolicy that a cancel cast was requested
         /// </summary>
-        public void OnCastCanceled() => _policy?.OnCancelRequested(_controller.CastingState);
+        public void OnCastCanceled() => _policy?.OnCancelRequested(_castStateGetter());
+
+        public void Update(float deltaTime)
+        {
+            _abilityObject.OnUpdate(deltaTime);
+        }
+
+        public void DrawGizmos()
+        {
+             _abilityObject.OnDrawGizmos();
+        }
         #endregion
     }
 }
