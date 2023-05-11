@@ -2,6 +2,7 @@ using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
 using System.Linq;
+using UnityEngine;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -58,6 +59,7 @@ namespace Tests.Runtime.RPG.Abilities
                 if (AbilityCastType == AbilityCastType.FireAndForget)
                 {
                     abilityObject.When(x => x.EndAbilityObject()).Do(x => {
+                        Debug.Log("dasuihdasuidasoidpojikaios");
                         abilityObject.DiscardAbilityObject();
                     });
                 }

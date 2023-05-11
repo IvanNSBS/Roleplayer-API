@@ -90,7 +90,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Defines the behaviour for when the ability is ended
         /// </summary>
-        public abstract void EndAbilityObjectImpl();
+        protected abstract void EndAbilityObjectImpl();
 
         /// <summary>
         /// Finishes the Ability, invoking the OnFinishCast event and calling the OnFinishCasting 
