@@ -55,14 +55,6 @@ namespace Tests.Runtime.RPG.Abilities
                         abilityObject.DiscardAbilityObject();
                     });
                 }
-
-                if (AbilityCastType == AbilityCastType.FireAndForget)
-                {
-                    abilityObject.When(x => x.EndAbilityObject()).Do(x => {
-                        Debug.Log("dasuihdasuidasoidpojikaios");
-                        abilityObject.DiscardAbilityObject();
-                    });
-                }
                 
                 abilityObject.When(x => x.Cancel()).Do(x =>
                 {
@@ -360,7 +352,6 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.Update(releaseTime);
             
-            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
         
@@ -368,7 +359,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void AbilityObject_Will_Finish_Cast_After_Channeling_If_Theres_No_Release_Time_If_Is_Fire_And_Forget(uint slot)
+        public void AbilityObject_Will_Finish_Cast_After_Channeling_If_Theres_No_Release_Time_And_Is_Fire_And_Forget(uint slot)
         {
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             ability.AbilityCastType = AbilityCastType.FireAndForget;
@@ -377,7 +368,6 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_castTime);
             
-            Assert.IsFalse(_controller.ActiveObjects.Contains(ability.obj));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
 

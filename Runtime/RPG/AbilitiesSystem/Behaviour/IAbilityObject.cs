@@ -88,18 +88,12 @@ namespace INUlib.RPG.AbilitiesSystem
 
         #region Methods
         /// <summary>
-        /// Defines the behaviour for when the ability is ended
-        /// </summary>
-        protected abstract void EndAbilityObjectImpl();
-
-        /// <summary>
         /// Finishes the Ability, invoking the OnFinishCast event and calling the OnFinishCasting 
         /// behaviour, marking the actor cast state as None.
         /// </summary>
         public void EndAbilityObject()
         {
             OnFinishCast?.Invoke();
-            EndAbilityObjectImpl();
         }
 
         /// <summary>
@@ -109,16 +103,8 @@ namespace INUlib.RPG.AbilitiesSystem
         public void DiscardAbilityObject()
         {
             OnAbilityFinished?.Invoke();
-            DiscardAbilityImpl();
         }
 
-        /// <summary>
-        /// Defines the implementation of how an ability will be discarded.
-        /// This functions should define how the garbage created by the spell will be collected.
-        /// Can be empty if nothing should be done.
-        /// </summary>
-        public abstract void DiscardAbilityImpl();
-        
         public virtual void Cancel() { }
         #endregion
     }

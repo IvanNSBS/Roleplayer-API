@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
@@ -101,8 +102,10 @@ namespace INUlib.RPG.AbilitiesSystem
                 // checking if it's equal to 0 with a range to avoid floating point imprecision 
                 bool equalsZero = _casting.RecoveryTime < 0.001f && _casting.RecoveryTime > -0.001f;
                 bool isFireAndForget = _casting.AbilityCastType == AbilityCastType.FireAndForget;
-                if(equalsZero && isFireAndForget)
+                if (equalsZero && isFireAndForget)
+                {
                     _castHandler.AbilityObject.EndAbilityObject();
+                }
             }
             else if(_casting == GetAbility(slot))
             {
