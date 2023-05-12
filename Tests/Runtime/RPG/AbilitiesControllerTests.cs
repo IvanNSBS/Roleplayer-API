@@ -275,7 +275,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(1f);
             _controller.Update(1f);
-            _controller.FinishAbilityCasting();
+            _controller.FinishCastAbilityCasting();
             _controller.StartChanneling(slot);
 
             Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.CooldownsHandler.IsAbilityOnCd(slot));

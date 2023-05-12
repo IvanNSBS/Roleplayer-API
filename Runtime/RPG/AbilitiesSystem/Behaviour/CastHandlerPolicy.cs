@@ -8,7 +8,7 @@ namespace INUlib.RPG.AbilitiesSystem
     {
         #region Fields
         protected float castTimer;
-        private IAbilityObject _abilityObj;
+        private AbilityObject _abilityObj;
         #endregion
 
         #region Methods

@@ -60,9 +60,9 @@ namespace INUlib.RPG.AbilitiesSystem
     public class CastObjects
     {
         public readonly CastHandlerPolicy policy;
-        public readonly IAbilityObject abilityObject;
+        public readonly AbilityObject abilityObject;
         
-        public CastObjects(CastHandlerPolicy policy, IAbilityObject abilityObject)
+        public CastObjects(CastHandlerPolicy policy, AbilityObject abilityObject)
         {
             this.policy = policy;
             this.abilityObject = abilityObject;

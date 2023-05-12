@@ -12,14 +12,14 @@ namespace INUlib.RPG.AbilitiesSystem
         #region Fields
         private int _timesCastCalled;
 
-        private IAbilityObject _abilityObject;
+        private AbilityObject _abilityObject;
         private CastHandlerPolicy _policy;
         private Func<CastingState> _castStateGetter;
         #endregion
 
 
         #region Properties
-        public IAbilityObject AbilityObject => _abilityObject;
+        public AbilityObject AbilityObject => _abilityObject;
         public int TimesCastCalled => _timesCastCalled;
         #endregion
 
