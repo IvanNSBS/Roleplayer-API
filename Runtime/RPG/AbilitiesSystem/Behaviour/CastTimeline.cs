@@ -17,6 +17,7 @@ namespace INUlib.RPG.AbilitiesSystem
     {
         #region Serialized Fields
         public readonly float channelingTime;
+        public readonly float castTime;
         public readonly float recoveryTime;
         #endregion
 
@@ -25,6 +26,7 @@ namespace INUlib.RPG.AbilitiesSystem
         private float _timelineDuration;
         private TimelineState _state;
         private HashSet<Action> _eventsFired;
+        private AbilityCastType _castType;
         #endregion
 
         #region Properties
@@ -34,24 +36,25 @@ namespace INUlib.RPG.AbilitiesSystem
         #endregion
         
         #region Events
-        public event Action TimelineFinished;
         public event Action TimelinePaused;
+        public event Action TimelineStarted;
+        public event Action Timeline_And_Recovery_Finished;
 
-        public event Action ChannelingStarted;
-        public event Action ChannelingFinished;
-        public event Action RecoveryStarted;
-        public event Action RecoveryFinished;
+        public event Action ChannelingFinished_CastStarted = delegate {  };
+        public event Action CastFinished_RecoveryStarted = delegate {  };
         #endregion
         
         
         #region Methods
         [JsonConstructor]
-        public CastTimeline(float channelingTime, float recoveryTime)
+        public CastTimeline(float channelingTime, float castTime, float recoveryTime, AbilityCastType castType)
         {
             this.channelingTime = channelingTime;
-            this.recoveryTime = channelingTime + recoveryTime;
+            this.castTime = castTime + channelingTime;
+            this.recoveryTime = channelingTime + recoveryTime + castTime;
 
-            _timelineDuration = channelingTime + recoveryTime;
+            _castType = castType;
+            _timelineDuration = recoveryTime;
             _eventsFired = new HashSet<Action>();
         }
 
@@ -64,7 +67,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if(_state == TimelineState.Finished)
                 Reset();
             
-            ChannelingStarted?.Invoke();
+            TimelineStarted?.Invoke();
             _state = TimelineState.Running;
         }
 
@@ -87,28 +90,60 @@ namespace INUlib.RPG.AbilitiesSystem
             _state = TimelineState.Pending;
         }
         
+        /// <summary>
+        /// Finishes the timeline. Manual calls have no effect if cast type is Fire and Forget.
+        /// It is called automatically at the end of the timeline if cast type is Fire and Forget.
+        /// Tries to finish the timeline if the cast time has passed and cast type is Concentration.
+        /// Has no effect if cast type is Concentration but the CastFinished and Recovery Started haven't
+        /// been called yet
+        /// </summary>
+        /// <returns>True if the timeline has been finished by this call. False otherwise</returns>
+        public bool FinishTimeline()
+        {
+            bool concentrationCanFinish = _eventsFired.Contains(CastFinished_RecoveryStarted) &&
+                                          _castType == AbilityCastType.Concentration;
+
+            bool fireAndForgetCanFinish = _eventsFired.Contains(CastFinished_RecoveryStarted);
+            bool notFired = !_eventsFired.Contains(Timeline_And_Recovery_Finished);
+            if (notFired && (fireAndForgetCanFinish || concentrationCanFinish))
+            {
+                Timeline_And_Recovery_Finished?.Invoke();
+                _eventsFired.Add(Timeline_And_Recovery_Finished);
+                _state = TimelineState.Finished;
+                return true;
+            }
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Updates the timeline, making time move forward
+        /// </summary>
+        /// <param name="deltaTime">How much time passed since the last frame</param>
         public void Update(float deltaTime)
         {
             if (_state != TimelineState.Running)
                 return;
             
             _elapsedTime += deltaTime;
-            if (_elapsedTime >= channelingTime && !_eventsFired.Contains(ChannelingFinished))
+            if (_elapsedTime >= channelingTime && !_eventsFired.Contains(ChannelingFinished_CastStarted))
             {
-                ChannelingFinished?.Invoke();
-                RecoveryStarted?.Invoke();
-                _eventsFired.Add(ChannelingFinished);
+                ChannelingFinished_CastStarted?.Invoke();
+                _eventsFired.Add(ChannelingFinished_CastStarted);
             }
-            if(_elapsedTime >= recoveryTime && !_eventsFired.Contains(RecoveryFinished))
+            if (_elapsedTime >= castTime && !_eventsFired.Contains(CastFinished_RecoveryStarted))
             {
-                RecoveryFinished?.Invoke();
-                _eventsFired.Add(RecoveryFinished);
+                CastFinished_RecoveryStarted?.Invoke();
+                _eventsFired.Add(CastFinished_RecoveryStarted);
             }
 
-            if (_elapsedTime >= _timelineDuration)
+            if(
+                _castType == AbilityCastType.FireAndForget && 
+                _elapsedTime >= recoveryTime && 
+                !_eventsFired.Contains(Timeline_And_Recovery_Finished)
+            )
             {
-                TimelineFinished?.Invoke();
-                _state = TimelineState.Finished;
+                FinishTimeline();
             }
         }
         #endregion
