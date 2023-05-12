@@ -11,7 +11,7 @@ namespace INUlib.RPG.AbilitiesSystem
     {
         [EnumMember(Value = "fire_and_forget")]
         FireAndForget = 0,
-        [EnumMember(Value = "fire_and_persist")]
-        FireAndPersist = 1,
+        [EnumMember(Value = "concentration")]
+        Concentration = 1,
     }
 }

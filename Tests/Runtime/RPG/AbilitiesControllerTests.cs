@@ -28,7 +28,7 @@ namespace Tests.Runtime.RPG.Abilities
                 ChannelingTime = castTime;
                 CanCastAbility = true;
 
-                AbilityCastType = AbilityCastType.FireAndPersist;
+                AbilityCastType = AbilityCastType.Concentration;
                 RecoveryTime = 0f;
             }
 
@@ -39,7 +39,7 @@ namespace Tests.Runtime.RPG.Abilities
                 Cooldown = cd;
                 ChannelingTime = castTime;
                 CanCastAbility = true;
-                AbilityCastType = AbilityCastType.FireAndPersist;
+                AbilityCastType = AbilityCastType.Concentration;
                 RecoveryTime = 0f;
             }
 
