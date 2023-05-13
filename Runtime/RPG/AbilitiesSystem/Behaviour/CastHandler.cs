@@ -34,6 +34,8 @@ namespace INUlib.RPG.AbilitiesSystem
             _abilityObject = castInfo.abilityObject;
 
             OnCast();
+            
+            
         }
         #endregion
 
@@ -62,6 +64,15 @@ namespace INUlib.RPG.AbilitiesSystem
         public void DrawGizmos()
         {
              _abilityObject.OnDrawGizmos();
+        }
+        #endregion
+        
+        
+        #region Helper Methods
+
+        private void SetupTimeline()
+        {
+            _castTimeline.CastFinished_RecoveryStarted += _abilityObject.UnleashAbility;
         }
         #endregion
     }

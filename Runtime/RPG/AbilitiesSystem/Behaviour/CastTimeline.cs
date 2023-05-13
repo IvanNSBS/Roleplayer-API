@@ -15,10 +15,26 @@ namespace INUlib.RPG.AbilitiesSystem
     [Serializable]
     public class TimelineData
     {
+        #region Fields
+        /// <summary>
+        /// Channeling time represents the time the ability needs to
+        /// be charged to be able to start
+        /// </summary>
         public readonly float channelingTime;
+        
+        /// <summary>
+        /// Cast Time represents the time after channeling where the ability is being
+        /// unleashed into the world. It can be 0 for an instant cast  
+        /// </summary>
         public readonly float castTime;
+        
+        /// <summary>
+        /// Recovery Time represents the time after the ability was casted that an actor needs
+        /// to wait to be able to try to cast another ability again
+        /// </summary>
         public readonly float recoveryTime;
         public readonly AbilityCastType castType;
+        #endregion
         
         [JsonConstructor]
         public TimelineData(float channelingTime, float castTime, float recoveryTime, AbilityCastType castType)
