@@ -19,7 +19,7 @@ namespace Tests.Runtime.RPG.Abilities
 
             public AbilityObject obj;
             public bool removeOnUpdate;
-            public bool canceled;
+            public bool interrupted;
 
             public TestFactoryAbility(float cd, float channelingTime, float castTime, float recoveryTime, ICasterInfo factoryRef)
             {
@@ -66,9 +66,9 @@ namespace Tests.Runtime.RPG.Abilities
                     });
                 }
                 
-                abilityObject.When(x => x.Cancel()).Do(x =>
+                abilityObject.When(x => x.OnInterrupt()).Do(x =>
                 {
-                    canceled = true;
+                    interrupted = true;
                 });
                 
                 obj = abilityObject;
@@ -466,7 +466,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.CancelCast();
 
             Assert.IsTrue(_controller.CastingState == CastingState.None);
-            Assert.IsTrue(((TestFactoryAbility)_controller.GetAbility(slot)).canceled);
+            Assert.IsTrue(((TestFactoryAbility)_controller.GetAbility(slot)).interrupted);
         }
 
         [Test]
@@ -494,6 +494,21 @@ namespace Tests.Runtime.RPG.Abilities
             bool result = _controller.StartChanneling(0);
 
             Assert.IsTrue(expected == result);
+        }
+
+        [Test]
+        public void Ability_Is_Properly_Interrupted()
+        {
+            var testAbility = new TestFactoryAbility(_cd, 0, 0, 0, _mockFactory);
+            _controller.SetAbility(0, testAbility);
+            
+            bool result = _controller.StartChanneling(0);
+            _controller.Update(_channelingTime);
+
+            Assert.AreEqual(CastingState.Casting, _controller.CastingState);
+            
+            _controller.CancelCast();
+            Assert.IsTrue(testAbility.interrupted);
         }
         #endregion
     }

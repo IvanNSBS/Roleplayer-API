@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
@@ -121,7 +120,7 @@ namespace INUlib.RPG.AbilitiesSystem
             }
             else if (_castingState == CastingState.Casting)
             {
-                _castHandler.AbilityObject.Cancel();
+                _castHandler.AbilityObject.OnInterrupt();
             }
             
             _casting = null;

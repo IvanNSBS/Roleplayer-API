@@ -86,9 +86,9 @@ namespace INUlib.RPG.AbilitiesSystem
         }
         
         /// <summary>
-        /// Defines the cancel behaviour of this ability
+        /// Defines what should happen with this ability when the cast has been interrupted
         /// </summary>
-        public virtual void Cancel(){ }
+        public virtual void OnInterrupt(){ }
         #endregion
     }
 }
