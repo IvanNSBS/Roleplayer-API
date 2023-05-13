@@ -11,28 +11,38 @@ namespace INUlib.RPG.AbilitiesSystem
         Paused = 2,
         Finished = 3
     }
-    
+
     [Serializable]
-    public class CastTimeline
+    public class TimelineData
     {
-        #region Serialized Fields
         public readonly float channelingTime;
         public readonly float castTime;
         public readonly float recoveryTime;
-        #endregion
-
+        public readonly AbilityCastType castType;
+        
+        [JsonConstructor]
+        public TimelineData(float channelingTime, float castTime, float recoveryTime, AbilityCastType castType)
+        {
+            this.channelingTime = channelingTime;
+            this.castTime = castTime + channelingTime;
+            this.recoveryTime = channelingTime + recoveryTime + castTime;
+            this.castType = castType;
+        }
+    }
+    
+    public class CastTimeline
+    {
         #region Private Fields
+        private TimelineData _data;
         private float _elapsedTime;
-        private float _timelineDuration;
         private TimelineState _state;
         private HashSet<Action> _eventsFired;
-        private AbilityCastType _castType;
         #endregion
 
         #region Properties
         public TimelineState state => _state;
         public float ElapsedTime => _elapsedTime;
-        public float CompletePercent => _elapsedTime / _timelineDuration; 
+        public float CompletePercent => _elapsedTime / _data.recoveryTime; 
         #endregion
         
         #region Events
@@ -46,15 +56,9 @@ namespace INUlib.RPG.AbilitiesSystem
         
         
         #region Methods
-        [JsonConstructor]
-        public CastTimeline(float channelingTime, float castTime, float recoveryTime, AbilityCastType castType)
+        public CastTimeline(TimelineData timelineData)
         {
-            this.channelingTime = channelingTime;
-            this.castTime = castTime + channelingTime;
-            this.recoveryTime = channelingTime + recoveryTime + castTime;
-
-            _castType = castType;
-            _timelineDuration = recoveryTime;
+            _data = timelineData;
             _eventsFired = new HashSet<Action>();
         }
 
@@ -101,7 +105,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public bool FinishTimeline()
         {
             bool concentrationCanFinish = _eventsFired.Contains(CastFinished_RecoveryStarted) &&
-                                          _castType == AbilityCastType.Concentration;
+                                          _data.castType == AbilityCastType.Concentration;
 
             bool fireAndForgetCanFinish = _eventsFired.Contains(CastFinished_RecoveryStarted);
             bool notFired = !_eventsFired.Contains(Timeline_And_Recovery_Finished);
@@ -126,20 +130,20 @@ namespace INUlib.RPG.AbilitiesSystem
                 return;
             
             _elapsedTime += deltaTime;
-            if (_elapsedTime >= channelingTime && !_eventsFired.Contains(ChannelingFinished_CastStarted))
+            if (_elapsedTime >= _data.channelingTime && !_eventsFired.Contains(ChannelingFinished_CastStarted))
             {
                 ChannelingFinished_CastStarted?.Invoke();
                 _eventsFired.Add(ChannelingFinished_CastStarted);
             }
-            if (_elapsedTime >= castTime && !_eventsFired.Contains(CastFinished_RecoveryStarted))
+            if (_elapsedTime >= _data.castTime && !_eventsFired.Contains(CastFinished_RecoveryStarted))
             {
                 CastFinished_RecoveryStarted?.Invoke();
                 _eventsFired.Add(CastFinished_RecoveryStarted);
             }
 
             if(
-                _castType == AbilityCastType.FireAndForget && 
-                _elapsedTime >= recoveryTime && 
+                _data.castType == AbilityCastType.FireAndForget && 
+                _elapsedTime >= _data.recoveryTime && 
                 !_eventsFired.Contains(Timeline_And_Recovery_Finished)
             )
             {

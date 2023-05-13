@@ -15,6 +15,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <value></value>
         float Cooldown { get; set; }
 
+        
         /// <summary>
         /// Getter for the time that is necessary
         /// to charge the ability to finaly cast it
@@ -30,6 +31,8 @@ namespace INUlib.RPG.AbilitiesSystem
         /// perform other actions again
         /// </summary>
         float RecoveryTime { get; }
+
+        // CastTimeline CastTimeline();
 
         /// <summary>
         /// Ability category ID. Primarily used for specific Cooldown Reductions

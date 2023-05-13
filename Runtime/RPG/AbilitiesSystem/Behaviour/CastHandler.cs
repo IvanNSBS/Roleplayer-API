@@ -15,6 +15,7 @@ namespace INUlib.RPG.AbilitiesSystem
         private AbilityObject _abilityObject;
         private CastHandlerPolicy _policy;
         private Func<CastingState> _castStateGetter;
+        private CastTimeline _castTimeline;
         #endregion
 
 
