@@ -71,7 +71,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Finishes the Ability Cast, invoking the OnFinishCast event and calling the OnFinishCasting 
         /// behaviour, marking the actor cast state as None.
         /// </summary>
-        public void EndAbilityObject()
+        public void InvokeNotifyFinishCast()
         {
             NotifyFinishCast?.Invoke();
         }
@@ -80,7 +80,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Ends the ability life, calling the Discard logic and removing it from the AbilitiesController
         /// Active Ability Objects, marking it to be collectd by the GC.
         /// </summary>
-        public void DiscardAbilityObject()
+        public void InvokeNotifyDiscard()
         {
             NotifyDiscard?.Invoke();
         }

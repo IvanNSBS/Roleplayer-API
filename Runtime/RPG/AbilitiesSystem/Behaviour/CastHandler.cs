@@ -75,11 +75,11 @@ namespace INUlib.RPG.AbilitiesSystem
         private void SetupTimeline()
         {
             _timeline.CastFinished_RecoveryStarted += _abilityObject.UnleashAbility;
-            _timeline.Timeline_And_Recovery_Finished += _abilityObject.EndAbilityObject;
+            _timeline.Timeline_And_Recovery_Finished += _abilityObject.InvokeNotifyFinishCast;
 
             if (_timeline.data.castType == AbilityCastType.FireAndForget)
             {
-                _timeline.Timeline_And_Recovery_Finished += _abilityObject.DiscardAbilityObject;
+                _timeline.Timeline_And_Recovery_Finished += _abilityObject.InvokeNotifyDiscard;
             }
             
             _timeline.Start();

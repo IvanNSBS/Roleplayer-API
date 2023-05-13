@@ -60,8 +60,8 @@ namespace Tests.Runtime.RPG.Abilities
                         float deltaTime = (float)x[0];
                         if (deltaTime > 0.01f)
                         {
-                            abilityObject.EndAbilityObject();
-                            abilityObject.DiscardAbilityObject();
+                            abilityObject.InvokeNotifyFinishCast();
+                            abilityObject.InvokeNotifyDiscard();
                         }
                     });
                 }
@@ -308,7 +308,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime);
 
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
-            ability.obj.EndAbilityObject();
+            ability.obj.InvokeNotifyFinishCast();
 
             var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
             Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
@@ -406,8 +406,8 @@ namespace Tests.Runtime.RPG.Abilities
             var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
             _controller.Update(_channelingTime);
             
-            ability.obj.EndAbilityObject();
-            ability.obj.DiscardAbilityObject();
+            ability.obj.InvokeNotifyFinishCast();
+            ability.obj.InvokeNotifyDiscard();
             
             Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
             Assert.AreEqual(_controller.CastingState, CastingState.None);
