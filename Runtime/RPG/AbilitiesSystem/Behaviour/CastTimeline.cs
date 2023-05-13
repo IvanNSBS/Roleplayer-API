@@ -42,8 +42,8 @@ namespace INUlib.RPG.AbilitiesSystem
         public TimelineData(float channelingTime, float castTime, float recoveryTime, AbilityCastType castType)
         {
             this.channelingTime = channelingTime;
-            this.castTime = castTime + channelingTime;
-            this.recoveryTime = channelingTime + recoveryTime + castTime;
+            this.castTime = castTime;
+            this.recoveryTime = recoveryTime;
             this.castType = castType;
         }
         #endregion
@@ -56,9 +56,16 @@ namespace INUlib.RPG.AbilitiesSystem
         private float _elapsedTime;
         private TimelineState _state;
         private HashSet<Action> _eventsFired;
-        #endregion
+        private bool _concentrating;
 
+        private float _concentrationRecoveryTime = 0f;
+        #endregion
+        
         #region Properties
+        protected float ChannelingFinishTime => _data.channelingTime;
+        protected float CastFinishTime => _data.channelingTime + _data.castTime;
+        protected float RecoveryFinishTime => _data.channelingTime + _data.castTime + _data.recoveryTime;
+        
         public TimelineState state => _state;
         public TimelineData data => _data;
         public float ElapsedTime => _elapsedTime;
@@ -80,6 +87,7 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             _data = timelineData;
             _eventsFired = new HashSet<Action>();
+            _concentrating = data.castType == AbilityCastType.Concentration;
         }
 
         /// <summary>
@@ -113,33 +121,16 @@ namespace INUlib.RPG.AbilitiesSystem
             _eventsFired.Clear();
             _state = TimelineState.Pending;
         }
-        
-        /// <summary>
-        /// Finishes the timeline. Manual calls have no effect if cast type is Fire and Forget.
-        /// It is called automatically at the end of the timeline if cast type is Fire and Forget.
-        /// Tries to finish the timeline if the cast time has passed and cast type is Concentration.
-        /// Has no effect if cast type is Concentration but the CastFinished and Recovery Started haven't
-        /// been called yet
-        /// </summary>
-        /// <returns>True if the timeline has been finished by this call. False otherwise</returns>
-        public bool FinishTimeline()
+
+        public void FinishConcentration()
         {
-            bool concentrationCanFinish = _eventsFired.Contains(CastFinished_RecoveryStarted) &&
-                                          _data.castType == AbilityCastType.Concentration;
-
-            bool fireAndForgetCanFinish = _eventsFired.Contains(CastFinished_RecoveryStarted);
-            bool notFired = !_eventsFired.Contains(Timeline_And_Recovery_Finished);
-            if (notFired && (fireAndForgetCanFinish || concentrationCanFinish))
-            {
-                Timeline_And_Recovery_Finished?.Invoke();
-                _eventsFired.Add(Timeline_And_Recovery_Finished);
-                _state = TimelineState.Finished;
-                return true;
-            }
-
-            return false;
+            _concentrating = false;
+            // need to subtract from cast time to get actual recovery time because i'm doing weird math
+            // since there's no real timeline(yet) and things are quite manual
+            _concentrationRecoveryTime = _data.recoveryTime + _elapsedTime;
+            Update(0);            
         }
-        
+
         /// <summary>
         /// Updates the timeline, making time move forward
         /// </summary>
@@ -150,25 +141,55 @@ namespace INUlib.RPG.AbilitiesSystem
                 return;
             
             _elapsedTime += deltaTime;
-            if (_elapsedTime >= _data.channelingTime && !_eventsFired.Contains(ChannelingFinished_CastStarted))
+            if (_elapsedTime >= ChannelingFinishTime && !_eventsFired.Contains(ChannelingFinished_CastStarted))
             {
                 ChannelingFinished_CastStarted?.Invoke();
                 _eventsFired.Add(ChannelingFinished_CastStarted);
             }
-            if (_elapsedTime >= _data.castTime && !_eventsFired.Contains(CastFinished_RecoveryStarted))
+
+            if (!_concentrating)
             {
-                CastFinished_RecoveryStarted?.Invoke();
-                _eventsFired.Add(CastFinished_RecoveryStarted);
+                float castFinish = _data.castType == AbilityCastType.Concentration ? 0 : CastFinishTime;
+                if (_elapsedTime >= castFinish && !_eventsFired.Contains(CastFinished_RecoveryStarted))
+                {
+                    CastFinished_RecoveryStarted?.Invoke();
+                    _eventsFired.Add(CastFinished_RecoveryStarted);
+                }
+
+                float recoveryFinish = _data.castType == AbilityCastType.Concentration
+                    ? _concentrationRecoveryTime
+                    : RecoveryFinishTime;
+                
+                if(_elapsedTime >= recoveryFinish && !_eventsFired.Contains(Timeline_And_Recovery_Finished))
+                {
+                    FinishTimeline();
+                }
+            }
+        }
+        #endregion
+        
+        
+        #region Helper Method
+        /// <summary>
+        /// Finishes the timeline. Manual calls have no effect if cast type is Fire and Forget.
+        /// It is called automatically at the end of the timeline if cast type is Fire and Forget.
+        /// Tries to finish the timeline if the cast time has passed and cast type is Concentration.
+        /// Has no effect if cast type is Concentration but the CastFinished and Recovery Started haven't
+        /// been called yet
+        /// </summary>
+        /// <returns>True if the timeline has been finished by this call. False otherwise</returns>
+        protected bool FinishTimeline()
+        {
+            bool notFired = !_eventsFired.Contains(Timeline_And_Recovery_Finished);
+            if (notFired)
+            {
+                Timeline_And_Recovery_Finished?.Invoke();
+                _eventsFired.Add(Timeline_And_Recovery_Finished);
+                _state = TimelineState.Finished;
+                return true;
             }
 
-            if(
-                _data.castType == AbilityCastType.FireAndForget && 
-                _elapsedTime >= _data.recoveryTime && 
-                !_eventsFired.Contains(Timeline_And_Recovery_Finished)
-            )
-            {
-                FinishTimeline();
-            }
+            return false;
         }
         #endregion
     }

@@ -1,13 +1,18 @@
-using System;
-
 namespace INUlib.RPG.AbilitiesSystem
 {
     public interface IAbilityBase
     {
         /// <summary>
-        /// The cast 
+        /// The cast type of the spell 
         /// </summary>
         AbilityCastType AbilityCastType { get; }
+
+        /// <summary>
+        /// Function that determines the condition that a concentration ability must meet to
+        /// finish casting. Has no effect if AbilityCastType is FireAndForget
+        /// </summary>
+        /// <returns>True if a concentration spell should end. False otherwise</returns>
+        bool ConcentrationEndCondition();
         
         /// <summary>
         /// Getter for the ability max cooldown.

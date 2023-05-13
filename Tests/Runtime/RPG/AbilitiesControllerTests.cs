@@ -1,8 +1,7 @@
- using NUnit.Framework;
+using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
 using System.Linq;
-using UnityEngine;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -20,7 +19,8 @@ namespace Tests.Runtime.RPG.Abilities
             public AbilityObject obj;
             public bool removeOnUpdate;
             public bool interrupted;
-
+            public bool shouldFinishConcentration;
+            
             public TestFactoryAbility(float cd, float channelingTime, float castTime, float recoveryTime, ICasterInfo factoryRef)
             {
                 _factoryRef = factoryRef;
@@ -77,6 +77,8 @@ namespace Tests.Runtime.RPG.Abilities
 
             public bool CanCast(ICasterInfo caster) => CanCastAbility;
 
+            public bool ConcentrationEndCondition() => shouldFinishConcentration;
+            
             public bool CanCastAbility {get; set;}
             public float Cooldown {get; set;}
             public TimelineData CastTimeline => new (ChannelingTime, CastTime, RecoveryTime, AbilityCastType);
