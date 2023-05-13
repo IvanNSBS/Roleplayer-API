@@ -91,22 +91,14 @@ namespace INUlib.RPG.AbilitiesSystem
                 _castHandler = handler;
                 _activeAbilities.Add(_castHandler);
 
-                castInfo.abilityObject.Disable();
-                castInfo.abilityObject.NotifyFinishCast += FinishCastAbilityCasting;
-                castInfo.abilityObject.NotifyDiscard += () => RemoveAbility(handler);
-
-                // If the cast time for the spell is zero, 
-                // just cast it instantly
-                if(_casting.ChannelingTime == 0f)
-                    UnleashAbility();
+                handler.AbilityObject.Disable();
+                handler.Timeline.ChannelingFinished_CastStarted += FinishChanneling;
+                handler.AbilityObject.NotifyFinishCast += FinishCastAbilityCasting;
+                handler.AbilityObject.NotifyDiscard += () => RemoveAbility(handler);
                 
-                // checking if it's equal to 0 with a range to avoid floating point imprecision 
-                bool equalsZero = _casting.RecoveryTime < 0.001f && _casting.RecoveryTime > -0.001f;
-                bool isFireAndForget = _casting.AbilityCastType == AbilityCastType.FireAndForget;
-                if (equalsZero && isFireAndForget)
-                {
-                    _castHandler.AbilityObject.EndAbilityObject();
-                }
+                // Updates cast handler with a deltaTime of 0 so instant spells(0 channeling and castTime)
+                // might be cast on the same frame instead of the next
+                _castHandler.Update(0f);
             }
             else if(_casting == GetAbility(slot))
             {
@@ -141,12 +133,10 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Helper method to cast the ability after it is ready to be cast
         /// </summary>
-        protected virtual void UnleashAbility()
+        protected virtual void FinishChanneling()
         {
             _castingState = CastingState.Casting;
             _cdHandler.PutOnCooldown(_casting);
-            _castHandler.AbilityObject.UnleashAbility();
-
             _elapsedChanneling = 0f;
         }
 
@@ -175,29 +165,11 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public virtual void Update(float deltaTime)
         {
-            for(int i = _activeAbilities.Count - 1; i >= 0; i--)
-                _activeAbilities[i].Update(deltaTime);
-
             if (CooldownUpdateType == CooldownUpdateType.Auto)
                 UpdateCooldowns(deltaTime);
-
-            if(_casting != null)
-            {
-                if (_castingState == CastingState.Channeling)
-                {
-                    _elapsedChanneling += deltaTime;
-                    if(_elapsedChanneling >= _casting.ChannelingTime)
-                        UnleashAbility();
-                }
-                else if (_castingState == CastingState.Casting && _casting.RecoveryTime > 0)
-                {
-                    _elapsedChanneling += deltaTime;
-                    if (_elapsedChanneling >= _casting.RecoveryTime && _casting.AbilityCastType == AbilityCastType.FireAndForget)
-                    {
-                        _castHandler.AbilityObject.EndAbilityObject();
-                    }
-                }
-            }
+            
+            for(int i = _activeAbilities.Count - 1; i >= 0; i--)
+                _activeAbilities[i].Update(deltaTime);
         }
 
         public void OnDrawGizmos()

@@ -14,25 +14,12 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <value></value>
         float Cooldown { get; set; }
-
         
         /// <summary>
-        /// Getter for the time that is necessary
-        /// to charge the ability to finaly cast it
-        /// 0 should mean that the ability is cast instantly
+        /// Getter for the TimelineData used for a spell
         /// </summary>
-        /// <value></value>
-        float ChannelingTime { get; }
-
-        /// <summary>
-        /// Getter for the time that is necessary to finish performing
-        /// the ability after it has been successfully channeled.
-        /// Can be perceived like a cooldown needed to be able to 
-        /// perform other actions again
-        /// </summary>
-        float RecoveryTime { get; }
-
-        // CastTimeline CastTimeline();
+        /// <returns></returns>
+        TimelineData CastTimeline { get; }
 
         /// <summary>
         /// Ability category ID. Primarily used for specific Cooldown Reductions
@@ -64,9 +51,11 @@ namespace INUlib.RPG.AbilitiesSystem
     {
         public readonly CastHandlerPolicy policy;
         public readonly AbilityObject abilityObject;
+        public readonly CastTimeline timeline;
         
-        public CastObjects(CastHandlerPolicy policy, AbilityObject abilityObject)
+        public CastObjects(CastHandlerPolicy policy, AbilityObject abilityObject, TimelineData timelineData)
         {
+            this.timeline = new CastTimeline(timelineData);
             this.policy = policy;
             this.abilityObject = abilityObject;
         }

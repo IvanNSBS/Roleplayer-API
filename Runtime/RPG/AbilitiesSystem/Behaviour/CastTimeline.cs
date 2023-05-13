@@ -35,7 +35,9 @@ namespace INUlib.RPG.AbilitiesSystem
         public readonly float recoveryTime;
         public readonly AbilityCastType castType;
         #endregion
+
         
+        #region Methods
         [JsonConstructor]
         public TimelineData(float channelingTime, float castTime, float recoveryTime, AbilityCastType castType)
         {
@@ -44,6 +46,7 @@ namespace INUlib.RPG.AbilitiesSystem
             this.recoveryTime = channelingTime + recoveryTime + castTime;
             this.castType = castType;
         }
+        #endregion
     }
     
     public class CastTimeline
@@ -57,6 +60,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         #region Properties
         public TimelineState state => _state;
+        public TimelineData data => _data;
         public float ElapsedTime => _elapsedTime;
         public float CompletePercent => _elapsedTime / _data.recoveryTime; 
         #endregion

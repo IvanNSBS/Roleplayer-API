@@ -15,13 +15,14 @@ namespace INUlib.RPG.AbilitiesSystem
         private AbilityObject _abilityObject;
         private CastHandlerPolicy _policy;
         private Func<CastingState> _castStateGetter;
-        private CastTimeline _castTimeline;
+        private CastTimeline _timeline;
         #endregion
 
 
         #region Properties
         public AbilityObject AbilityObject => _abilityObject;
         public int TimesCastCalled => _timesCastCalled;
+        public CastTimeline Timeline => _timeline;
         #endregion
 
 
@@ -32,10 +33,10 @@ namespace INUlib.RPG.AbilitiesSystem
             _castStateGetter = castStateGetter;
             _policy = castInfo.policy;
             _abilityObject = castInfo.abilityObject;
+            _timeline = castInfo.timeline;
 
+            SetupTimeline();
             OnCast();
-            
-            
         }
         #endregion
 
@@ -58,6 +59,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public void Update(float deltaTime)
         {
+            _timeline?.Update(deltaTime);
             _abilityObject.OnUpdate(deltaTime);
         }
 
@@ -72,7 +74,15 @@ namespace INUlib.RPG.AbilitiesSystem
 
         private void SetupTimeline()
         {
-            _castTimeline.CastFinished_RecoveryStarted += _abilityObject.UnleashAbility;
+            _timeline.CastFinished_RecoveryStarted += _abilityObject.UnleashAbility;
+            _timeline.Timeline_And_Recovery_Finished += _abilityObject.EndAbilityObject;
+
+            if (_timeline.data.castType == AbilityCastType.FireAndForget)
+            {
+                _timeline.Timeline_And_Recovery_Finished += _abilityObject.DiscardAbilityObject;
+            }
+            
+            _timeline.Start();
         }
         #endregion
     }
