@@ -12,29 +12,25 @@ namespace INUlib.RPG.AbilitiesSystem
         #region Fields
         private int _timesCastCalled;
 
-        private AbilityObject _abilityObject;
-        private CastHandlerPolicy _policy;
         private Func<CastingState> _castStateGetter;
-        private CastTimeline _timeline;
+        private CastObjects _castObjects;
         #endregion
 
 
         #region Properties
-        public AbilityObject AbilityObject => _abilityObject;
+        public AbilityObject AbilityObject => _castObjects.abilityObject;
         public int TimesCastCalled => _timesCastCalled;
-        public CastTimeline Timeline => _timeline;
+        public CastTimeline Timeline => _castObjects.timeline;
         #endregion
 
 
         #region Constructor
-        public CastHandler(CastObjects castInfo, Func<CastingState> castStateGetter)
+        public CastHandler(CastObjects castObjects, Func<CastingState> castStateGetter)
         {
             _timesCastCalled = 0;
             _castStateGetter = castStateGetter;
-            _policy = castInfo.policy;
-            _abilityObject = castInfo.abilityObject;
-            _timeline = castInfo.timeline;
-
+            _castObjects = castObjects;
+            
             SetupTimeline();
             OnCast();
         }
@@ -49,40 +45,50 @@ namespace INUlib.RPG.AbilitiesSystem
         public void OnCast()
         {
             _timesCastCalled++;
-            _policy?.OnCastRequested(_timesCastCalled, _castStateGetter());
+            _castObjects.policy?.OnCastRequested(_timesCastCalled, _castStateGetter());
         }
         
         /// <summary>
         /// Communicates to the CastPolicy that a cancel cast was requested
         /// </summary>
-        public void OnCastCanceled() => _policy?.OnCancelRequested(_castStateGetter());
+        public void OnCastCanceled() => _castObjects.policy?.OnCancelRequested(_castStateGetter());
 
+        /// <summary>
+        /// Updates the timeline and the ability object, passing the time that has passed since the last frame.
+        /// It will try to finish concentration on every frame if the casting state is Casting and the ability
+        /// is of concentration type by checking if ConcentrationEndCondition has been met.
+        /// </summary>
+        /// <param name="deltaTime">The amount of time that has passed since the last frame</param>
         public void Update(float deltaTime)
         {
-            _timeline?.Update(deltaTime);
-            _abilityObject.OnUpdate(deltaTime);
+            _castObjects.timeline?.Update(deltaTime);
+            _castObjects.abilityObject.OnUpdate(deltaTime);
+
+            if (_castStateGetter() == CastingState.Casting && _castObjects.endConcentrationCondition())
+            {
+                _castObjects.timeline?.FinishConcentration();
+            }
         }
 
         public void DrawGizmos()
         {
-             _abilityObject.OnDrawGizmos();
+            _castObjects.abilityObject.OnDrawGizmos();
         }
         #endregion
         
         
         #region Helper Methods
-
         private void SetupTimeline()
         {
-            _timeline.CastFinished_RecoveryStarted += _abilityObject.UnleashAbility;
+            _castObjects.timeline.CastFinished_RecoveryStarted += _castObjects.abilityObject.UnleashAbility;
 
-            if (_timeline.data.castType == AbilityCastType.FireAndForget)
+            if (_castObjects.timeline.data.castType == AbilityCastType.FireAndForget)
             {
-                _timeline.Timeline_And_Recovery_Finished += _abilityObject.InvokeNotifyFinishCast;
-                _timeline.Timeline_And_Recovery_Finished += _abilityObject.InvokeNotifyDiscard;
+                _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.InvokeNotifyFinishCast;
+                _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.InvokeNotifyDiscard;
             }
             
-            _timeline.Start();
+            _castObjects.timeline.Start();
         }
         #endregion
     }

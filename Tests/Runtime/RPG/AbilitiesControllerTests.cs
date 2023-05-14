@@ -72,7 +72,7 @@ namespace Tests.Runtime.RPG.Abilities
                 });
                 
                 obj = abilityObject;
-                return new CastObjects(policy, abilityObject, CastTimeline);
+                return new CastObjects(policy, abilityObject, CastTimeline, ConcentrationEndCondition);
             }
 
             public bool CanCast(ICasterInfo caster) => CanCastAbility;

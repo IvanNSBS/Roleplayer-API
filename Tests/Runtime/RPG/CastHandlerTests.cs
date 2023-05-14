@@ -16,10 +16,14 @@ namespace Tests.Runtime.RPG
 
         private int _abilityDrawGizmosCalled = 0;
         private int _abilityUpdatesCalled = 0;
+
+
+        public bool finishConcentration;
         
         [SetUp]
         public void Setup()
         {
+            finishConcentration = false;
             _abilityUpdatesCalled = 0;
             _abilityDrawGizmosCalled = 0;
             
@@ -37,7 +41,7 @@ namespace Tests.Runtime.RPG
                 _abilityDrawGizmosCalled++;
             });
             
-            CastObjects objs = new CastObjects(policy, obj, timelineData); 
+            CastObjects objs = new CastObjects(policy, obj, timelineData, () => finishConcentration); 
             _handler = new CastHandler(objs, CastStateGetter);
         }
         #endregion
@@ -81,6 +85,19 @@ namespace Tests.Runtime.RPG
         {
             _handler.DrawGizmos();
             Assert.AreEqual(1, _abilityDrawGizmosCalled);
+        }
+
+        [Test]
+        public void CastHandler_Properly_Finishes_Concentration_On_Update()
+        {
+            int fired = 0;
+            _handler.Timeline.Timeline_And_Recovery_Finished += () => fired++;
+            _handler.Update(channelingTime);
+            finishConcentration = true;
+            
+            _handler.Update(recoveryTime);
+            _handler.Update(recoveryTime);
+            Assert.AreEqual(1, fired, $"Expected timeline to finish and fire 1 time, but it was fired {fired} times");
         }
         #endregion
     }

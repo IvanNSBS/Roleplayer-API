@@ -1,3 +1,5 @@
+using System;
+
 namespace INUlib.RPG.AbilitiesSystem
 {
     public interface IAbilityBase
@@ -57,12 +59,14 @@ namespace INUlib.RPG.AbilitiesSystem
         public readonly CastHandlerPolicy policy;
         public readonly AbilityObject abilityObject;
         public readonly CastTimeline timeline;
+        public readonly Func<bool> endConcentrationCondition;
         
-        public CastObjects(CastHandlerPolicy policy, AbilityObject abilityObject, TimelineData timelineData)
+        public CastObjects(CastHandlerPolicy policy, AbilityObject abilityObject, TimelineData timelineData, Func<bool> endConcentrationCondition)
         {
             this.timeline = new CastTimeline(timelineData);
             this.policy = policy;
             this.abilityObject = abilityObject;
+            this.endConcentrationCondition = endConcentrationCondition;
         }
     } 
 }
