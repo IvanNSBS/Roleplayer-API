@@ -78,7 +78,8 @@ namespace Tests.Runtime.RPG.Abilities
             public bool CanCast(ICasterInfo caster) => CanCastAbility;
 
             public bool ConcentrationEndCondition() => shouldFinishConcentration;
-            
+
+            public int Charges => 1;
             public bool CanCastAbility {get; set;}
             public float Cooldown {get; set;}
             public TimelineData CastTimeline => new (ChannelingTime, CastTime, RecoveryTime, AbilityCastType);

@@ -80,7 +80,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if(!HasAbilityInSlot(slot) || !_abilities[slot].CanCast(_caster))
                 return false;
 
-            if(!_cdHandler.IsAbilityOnCd(slot) && _casting == null)
+            if(_cdHandler.AbilityHasCharges(slot) && !_cdHandler.IsAbilityOnCd(slot) && _casting == null)
             {
                 _casting = _abilities[slot];
                 _castingState = CastingState.Channeling;

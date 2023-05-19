@@ -23,6 +23,13 @@ namespace INUlib.RPG.AbilitiesSystem
         float Cooldown { get; set; }
         
         /// <summary>
+        /// How many times an ability can be used.
+        /// A charge will be recovered once the cooldown time has been completed,
+        /// until the max charges are reached
+        /// </summary>
+        int Charges { get; }
+        
+        /// <summary>
         /// Getter for the TimelineData used for a spell
         /// </summary>
         /// <returns></returns>

@@ -1,9 +1,8 @@
 using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
-using UnityEngine;
-using System.Linq.Expressions;
 using System;
+using INUlib.Utils.Math;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -18,6 +17,7 @@ namespace Tests.Runtime.RPG.Abilities
             public float GetCooldownWithCdr(uint slot) => this.GetAbilityCooldownWithCdr(slot);
         }
 
+        private int _abilityCharges = 1;
         private int _slotCount = 5;
         private float _abilityMaxCd = 10f;
         private IAbility<ICasterInfo>[] _abilities;
@@ -31,6 +31,7 @@ namespace Tests.Runtime.RPG.Abilities
             {
                 int idx = i;
                 IAbility<ICasterInfo> ability = Substitute.For<IAbility<ICasterInfo>>();
+                ability.Charges.Returns(_abilityCharges);
                 ability.Cooldown.Returns(_abilityMaxCd);
                 ability.Category.Returns(idx);
 
@@ -61,7 +62,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.AddCategoryCdr(category, ccd);
 
             float value = _handler.GetCooldownWithCdr((uint)category);
-            float clampedCdr = 1 - Mathf.Clamp(gcd + ccd, 0, maxCdr);
+            float clampedCdr = 1 - INUMath.Clamp(gcd + ccd, 0, maxCdr);
             float expected = _abilityMaxCd * clampedCdr;
 
             Assert.AreEqual(expected, value);
@@ -80,7 +81,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(4, 0.30f, 0.40f, 0.7f)]
         public void CooldownHandler_Correctly_Uses_CDR_Function_To_Calculate_Cdr(int category, float gcd, float ccd, float maxCdr)
         {
-            Func<float, float, float> testFunc = (gcd, ccd) => 0.7f * Mathf.Clamp01(gcd) + 0.3f * Mathf.Clamp01(ccd);
+            Func<float, float, float> testFunc = (gcd, ccd) => 0.7f * INUMath.Clamp01(gcd) + 0.3f * INUMath.Clamp01(ccd);
             _handler.SetCdrFunction(testFunc);
 
             _handler.GlobalCDR = gcd;
@@ -88,37 +89,12 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.AddCategoryCdr(category, ccd);
 
             float value = _handler.GetCooldownWithCdr((uint)category);
-            float clampedCdr = 1 - Mathf.Clamp(testFunc(gcd, ccd), 0, maxCdr);
+            float clampedCdr = 1 - INUMath.Clamp(testFunc(gcd, ccd), 0, maxCdr);
             float expected = _abilityMaxCd * clampedCdr;
 
             Assert.AreEqual(expected, value);
         }
         
-        [Test]
-        [TestCase(0u, 1.00f)]
-        [TestCase(0u, 0.25f)]
-        [TestCase(0u, 2.23f)]
-        [TestCase(0u, 6.23f)]
-        [TestCase(0u, 9.34f)]
-        [TestCase(2u, 1.00f)]
-        [TestCase(2u, 0.25f)]
-        [TestCase(2u, 2.23f)]
-        [TestCase(2u, 6.23f)]
-        [TestCase(2u, 9.34f)]
-        [TestCase(4u, 1.00f)]
-        [TestCase(4u, 0.25f)]
-        [TestCase(4u, 2.23f)]
-        [TestCase(4u, 6.23f)]
-        [TestCase(4u, 9.34f)]
-        public void CooldownHandler_Correctly_Increases_Cooldown(uint slotIdx, float inc)
-        {
-            _handler.IncreaseCooldown(slotIdx, inc);
-            CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
-
-            float expected = Mathf.Clamp(inc, 0, _abilityMaxCd * (1 - _handler.GlobalCDR));
-            Assert.AreEqual(expected, info.currentCooldown);
-        }
-
         [Test]
         [TestCase(0u, 1.00f)]
         [TestCase(0u, 0.25f)]
@@ -142,7 +118,7 @@ namespace Tests.Runtime.RPG.Abilities
             CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
 
             float maxCd = _abilityMaxCd * (1 - _handler.GlobalCDR);
-            float expected = Mathf.Clamp(maxCd - dec, 0, _abilityMaxCd);
+            float expected = INUMath.Clamp(maxCd - dec, 0, _abilityMaxCd);
             Assert.AreEqual(expected, info.currentCooldown);
         }
 
@@ -177,7 +153,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.Update(deltaTime);
 
             float maxCd = _abilityMaxCd * (1 - _handler.GlobalCDR);
-            float expected = Mathf.Clamp(maxCd - deltaTime, 0, _abilityMaxCd);
+            float expected = INUMath.Clamp(maxCd - deltaTime, 0, _abilityMaxCd);
 
             for(uint i = 0; i < _slotCount; i++)
             {
@@ -272,7 +248,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Properly_Returns_MaxCdr(float maxCdr)
         {
             _handler.MaxCdrValue = maxCdr;
-            Assert.AreEqual(Mathf.Clamp01(maxCdr), _handler.MaxCdrValue);
+            Assert.AreEqual(INUMath.Clamp01(maxCdr), _handler.MaxCdrValue);
         }
 
         [Test]
@@ -292,7 +268,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Properly_Sets_CategoryCdr(float cdr)
         {
             _handler.SetCategoryCdr(0, cdr);
-            float expected = Mathf.Clamp(cdr, 0, _handler.MaxCdrValue);
+            float expected = INUMath.Clamp(cdr, 0, _handler.MaxCdrValue);
 
             Assert.AreEqual(expected, _handler.GetCategoryCdr(0));
         }
@@ -304,7 +280,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _handler.AddCategoryCdr(0, cdr);
 
-            Assert.AreEqual(Mathf.Clamp(cdr, 0, _handler.MaxCdrValue), _handler.GetCategoryCdr(0));
+            Assert.AreEqual(INUMath.Clamp(cdr, 0, _handler.MaxCdrValue), _handler.GetCategoryCdr(0));
         }
 
         [Test]
@@ -373,33 +349,246 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
-        [TestCase(0u, 0.00f)]
-        [TestCase(0u, 1.20f)]
-        [TestCase(0u, 7.50f)]
-        [TestCase(0u, 3.00f)]
-        [TestCase(1u, 0.00f)]
-        [TestCase(1u, 1.20f)]
-        [TestCase(1u, 7.50f)]
-        [TestCase(1u, 3.00f)]
-        [TestCase(2u, 0.00f)]
-        [TestCase(2u, 1.20f)]
-        [TestCase(2u, 7.50f)]
-        [TestCase(2u, 3.00f)]
-        [TestCase(3u, 0.00f)]
-        [TestCase(3u, 1.20f)]
-        [TestCase(3u, 7.50f)]
-        [TestCase(3u, 3.00f)]
-        [TestCase(4u, 0.00f)]
-        [TestCase(4u, 1.20f)]
-        [TestCase(4u, 7.50f)]
-        [TestCase(4u, 3.00f)]
-        public void CooldownHandler_Properly_Returns_If_Ability_Is_On_Cooldown(uint slot, float currentCd)
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void CooldownHandler_Properly_Returns_If_Ability_Is_On_Cooldown(uint slot)
         {
-            _handler.IncreaseCooldown(slot, currentCd);
-            bool expected = currentCd > 0;
+            _handler.PutOnCooldown(slot);
+            Assert.IsTrue(_handler.IsAbilityOnCd(slot));
+        }
 
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void Ability_Wont_Go_To_Cooldown_If_It_Has_Cooldown_Set_To_Zero(uint slot)
+        {
+            _abilities[slot].Cooldown.Returns(0);
+            Assert.AreEqual(0, _handler.GetCooldownInfo(slot).totalCooldown);
 
-            Assert.AreEqual(expected, _handler.IsAbilityOnCd(slot));
+            _handler.PutOnCooldown(slot);
+            bool onCooldown = _handler.IsAbilityOnCd(slot);
+            Assert.IsFalse(onCooldown, "Expected ability to not be on cooldown but it was");
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void Cooldown_Handler_Properly_Adds_Spell_Charges(uint slot)
+        {
+            _handler.PutOnCooldown(slot);
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            
+            Assert.AreEqual(_abilityCharges-1 , cdInfo.availableCharges);
+            
+            _handler.Update(_abilityMaxCd);
+            cdInfo = _handler.GetCooldownInfo(slot);
+            
+            Assert.AreEqual(_abilityCharges, cdInfo.availableCharges);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void PutOnCooldown_Returns_False_If_Ability_Has_No_Charges(uint slot)
+        {
+            _handler.SetAbilityMaxCharges(slot, 0, false);
+            bool output = _handler.PutOnCooldown(slot);
+            Assert.IsFalse(output);          
+        }
+
+        [Test]
+        [TestCase(0u, 1.00f)]
+        [TestCase(0u, 0.25f)]
+        [TestCase(0u, 2.23f)]
+        [TestCase(0u, 6.23f)]
+        [TestCase(0u, 9.34f)]
+        [TestCase(2u, 1.00f)]
+        [TestCase(2u, 0.25f)]
+        [TestCase(2u, 2.23f)]
+        [TestCase(2u, 6.23f)]
+        [TestCase(2u, 9.34f)]
+        [TestCase(4u, 1.00f)]
+        [TestCase(4u, 0.25f)]
+        [TestCase(4u, 2.23f)]
+        [TestCase(4u, 6.23f)]
+        [TestCase(4u, 9.34f)]
+        public void CooldownHandler_Correctly_Increases_Cooldown(uint slotIdx, float inc)
+        {
+            _handler.PutOnCooldown(slotIdx);
+            _handler.Update(inc);
+            _handler.IncreaseCooldown(slotIdx, inc);
+            CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
+
+            float expected = _abilityMaxCd;
+            Assert.AreEqual(expected, info.currentCooldown);
+        }
+        
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void Increase_Cooldown_Wont_Do_Anything_If_Ability_Is_Not_On_Cooldown(uint slot)
+        {
+            bool output = _handler.IncreaseCooldown(slot, 5);
+            Assert.IsFalse(output);
+        }
+
+        [Test]
+        [TestCase(0u, 2)]
+        [TestCase(1u, 1)]
+        [TestCase(2u, 5)]
+        [TestCase(3u, 4)]
+        [TestCase(4u, 3)]
+        public void Ability_Correctly_Adds_Available_Charges(uint slot, int add)
+        {
+            _handler.RemoveAvailableCharges(slot, 100);
+            _handler.AddAvailableAbilityCharges(slot, add);
+
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            int maxCharges = cdInfo.maxCharges;
+            int available = cdInfo.availableCharges;
+            int expected = INUMath.Clamp(add, 0, maxCharges);
+            
+            Assert.AreEqual(expected, available);
+        }
+
+        [Test]
+        [TestCase(0u, 0)]
+        [TestCase(1u, 1)]
+        [TestCase(2u, 5)]
+        [TestCase(3u, 4)]
+        [TestCase(4u, 3)]
+        [TestCase(0u, 100)]
+        [TestCase(1u, 100)]
+        [TestCase(2u, 100)]
+        [TestCase(3u, 100)]
+        [TestCase(4u, 100)]
+        public void Ability_Correctly_Removes_Available_Charges(uint slot, int remove)
+        {
+            _handler.SetAbilityMaxCharges(slot, 100, true);
+            _handler.RemoveAvailableCharges(slot, remove);
+
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            int maxCharges = cdInfo.maxCharges;
+            int available = cdInfo.availableCharges;
+            int expected = INUMath.Clamp(100 - remove, 0, maxCharges);
+            
+            Assert.AreEqual(expected, available);
+        }
+
+        [Test]
+        [TestCase(0u, 2)]
+        [TestCase(1u, 1)]
+        [TestCase(2u, 7)]
+        [TestCase(3u, 4)]
+        [TestCase(4u, 3)]
+        public void Ability_Correctly_Adds_Extra_Charges(uint slot, int amount)
+        {
+            _handler.AddExtraAbilityCharges(slot, amount);
+            Assert.AreEqual(amount, _handler.GetCooldownInfo(slot).temporaryCharges);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void Ability_Correctly_Removes_Temporary_Charges(uint slot)
+        {
+            _handler.AddExtraAbilityCharges(slot, 100);
+            _handler.RemoveAbilityTemporaryCharges(slot);
+            Assert.AreEqual(0, _handler.GetCooldownInfo(slot).temporaryCharges);
+        }
+
+        [Test]
+        [TestCase(0u, 4)]
+        [TestCase(1u, 2)]
+        [TestCase(2u, 1)]
+        [TestCase(3u, 6)]
+        [TestCase(4u, 3)]
+        public void Ability_Correctly_Sets_Maximum_Amount_Of_Charges(uint slot, int size)
+        {
+            _handler.SetAbilityMaxCharges(slot, size, false);
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            
+            Assert.AreEqual(size, cdInfo.maxCharges, $"Expected max charges: {size} but got {cdInfo.maxCharges}");
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void Ability_Loses_All_Available_Charges_When_Setting_Max_Charges_To_Zero(uint slot)
+        {
+            _handler.SetAbilityMaxCharges(slot, 0, false);
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            
+            Assert.AreEqual(0, cdInfo.maxCharges, $"Expected max charges: 0 but got {cdInfo.maxCharges}");
+            Assert.AreEqual(0, cdInfo.availableCharges, $"Expected available charges: 0 but got {cdInfo.availableCharges}");
+        }
+        
+        [Test]
+        [TestCase(0u, 6)]
+        [TestCase(1u, 5)]
+        [TestCase(2u, 2)]
+        [TestCase(3u, 3)]
+        [TestCase(4u, 9)]
+        public void Ability_Loses_Available_Charges_When_Setting_Max_Charges_To_Zero(uint slot, int removeSize)
+        {
+            _handler.SetAbilityMaxCharges(slot, 10, true);
+            _handler.SetAbilityMaxCharges(slot, 10 - removeSize, false);
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            int expected = 10 - removeSize < 0 ? 0 : 10 - removeSize;
+            
+            Assert.AreEqual(expected, cdInfo.maxCharges, $"Expected max charges: {expected} but got {cdInfo.maxCharges}");
+            Assert.AreEqual(expected, cdInfo.availableCharges, $"Expected available charges: {expected} but got {cdInfo.availableCharges}");
+        }
+        
+        [Test]
+        [TestCase(0u, 4)]
+        [TestCase(1u, 2)]
+        [TestCase(2u, 3)]
+        [TestCase(3u, 6)]
+        [TestCase(4u, 3)]
+        public void Ability_Correctly_Updates_Charges_When_Setting_Maximum_Amount_Of_Charges_With_Update_Current_Charges(uint slot, int size)
+        {
+            _handler.SetAbilityMaxCharges(slot, size, true);
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            Assert.AreEqual(cdInfo.maxCharges, cdInfo.availableCharges);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void Ability_Correctly_Uses_Extra_Charges_When_They_Are_Avaialble(uint slot)
+        {
+            _handler.AddExtraAbilityCharges(slot, 1);
+            _handler.PutOnCooldown(slot);
+            var cdInfo = _handler.GetCooldownInfo(slot);
+
+            Assert.AreEqual(0, cdInfo.temporaryCharges);
+            Assert.AreEqual(1, cdInfo.availableCharges);
         }
         #endregion
     }
