@@ -34,6 +34,7 @@ namespace Tests.Runtime.RPG
             _maxOverchannel = 0;
             
             AbilityObject obj = Substitute.ForPartsOf<AbilityObject>();
+            IAbilityBase parent = Substitute.For<IAbilityBase>();
             CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
             TimelineData timelineData = new TimelineData(channelingTime, overChannellingTime, castTime, recoveryTime, AbilityCastType.FireAndForget);
 
@@ -54,7 +55,7 @@ namespace Tests.Runtime.RPG
             });
             
             CastObjects objs = new CastObjects(policy, obj, timelineData, () => finishConcentration); 
-            _handler = new CastHandler(objs, CastStateGetter);
+            _handler = new CastHandler(parent, objs, CastStateGetter);
         }
         #endregion
 

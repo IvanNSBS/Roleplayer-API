@@ -14,6 +14,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         private Func<CastingState> _castStateGetter;
         private CastObjects _castObjects;
+        private IAbilityBase _casting;
         #endregion
 
 
@@ -21,12 +22,14 @@ namespace INUlib.RPG.AbilitiesSystem
         public AbilityObject AbilityObject => _castObjects.abilityObject;
         public int TimesCastCalled => _timesCastCalled;
         public CastTimeline Timeline => _castObjects.timeline;
+        public IAbilityBase Parent => _casting;
         #endregion
 
 
         #region Constructor
-        public CastHandler(CastObjects castObjects, Func<CastingState> castStateGetter)
+        public CastHandler(IAbilityBase casting, CastObjects castObjects, Func<CastingState> castStateGetter)
         {
+            _casting = casting;
             _timesCastCalled = 0;
             _castStateGetter = castStateGetter;
             _castObjects = castObjects;

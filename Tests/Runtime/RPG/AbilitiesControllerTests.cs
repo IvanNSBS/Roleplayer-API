@@ -611,6 +611,70 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.CancelCast();
             Assert.IsTrue(testAbility.interrupted);
         }
+
+        [Test]
+        public void Ability_That_Wasnt_Discarded_After_Cast_Received_On_Cast_Event()
+        {
+            TestFactoryAbility ab0 = (TestFactoryAbility)_controller.GetAbility(0);
+            TestFactoryAbility ab1 = (TestFactoryAbility)_controller.GetAbility(1);
+            ab0.AbilityCastType = AbilityCastType.Concentration;
+            ab1.AbilityCastType = AbilityCastType.Concentration;
+            ab0.shouldFinishConcentration = true;
+
+            _controller.StartChanneling(0);
+            var handler = _controller.GetCastHandler();
+            handler.Timeline.Timeline_And_Recovery_Finished += () =>
+            {
+                handler.AbilityObject.InvokeNotifyFinishCast();
+            };
+            
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.Update(_recoveryTime);
+            
+            Assert.IsTrue(
+                _controller.ActiveAbilities.Contains(handler), 
+                "Active Abilities does not contain the previous ability CastHandler"
+            );
+            Assert.AreEqual(CastingState.None, _controller.CastingState);
+            Assert.IsNull(_controller.GetCastingAbility(), "No ability should be cast at this moment");
+            
+            _controller.StartChanneling(0);
+            Assert.AreEqual(2, handler.TimesCastCalled);            
+        }
+
+        [Test]
+        public void Can_Cast_Another_Ability_After_Cast_When_Previous_Ability_Was_Not_Discarded_But_Finished_Cast()
+        {
+            TestFactoryAbility ab0 = (TestFactoryAbility)_controller.GetAbility(0);
+            TestFactoryAbility ab1 = (TestFactoryAbility)_controller.GetAbility(1);
+            ab0.AbilityCastType = AbilityCastType.Concentration;
+            ab1.AbilityCastType = AbilityCastType.Concentration;
+            ab0.shouldFinishConcentration = true;
+
+            _controller.StartChanneling(0);
+            var handler = _controller.GetCastHandler();
+            handler.Timeline.Timeline_And_Recovery_Finished += () =>
+            {
+                handler.AbilityObject.InvokeNotifyFinishCast();
+            };
+            
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.Update(_recoveryTime);
+            
+            Assert.IsTrue(
+                _controller.ActiveAbilities.Contains(handler), 
+                "Active Abilities does not contain the previous ability CastHandler"
+            );
+            Assert.AreEqual(CastingState.None, _controller.CastingState);
+            Assert.IsNull(_controller.GetCastingAbility(), "No ability should be cast at this moment");
+            
+            _controller.StartChanneling(1);
+            Assert.AreSame(_controller.GetAbility(1), _controller.GetCastingAbility());
+        }
         #endregion
     }
 }

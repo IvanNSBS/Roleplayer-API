@@ -80,13 +80,14 @@ namespace INUlib.RPG.AbilitiesSystem
             if(!HasAbilityInSlot(slot) || !_abilities[slot].CanCast(_caster))
                 return false;
 
+            CastHandler hh;
             if(_cdHandler.AbilityHasCharges(slot) && !_cdHandler.IsAbilityOnCd(slot) && _casting == null)
             {
                 _casting = _abilities[slot];
                 _castingState = CastingState.Channeling;
                 CastObjects castInfo = _casting.Cast(_caster);
 
-                var handler = new CastHandler(castInfo, GetCastingState);
+                var handler = new CastHandler(_casting, castInfo, GetCastingState);
                 _castHandler = handler;
                 _activeAbilities.Add(_castHandler);
 
@@ -100,9 +101,9 @@ namespace INUlib.RPG.AbilitiesSystem
                 // might be cast on the same frame instead of the next
                 _castHandler.Update(0f);
             }
-            else if(_casting == GetAbility(slot))
+            else if((hh = GetActiveHandler(GetAbility(slot))) != null)
             {
-                _castHandler.OnCast();
+                hh.OnCast();
             }
 
             return true;
@@ -228,6 +229,15 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>True if there's an ability in the slot. False othwerwise</returns>
         public bool HasAbilityInSlot(uint slot) => _abilities.Length > slot && _abilities[slot] != null;
 
+        /// <summary>
+        /// Tries to find an active CastHandler that was instantiated from a certain IAbilityBase 
+        /// </summary>
+        /// <param name="ability">The IAbilityBase to check</param>
+        /// <returns>
+        /// The cast handler if there's an active cast handler for the given ability. Null otherwise
+        /// </returns>
+        public CastHandler GetActiveHandler(IAbilityBase ability) => _activeAbilities.Find(x => x.Parent == ability);
+        
         /// <summary>
         /// Helper method to provide a getter function to pass to the cast handler
         /// </summary>
