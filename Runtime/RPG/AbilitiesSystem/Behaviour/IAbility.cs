@@ -10,6 +10,11 @@ namespace INUlib.RPG.AbilitiesSystem
         AbilityCastType AbilityCastType { get; }
 
         /// <summary>
+        /// Whether to start cooldown after casting or after channeling
+        /// </summary>
+        StartCooldownPolicy StartCooldownPolicy { get; }
+        
+        /// <summary>
         /// Function that determines the condition that a concentration ability must meet to
         /// finish casting. Has no effect if AbilityCastType is FireAndForget
         /// </summary>

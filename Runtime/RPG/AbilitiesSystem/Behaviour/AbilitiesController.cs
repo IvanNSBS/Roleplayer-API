@@ -139,8 +139,10 @@ namespace INUlib.RPG.AbilitiesSystem
 
         protected virtual void FinishOverchannelling()
         {
+            if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterChanneling)
+                _cdHandler.PutOnCooldown(_casting);
+            
             _castingState = CastingState.Casting;
-            _cdHandler.PutOnCooldown(_casting);
             _elapsedChanneling = 0f;
         }
 
@@ -150,6 +152,9 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>        
         public void FinishCastAbilityCasting()
         {
+            if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterCasting)
+                _cdHandler.PutOnCooldown(_casting);
+            
             _castingState = CastingState.None;
             _casting = null;
             _castHandler = null;

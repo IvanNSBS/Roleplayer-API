@@ -1,8 +1,8 @@
-using NUnit.Framework;
 using NSubstitute;
-using INUlib.RPG.AbilitiesSystem;
 using System.Linq;
-using UnityEngine;
+using NUnit.Framework;
+using INUlib.RPG.AbilitiesSystem;
+using NUnit.Framework.Internal;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -91,6 +91,7 @@ namespace Tests.Runtime.RPG.Abilities
             
             public float ChannelingTime { get; set; }
             public float OverchannellingTime { get; set; }
+            public StartCooldownPolicy StartCooldownPolicy { get; set; }
             
             public float RecoveryTime { get; set;  }
             public AbilityCastType AbilityCastType { get; set; }
@@ -197,28 +198,48 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Ability_Goes_On_Cooldown_After_Finish_Overchannelling(uint slot)
+        public void Ability_Goes_On_Cooldown_After_Finish_Overchannelling_With_After_Channeling_CD_Policy(uint slot)
         {
+            ((TestFactoryAbility)_controller.GetAbility(slot)).StartCooldownPolicy = StartCooldownPolicy.AfterChanneling;
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
             Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
-            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == _cd);
+            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
         }
         
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Ability_Goes_On_Cooldown_After_Finish_Channelling_If_Theres_No_Overchanneling(uint slot)
+        public void Ability_Goes_On_Cooldown_After_Finish_Channelling_If_Theres_No_Overchanneling_With_After_Channeling_CD_Policy(uint slot)
         {
+            ((TestFactoryAbility)_controller.GetAbility(slot)).StartCooldownPolicy = StartCooldownPolicy.AfterChanneling;
             ((TestFactoryAbility)_controller.GetAbility(slot)).OverchannellingTime = 0;
             
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
             
             Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
-            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == _cd);
+            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Goes_On_Cooldown_After_Finish_Casting_With_After_Casting_CD_Policy(uint slot)
+        {
+            ((TestFactoryAbility)_controller.GetAbility(slot)).StartCooldownPolicy = StartCooldownPolicy.AfterCasting;
+            ((TestFactoryAbility)_controller.GetAbility(slot)).AbilityCastType = AbilityCastType.FireAndForget;
+            
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
+            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
         }
 
         [Test]
