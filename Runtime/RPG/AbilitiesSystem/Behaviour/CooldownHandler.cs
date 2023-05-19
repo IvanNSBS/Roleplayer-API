@@ -50,7 +50,7 @@ namespace INUlib.RPG.AbilitiesSystem
             {
                 this.ability = ability;
                 
-                cooldown = ability.Cooldown;
+                cooldown = 0;
                 currentCharges = ability.Charges;
                 maxCharges = ability.Charges;
                 temporaryCharges = 0;
@@ -140,15 +140,18 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Methods
-
         /// <summary>
-        /// Updates the 
+        /// Updates all abilities cooldown
         /// </summary>
-        /// <param name="deltaTime"></param>
+        /// <param name="deltaTime">How much time has passed since the last frame</param>
+        /// <param name="spellCasted">The ability that is currently being cast by the AbilitiesController</param>
         public void Update(float deltaTime, IAbilityBase spellCasted = null)
         {
             for (uint i = 0; i < _cooldowns.Length; i++)
             {
+                if (_cooldowns[i] == null)
+                    continue;
+                
                 IAbilityBase ability = _cooldowns[i].ability;
                 if (ability == null || ability == spellCasted)
                     continue;

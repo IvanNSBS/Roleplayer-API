@@ -217,9 +217,15 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_CurrentCD_Doesnt_Change_While_Casting(uint slot)
         {
             _controller.StartChanneling(slot);
-            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == 0);
+            Assert.AreEqual(
+                0, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown, 
+                "Cooldown was supposed to be zero right after channeling"
+            );
             _controller.Update(_channelingTime - 0.2f);
-            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == 0);
+            Assert.AreEqual(
+                0, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown,
+                "Cooldown was supposed to be zero after Update since Channeling Didn't Finish"
+            );
         }
 
         [Test]
