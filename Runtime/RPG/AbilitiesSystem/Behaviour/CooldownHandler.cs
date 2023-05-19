@@ -17,7 +17,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public readonly int availableCharges;
         public readonly int maxCharges;
         public readonly int temporaryCharges;
-        
+
         public CooldownInfo(int charges, int temporaryCharges, int maxCharges, float ccd, float tcd, float tcdwcdr)
         {
             availableCharges = charges;
@@ -28,28 +28,32 @@ namespace INUlib.RPG.AbilitiesSystem
             totalCooldownWithoutCdr = tcdwcdr;
         }
     }
-    
+
     /// <summary>
     /// Default cooldown handler. Manages cooldown updates with time, as well as
     /// their cooldown reduction and functions to increase or decrease manually the cooldown
     /// of a ability
     /// </summary>
-    public class CooldownHandler 
+    public class CooldownHandler
     {
         #region CD Helper Class
+
         protected class CooldownHelper
         {
+            public IAbilityBase ability;
             public int maxCharges;
             public int temporaryCharges;
             public float cooldown;
             public int currentCharges;
 
-            public CooldownHelper(float cooldown, int charges, int maxCharges)
+            public CooldownHelper(IAbilityBase ability)
             {
-                this.cooldown = cooldown;
-                this.currentCharges = charges;
-                this.maxCharges = maxCharges;
-                this.temporaryCharges = 0;
+                this.ability = ability;
+                
+                cooldown = ability.Cooldown;
+                currentCharges = ability.Charges;
+                maxCharges = ability.Charges;
+                temporaryCharges = 0;
             }
 
             public bool HasCharges() => temporaryCharges + currentCharges > 0;
@@ -62,19 +66,22 @@ namespace INUlib.RPG.AbilitiesSystem
                     currentCharges--;
             }
         }
+
         #endregion
-        
+
         #region Fields
+
         protected float _globalCdr;
         protected float _maxCdrValue = 0.9f;
         protected CooldownHelper[] _cooldowns;
-        protected IAbilityBase[] _abilities;
         protected Dictionary<int, float> _categoriesCdr;
         protected Func<float, float, float> _cdrCalcFunction;
+
         #endregion
 
 
         #region Properties
+
         public int CooldownsLength => _cooldowns.Length;
         public IReadOnlyDictionary<int, float> CategoriesCDR => _categoriesCdr;
 
@@ -82,7 +89,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Global CDR of abilities. Value can never go below zero.
         /// If a CDR Calculation function wasn't given, the value will be clamped between 0 and Max Cdr Value
         /// </summary>
-        public float GlobalCDR 
+        public float GlobalCDR
         {
             get => _globalCdr;
             set => _globalCdr = INUMath.Clamp(value, 0, _maxCdrValue);
@@ -96,50 +103,54 @@ namespace INUlib.RPG.AbilitiesSystem
         public float MaxCdrValue
         {
             get => _maxCdrValue;
-            set 
+            set
             {
                 _maxCdrValue = INUMath.Clamp01(value);
-                if(_cdrCalcFunction != null)
+                if (_cdrCalcFunction != null)
                     return;
 
-                if(_globalCdr > _maxCdrValue)
+                if (_globalCdr > _maxCdrValue)
                     _globalCdr = _maxCdrValue;
 
-                foreach(int key in _categoriesCdr.Keys.ToList())
-                    if(_categoriesCdr[key] > _maxCdrValue)
+                foreach (int key in _categoriesCdr.Keys.ToList())
+                    if (_categoriesCdr[key] > _maxCdrValue)
                         _categoriesCdr[key] = _maxCdrValue;
             }
         }
+
         #endregion
 
 
         #region Constructor
+
         public CooldownHandler(IAbilityBase[] abilities, Func<float, float, float> cdrCalcFunction = null)
         {
-            _abilities = abilities;
             _cdrCalcFunction = cdrCalcFunction;
             _cooldowns = new CooldownHelper[abilities.Length];
             for (int i = 0; i < abilities.Length; i++)
             {
-                if(_abilities[i] != null)
-                    _cooldowns[i] = new CooldownHelper(abilities[i].Cooldown, _abilities[i].Charges, abilities[i].Charges);
+                if (abilities[i] != null)
+                    _cooldowns[i] = new CooldownHelper(abilities[i]);
             }
+
             _categoriesCdr = new Dictionary<int, float>();
-        } 
+        }
+
         #endregion
 
 
         #region Methods
+
         /// <summary>
         /// Updates the 
         /// </summary>
         /// <param name="deltaTime"></param>
         public void Update(float deltaTime, IAbilityBase spellCasted = null)
         {
-            for(uint i = 0; i < _abilities.Length; i++)
+            for (uint i = 0; i < _cooldowns.Length; i++)
             {
-                IAbilityBase ability = _abilities[i];
-                if(ability == null || ability == spellCasted)
+                IAbilityBase ability = _cooldowns[i].ability;
+                if (ability == null || ability == spellCasted)
                     continue;
 
                 DecreaseCooldown(i, deltaTime);
@@ -153,8 +164,8 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>The given ability cooldown info. Null if ability is not set in the slots</returns>
         public CooldownInfo GetCooldownInfo(IAbilityBase ability)
         {
-            int index = Array.FindIndex(_abilities, 0, _abilities.Length, x => x == ability);
-            if(index < 0)
+            int index = Array.FindIndex(_cooldowns, 0, _cooldowns.Length, x => x.ability == ability);
+            if (index < 0)
                 return null;
             return GetCooldownInfo((uint)index);
         }
@@ -166,7 +177,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>The ability cooldown at the given slot. Null if slot is invalid</returns>
         public CooldownInfo GetCooldownInfo(uint slot)
         {
-            if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
+            if (!IsSlotValid(slot))
                 return null;
 
             int charges = _cooldowns[slot].currentCharges;
@@ -174,7 +185,7 @@ namespace INUlib.RPG.AbilitiesSystem
             int maxCharges = _cooldowns[slot].maxCharges;
             float cd = _cooldowns[slot].cooldown;
             float totalCd = GetAbilityCooldownWithCdr(slot);
-            float totalCdNoCdr = _abilities[slot].Cooldown;
+            float totalCdNoCdr = _cooldowns[slot].ability.Cooldown;
 
             return new CooldownInfo(charges, tempCharges, maxCharges, cd, totalCd, totalCdNoCdr);
         }
@@ -187,8 +198,8 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>True if ability exists in the slots and was reset. False otherwise</returns>
         public bool PutOnCooldown(IAbilityBase ability)
         {
-            int index = Array.FindIndex(_abilities, 0, _abilities.Length, x => x == ability);
-            if(index < 0)
+            int index = Array.FindIndex(_cooldowns, 0, _cooldowns.Length, x => x.ability == ability);
+            if (index < 0)
                 return false;
             return PutOnCooldown((uint)index);
         }
@@ -204,8 +215,8 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </returns>
         public bool PutOnCooldown(uint slot)
         {
-            bool invalidSlot = slot > _cooldowns.Length || _abilities[slot] == null; 
-            if(invalidSlot)
+            bool invalidSlot = slot > _cooldowns.Length || _cooldowns[slot].ability == null;
+            if (invalidSlot)
                 return false;
 
             bool hasEnoughCharges = _cooldowns[slot].HasCharges();
@@ -216,11 +227,11 @@ namespace INUlib.RPG.AbilitiesSystem
             // TODO: changing it to use the CooldownHelper would be better and we could drop all usages
             // TODO: of the abilities array and use something else instead
             // If was at max charges, cooldown needs to be updated
-            if (_cooldowns[slot].currentCharges == _abilities[slot].Charges)
-                ClampAbilityCooldown(slot, _abilities[slot].Cooldown);
+            if (_cooldowns[slot].currentCharges == _cooldowns[slot].ability.Charges)
+                ClampAbilityCooldown(slot, _cooldowns[slot].ability.Cooldown);
 
             _cooldowns[slot].ConsumeCharge();
-            
+
             // Updates with a deltaTime of 0 so spells with 0 cooldown won't
             // need to wait until the next frame to be refreshed
             Update(0f);
@@ -238,7 +249,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </returns>
         public bool IncreaseCooldown(uint slot, float amount)
         {
-            if(slot > _cooldowns.Length || _abilities[slot] == null || !IsAbilityOnCd(slot))
+            if (!IsSlotValid(slot) || !IsAbilityOnCd(slot))
                 return false;
 
             ClampAbilityCooldown(slot, _cooldowns[slot].cooldown + amount);
@@ -254,14 +265,14 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>True if the ability was valid and the CD was changed. False otherwise</returns>
         public bool DecreaseCooldown(uint slot, float amount)
         {
-            if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
+            if (!IsSlotValid(slot))
                 return false;
 
             ClampAbilityCooldown(slot, _cooldowns[slot].cooldown - amount);
             bool chargesUpdated = TryAddChargesAfterCDUpdate(slot);
-            bool maxCharges = _cooldowns[slot].currentCharges == _abilities[slot].Charges;
+            bool maxCharges = _cooldowns[slot].currentCharges == _cooldowns[slot].ability.Charges;
             if (chargesUpdated && !maxCharges)
-                ClampAbilityCooldown(slot, _abilities[slot].Cooldown);
+                ClampAbilityCooldown(slot, _cooldowns[slot].ability.Cooldown);
             return true;
         }
 
@@ -272,9 +283,9 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>True if on cooldown. False if spell is on cooldown or slot is invalid</returns>
         public bool IsAbilityOnCd(uint slot)
         {
-            if(slot < 0 || slot >= _cooldowns.Length)
+            if (slot < 0 || slot >= _cooldowns.Length)
                 return false;
-            
+
             return _cooldowns[slot].cooldown > 0 && _cooldowns[slot].currentCharges == 0;
         }
 
@@ -285,7 +296,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>True if has enough charges. False otherwise</returns>
         public bool AbilityHasCharges(uint slot)
         {
-            if(!IsSlotValid(slot))
+            if (!IsSlotValid(slot))
                 return false;
 
             return _cooldowns[slot].currentCharges > 0;
@@ -345,24 +356,24 @@ namespace INUlib.RPG.AbilitiesSystem
                 return false;
 
             int clampedSize = size < 0 ? 0 : size;
-            int prevMaxSize = _cooldowns[slot].maxCharges; 
-            
+            int prevMaxSize = _cooldowns[slot].maxCharges;
+
             if (clampedSize < prevMaxSize)
             {
-                int diff = prevMaxSize - clampedSize; 
+                int diff = prevMaxSize - clampedSize;
                 _cooldowns[slot].currentCharges -= diff;
-                
+
                 if (_cooldowns[slot].currentCharges < 0)
                     _cooldowns[slot].currentCharges = 0;
             }
-            
+
             _cooldowns[slot].maxCharges = clampedSize;
             if (addChargesIfAbilityIsAtMaxCharges && _cooldowns[slot].currentCharges == prevMaxSize)
                 _cooldowns[slot].currentCharges = clampedSize;
-            
+
             return true;
         }
-        
+
         /// <summary>
         /// Adds extra charges to an ability. Those charges are bonus
         /// and thus can go above the max charges.
@@ -400,7 +411,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="cdr">The new CDR amount</param>
         public void SetCategoryCdr(int category, float cdr)
         {
-            if(_categoriesCdr.ContainsKey(category))
+            if (_categoriesCdr.ContainsKey(category))
                 _categoriesCdr[category] = cdr;
             else
                 _categoriesCdr.Add(category, cdr);
@@ -416,7 +427,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="cdr">The CDR amount to sum</param>
         public void AddCategoryCdr(int category, float cdr)
         {
-            if(_categoriesCdr.ContainsKey(category))
+            if (_categoriesCdr.ContainsKey(category))
                 _categoriesCdr[category] += cdr;
             else
                 _categoriesCdr.Add(category, cdr);
@@ -429,7 +440,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="category">The ability category</param>
         /// <returns>The current ability CDR for the given category. 0 if the category doesn't exist</returns>
-        public float GetCategoryCdr(int category) 
+        public float GetCategoryCdr(int category)
         {
             return _categoriesCdr.ContainsKey(category) ? _categoriesCdr[category] : 0;
         }
@@ -444,13 +455,20 @@ namespace INUlib.RPG.AbilitiesSystem
         /// The default function simply sums GlobalCDR and CategoryCdr.
         /// </param>
         public void SetCdrFunction(Func<float, float, float> func) => _cdrCalcFunction = func;
+
         #endregion
 
 
         #region Helper Methods
+
+        public void SetAbility(uint slot, IAbilityBase ability)
+        {
+            _cooldowns[slot] = new CooldownHelper(ability);
+        }
+
         protected bool ClampAbilityCooldown(uint slot, float newValue)
         {
-            if(slot < 0 || slot > _cooldowns.Length || _abilities[slot] == null)
+            if (!IsSlotValid(slot))
                 return false;
 
             float maxCooldown = GetAbilityCooldownWithCdr(slot);
@@ -461,32 +479,37 @@ namespace INUlib.RPG.AbilitiesSystem
 
         protected float GetAbilityCooldownWithCdr(uint slot)
         {
-            float categoryCdr = GetCategoryCdr(_abilities[slot].Category);
+            float categoryCdr = GetCategoryCdr(_cooldowns[slot].ability.Category);
             float maxCooldown;
-            float cd = _abilities[slot].Cooldown;
-            if(_cdrCalcFunction == null)
+            float cd = _cooldowns[slot].ability.Cooldown;
+            if (_cdrCalcFunction == null)
                 maxCooldown = cd * (1 - INUMath.Clamp(GlobalCDR + categoryCdr, 0, _maxCdrValue));
             else
                 maxCooldown = cd * (1 - INUMath.Clamp(_cdrCalcFunction(GlobalCDR, categoryCdr), 0, _maxCdrValue));
 
             return maxCooldown;
         }
-        
+
         protected bool TryAddChargesAfterCDUpdate(uint slot)
         {
             CooldownHelper cd = _cooldowns[slot];
-            IAbilityBase ability = _abilities[slot];
+            IAbilityBase ability = _cooldowns[slot].ability;
 
             bool shouldUpdate = cd.cooldown <= 0.001f && cd.currentCharges < ability.Charges;
             if (shouldUpdate)
             {
-                cd.currentCharges = INUMath.Clamp(cd.currentCharges+1, 0, ability.Charges);
+                cd.currentCharges = INUMath.Clamp(cd.currentCharges + 1, 0, ability.Charges);
             }
-            
+
             return shouldUpdate;
         }
 
-        protected bool IsSlotValid(uint slot) => !(slot < 0 || slot >= _abilities.Length || _abilities[slot] == null);
-        #endregion
+        protected bool IsSlotValid(uint slot) => 
+            !(
+              slot < 0 || slot >= _cooldowns.Length || 
+              _cooldowns[slot] == null || _cooldowns[slot].ability == null
+            );
+
+    #endregion
     }
 }

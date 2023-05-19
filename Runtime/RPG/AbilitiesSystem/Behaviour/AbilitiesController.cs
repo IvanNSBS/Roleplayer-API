@@ -182,7 +182,11 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="slot">Slot to set the ability</param>
         /// <param name="ability">The ability that is being added</param>
-        public void SetAbility(uint slot, TAbility ability) => _abilities[slot] = ability;
+        public void SetAbility(uint slot, TAbility ability)
+        {
+            _abilities[slot] = ability;
+            _cdHandler.SetAbility(slot, ability);
+        }
 
         /// <summary>
         /// Retrieves an ability from the abilities slots
