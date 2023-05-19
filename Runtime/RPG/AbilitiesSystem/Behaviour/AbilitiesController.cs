@@ -91,7 +91,8 @@ namespace INUlib.RPG.AbilitiesSystem
                 _activeAbilities.Add(_castHandler);
 
                 handler.AbilityObject.Disable();
-                handler.Timeline.ChannelingFinished_CastStarted += FinishChanneling;
+                handler.Timeline.ChannelingFinished_OverchannelingStarted += FinishChanneling;
+                handler.Timeline.OverchannelingFinished_CastingStarted += FinishOverchannelling;
                 handler.AbilityObject.NotifyFinishCast += FinishCastAbilityCasting;
                 handler.AbilityObject.NotifyDiscard += () => RemoveAbility(handler);
                 
@@ -113,10 +114,9 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public virtual void CancelCast() 
         {
-            if (_castingState == CastingState.Channeling)
+            if (_castingState == CastingState.Channeling || _castingState == CastingState.OverChanneling)
             {
                 _castHandler?.OnCastCanceled();
-                
             }
             else if (_castingState == CastingState.Casting)
             {
@@ -133,6 +133,11 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Helper method to cast the ability after it is ready to be cast
         /// </summary>
         protected virtual void FinishChanneling()
+        {
+            _castingState = CastingState.OverChanneling;
+        }
+
+        protected virtual void FinishOverchannelling()
         {
             _castingState = CastingState.Casting;
             _cdHandler.PutOnCooldown(_casting);

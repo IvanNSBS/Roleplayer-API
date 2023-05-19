@@ -5,7 +5,8 @@ namespace INUlib.RPG.AbilitiesSystem
     /// <summary>
     /// An AbiltiyObject is the game logic for the effect of a certain spell,
     /// such as Adding status effect, instantiating a fireball, etc.
-    /// The Ability Object is created as soon as the casting stats, and can gather info about the cast
+    /// The Ability Object is created as soon as the casting stats, and can gather info about the entire cast process.
+    /// but it must only start affecting the world after the channeling starts through the UnleashAbility method
     /// </summary>
     public abstract class AbilityObject
     {
@@ -57,10 +58,17 @@ namespace INUlib.RPG.AbilitiesSystem
         /// What to do on a frame update
         /// </summary>
         /// <param name="deltaTime">How much time has passed since the last frame</param>
-        public virtual void OnUpdate(float deltaTime)
+        public virtual void OnUpdate(float deltaTime, CastingState state)
         {
             _elapsedTime += deltaTime;
         }
+
+        /// <summary>
+        /// What to do when Overchanneling Starts and during it's progress
+        /// </summary>
+        /// <param name="currentTime">The current time in the overchanneling process</param>
+        /// <param name="overChannelDuration">How much time the overchannelling process will last</param>
+        public virtual void OnOverchannel(float currentTime, float overChannelDuration) { }
 
         /// <summary>
         /// How to draw Unity Gizmos

@@ -24,7 +24,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Properly_Starts()
         {
             int fired = 0;
-            TimelineData data = new TimelineData(1, 1, 1, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(1, 1, 1, 1, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.TimelineStarted += () => fired++;
             _castTimeline.Start();
@@ -36,7 +36,7 @@ namespace Tests.Runtime.RPG
         [Test]
         public void Timeline_Properly_Updates_When_Running()
         {
-            TimelineData data = new TimelineData(1, 1, 1, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(1, 1, 1, 1, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Start();
             _castTimeline.Update(1f);
@@ -48,7 +48,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Properly_Pauses()
         {
             int fired = 0;
-            TimelineData data = new TimelineData(1, 1, 1, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(1, 1, 1, 1, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.TimelinePaused += () => fired++;
             _castTimeline.Start();
@@ -61,7 +61,7 @@ namespace Tests.Runtime.RPG
         [Test]
         public void Timeline_Properly_Resets()
         {
-            TimelineData data = new TimelineData(1, 1, 1, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(1, 1, 1, 1, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Start();
             _castTimeline.Update(1f);
@@ -74,7 +74,7 @@ namespace Tests.Runtime.RPG
         [Test]
         public void Timeline_Wont_Update_If_Paused()
         {
-            TimelineData data = new TimelineData(1, 1, 1, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(1, 1, 1, 1, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Start();
             _castTimeline.Pause();
@@ -85,7 +85,7 @@ namespace Tests.Runtime.RPG
         [Test]
         public void Timeline_Wont_Update_If_Pending()
         {
-            TimelineData data = new TimelineData(1, 1, 1, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(1, 1, 1, 1, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Update(1f);
             Assert.AreEqual(0f, _castTimeline.ElapsedTime);
@@ -94,7 +94,7 @@ namespace Tests.Runtime.RPG
         [Test]
         public void Timeline_Wont_Update_Right_After_Reset()
         {
-            TimelineData data = new TimelineData(1, 1, 1, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(1, 1, 1, 1, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Start();
             _castTimeline.Update(1f);
@@ -109,15 +109,35 @@ namespace Tests.Runtime.RPG
         [TestCase(0.1f)]
         [TestCase(3.56f)]
         [TestCase(5.32f)]
-        public void Timeline_Properly_Fires_Channeling_Finished_and_Cast_Started(float channelingTime)
+        public void Timeline_Properly_Fires_Channeling_Finished_and_Overchannelling_Started(float channelingTime)
         {
             int calls = 0;
-            TimelineData data = new TimelineData(channelingTime, 1f, 1f, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(channelingTime, 0f ,1f, 1f, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
-            _castTimeline.ChannelingFinished_CastStarted += () => calls++;
+            _castTimeline.ChannelingFinished_OverchannelingStarted += () => calls++;
             _castTimeline.Start();
             _castTimeline.Update(channelingTime);
             _castTimeline.Update(channelingTime * 0.01f);
+            
+            Assert.AreEqual(1, calls);
+        }
+        
+        [Test]
+        [TestCase(1.0f, 0.45f)]
+        [TestCase(0.2f, 1.375f)]
+        [TestCase(0.1f, 0.2234f)]
+        [TestCase(3.56f, 3.2f)]
+        [TestCase(5.32f, 0.882f)]
+        public void Timeline_Properly_Fires_Overchannelling_Finished_and_Cast_Started(float channelingTime, float overChannellingTime)
+        {
+            int calls = 0;
+            TimelineData data = new TimelineData(channelingTime, overChannellingTime ,1f, 1f, AbilityCastType.FireAndForget);
+            _castTimeline = new CastTimeline(data);
+            _castTimeline.OverchannelingFinished_CastingStarted += () => calls++;
+            _castTimeline.Start();
+            _castTimeline.Update(channelingTime);
+            _castTimeline.Update(overChannellingTime);
+            _castTimeline.Update(overChannellingTime * 0.01f);
             
             Assert.AreEqual(1, calls);
         }
@@ -131,7 +151,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Properly_Fires_Cast_Finished_Recovery_Started(float channelingTime, float castTime)
         {
             int fired = 0;
-            TimelineData data = new TimelineData(channelingTime, castTime, 1, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(channelingTime, 0f, castTime, 1, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.CastFinished_RecoveryStarted += () => fired++;
             _castTimeline.Start();
@@ -151,7 +171,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Properly_Fires_Timeline_And_Recovery_Finished(float channelingTime, float castTime, float recoveryTime)
         {
             int fired = 0;
-            TimelineData data = new TimelineData(channelingTime, castTime, recoveryTime, AbilityCastType.FireAndForget);
+            TimelineData data = new TimelineData(channelingTime, 0f, castTime, recoveryTime, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Timeline_And_Recovery_Finished += () => fired++;
             _castTimeline.Start();
@@ -173,7 +193,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Wont_Finish_After_Cast_If_It_Is_Concentration_Type(float channelingTime, float castTime, float recoveryTime)
         {
             int fired = 0;
-            TimelineData data = new TimelineData(channelingTime, castTime, recoveryTime, AbilityCastType.Concentration);
+            TimelineData data = new TimelineData(channelingTime, 0f, castTime, recoveryTime, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Timeline_And_Recovery_Finished += () => fired++;
             _castTimeline.Start();
@@ -196,7 +216,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Finishes_After_Finish_Callback_When_Is_Concentration_Type(float channelingTime, float recoveryTime)
         {
             int fired = 0;
-            TimelineData data = new TimelineData(channelingTime, 9999, recoveryTime, AbilityCastType.Concentration);
+            TimelineData data = new TimelineData(channelingTime, 0f, 9999, recoveryTime, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             
             _castTimeline.Timeline_And_Recovery_Finished += () => fired++;
@@ -219,7 +239,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Wont_Finish_Before_Conditions_Are_Met_If_Is_Concentration(float channelingTime, float castTime, float recoveryTime)
         {
             int fired = 0;
-            TimelineData data = new TimelineData(channelingTime, castTime, recoveryTime, AbilityCastType.Concentration);
+            TimelineData data = new TimelineData(channelingTime, 0f, castTime, recoveryTime, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             
             _castTimeline.CastFinished_RecoveryStarted += () => fired++;
@@ -244,7 +264,7 @@ namespace Tests.Runtime.RPG
         {
             int castFinishedFired = 0;
             int timelineFinishedFired = 0;
-            TimelineData data = new TimelineData(channelingTime, 9999, 0, AbilityCastType.Concentration);
+            TimelineData data = new TimelineData(channelingTime, 0f, 9999, 0, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             
             _castTimeline.CastFinished_RecoveryStarted += () => castFinishedFired++;
@@ -266,7 +286,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Wont_Finish_Until_After_Recovery_If_Is_Concentration(float channelingTime, float recoveryTime)
         {
             int fired = 0;
-            TimelineData data = new TimelineData(channelingTime, 9999, recoveryTime, AbilityCastType.Concentration);
+            TimelineData data = new TimelineData(channelingTime, 0f, 9999, recoveryTime, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             
             _castTimeline.CastFinished_RecoveryStarted += () => fired++;
@@ -296,7 +316,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Wont_Repeat_TimelineFinished_Callback_When_Is_Concentration_Type(float channelingTime, float recoveryTime)
         {
             int fired = 0;
-            TimelineData data = new TimelineData(channelingTime, 9999, recoveryTime, AbilityCastType.Concentration);
+            TimelineData data = new TimelineData(channelingTime, 0f, 9999, recoveryTime, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             
             _castTimeline.Timeline_And_Recovery_Finished += () => fired++;
@@ -321,7 +341,7 @@ namespace Tests.Runtime.RPG
         public void Timeline_Wont_Repeat_CastFinished_Callback_When_Is_Concentration_Type(float channelingTime, float recoveryTime)
         {
             int fired = 0;
-            TimelineData data = new TimelineData(channelingTime, 9999, recoveryTime, AbilityCastType.Concentration);
+            TimelineData data = new TimelineData(channelingTime, 0f, 9999, recoveryTime, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             
             _castTimeline.CastFinished_RecoveryStarted += () => fired++;
@@ -335,6 +355,24 @@ namespace Tests.Runtime.RPG
             _castTimeline.FinishConcentration();
             
             Assert.AreEqual(1, fired);
+        }
+
+        [Test]
+        [TestCase(5f, 7f, -1f)]
+        [TestCase(5f, 0.4f, 0.4f)]
+        [TestCase(7f, 3.44f, 3.44f)]
+        [TestCase(3f, 4.4f, -1f)]
+        [TestCase(2f, 1.34f, 1.34f)]
+        [TestCase(0.5f, 0.33f, 0.33f)]
+        public void Timeline_Correctly_Returns_Overchanneling_Elapsed_Time(float overChannelingTime, float elapsedTime, float expected)
+        {
+            TimelineData data = new TimelineData(0, overChannelingTime, 0, 0, AbilityCastType.FireAndForget);
+            _castTimeline = new CastTimeline(data);
+            _castTimeline.Start();
+            
+            _castTimeline.Update(elapsedTime);
+            
+            Assert.AreEqual(expected, _castTimeline.ElapsedOverchannelingTime);            
         }
         #endregion
     }

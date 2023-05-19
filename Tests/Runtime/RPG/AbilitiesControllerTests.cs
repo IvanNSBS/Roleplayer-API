@@ -2,6 +2,7 @@ using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
 using System.Linq;
+using UnityEngine;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -21,19 +22,20 @@ namespace Tests.Runtime.RPG.Abilities
             public bool interrupted;
             public bool shouldFinishConcentration;
             
-            public TestFactoryAbility(float cd, float channelingTime, float castTime, float recoveryTime, ICasterInfo factoryRef)
+            public TestFactoryAbility(float cd, float channelingTime, float overchannellingTime, float castTime, float recoveryTime, ICasterInfo factoryRef)
             {
                 _factoryRef = factoryRef;
                 Cooldown = cd;
                 CanCastAbility = true;
 
+                OverchannellingTime = overchannellingTime;
                 ChannelingTime = channelingTime;
                 RecoveryTime = recoveryTime;
                 CastTime = castTime;
                 AbilityCastType = AbilityCastType.Concentration;
             }
 
-            public TestFactoryAbility(int cat, float cd, float channelingTime, float castTime, float recoveryTime, ICasterInfo factoryRef)
+            public TestFactoryAbility(int cat, float cd, float channelingTime, float overchannellingTime, float castTime, float recoveryTime, ICasterInfo factoryRef)
             {
                 _category = cat;
                 _factoryRef = factoryRef;
@@ -42,6 +44,7 @@ namespace Tests.Runtime.RPG.Abilities
                 CanCastAbility = true;
                 
                 ChannelingTime = channelingTime;
+                OverchannellingTime = overchannellingTime;
                 RecoveryTime = recoveryTime;
                 CastTime = castTime;
                 AbilityCastType = AbilityCastType.Concentration;
@@ -55,7 +58,7 @@ namespace Tests.Runtime.RPG.Abilities
 
                 if (removeOnUpdate)
                 {
-                    abilityObject.When(x => x.OnUpdate(Arg.Any<float>())).Do(x =>
+                    abilityObject.When(x => x.OnUpdate(Arg.Any<float>(), Arg.Any<CastingState>())).Do(x =>
                     {
                         float deltaTime = (float)x[0];
                         if (deltaTime > 0.01f)
@@ -82,10 +85,13 @@ namespace Tests.Runtime.RPG.Abilities
             public int Charges => 1;
             public bool CanCastAbility {get; set;}
             public float Cooldown {get; set;}
-            public TimelineData CastTimeline => new (ChannelingTime, CastTime, RecoveryTime, AbilityCastType);
-            
+            public TimelineData CastTimeline => new (ChannelingTime, OverchannellingTime, CastTime, RecoveryTime, AbilityCastType);
+
             public float CastTime { get; set; }
+            
             public float ChannelingTime { get; set; }
+            public float OverchannellingTime { get; set; }
+            
             public float RecoveryTime { get; set;  }
             public AbilityCastType AbilityCastType { get; set; }
         }
@@ -119,6 +125,7 @@ namespace Tests.Runtime.RPG.Abilities
         private IAbility<ICasterInfo> _mockAbility2;
         private IAbility<ICasterInfo> _mockAbility3;
         private float _cd = 5;
+        private float _overChannelingTime = 0.2f;
         private float _channelingTime = 1;
         private float _castTime = 0.5f;
         private float _recoveryTime = 0f;
@@ -136,7 +143,7 @@ namespace Tests.Runtime.RPG.Abilities
 
         private void PrepareMockAbility(IAbility<ICasterInfo> ability, uint slot, bool reset = true)
         {
-            ability = new TestFactoryAbility((int)slot, _cd, _channelingTime, _castTime, _recoveryTime, _mockFactory);
+            ability = new TestFactoryAbility((int)slot, _cd, _channelingTime, _overChannelingTime, _castTime, _recoveryTime, _mockFactory);
             _controller.SetAbility(slot, ability);
         }
         #endregion
@@ -156,7 +163,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Ability_Receives_Correct_Data_Factory_For_Casting(uint slot)
         {
-            var testAbility = new TestFactoryAbility(_cd, _channelingTime, _castTime, _recoveryTime, _mockFactory);
+            var testAbility = new TestFactoryAbility(_cd, _channelingTime, _overChannelingTime, _castTime, _recoveryTime, _mockFactory);
             _controller.SetAbility(slot, testAbility);
             _controller.StartChanneling(slot);
 
@@ -190,10 +197,26 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Ability_Goes_On_Cooldown_After_Finish_Channeling(uint slot)
+        public void Ability_Goes_On_Cooldown_After_Finish_Overchannelling(uint slot)
         {
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
+            Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == _cd);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Goes_On_Cooldown_After_Finish_Channelling_If_Theres_No_Overchanneling(uint slot)
+        {
+            ((TestFactoryAbility)_controller.GetAbility(slot)).OverchannellingTime = 0;
+            
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            
             Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
             Assert.IsTrue(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown == _cd);
         }
@@ -240,6 +263,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
             _controller.Update(elapsed);
 
             float currentCooldown = _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown;
@@ -272,7 +296,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Spell_With_No_Cast_Time_Are_Cast_Instantly(uint slot)
         {
-            TestFactoryAbility ab = new TestFactoryAbility(_cd, 0,0,0, _mockFactory);
+            TestFactoryAbility ab = new TestFactoryAbility(_cd, 0, 0,0,0, _mockFactory);
             _controller.SetAbility(slot, ab);
             _controller.StartChanneling(slot);
             Assert.IsTrue(_controller.casted);
@@ -368,6 +392,7 @@ namespace Tests.Runtime.RPG.Abilities
 
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
             _controller.Update(_castTime);
             _controller.Update(ability.RecoveryTime);
             
@@ -384,6 +409,7 @@ namespace Tests.Runtime.RPG.Abilities
             ability.AbilityCastType = AbilityCastType.FireAndForget;
             ability.RecoveryTime = 0;
             ability.CastTime = 0;
+            ability.OverchannellingTime = 0;
                 
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
@@ -399,6 +425,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             
             Assert.AreEqual(_controller.CastingState, CastingState.Casting);
@@ -448,6 +475,19 @@ namespace Tests.Runtime.RPG.Abilities
 
             Assert.IsTrue(_controller.CastingState == CastingState.Channeling);
         }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cast_State_Goes_To_Overchannelling_After_Finish_Channeling(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime*0.01f);
+
+            Assert.IsTrue(_controller.CastingState == CastingState.OverChanneling);
+        }
 
         [Test]
         [TestCase(0u)]
@@ -466,12 +506,27 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
+        public void Cast_State_Goes_To_None_After_Cancel_Overchannelling(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime*0.1f);
+            _controller.CancelCast();
+
+            Assert.IsTrue(_controller.CastingState == CastingState.None);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
         public void Cast_State_Goes_To_None_After_Cancel_Casting(uint slot)
         {
             ((TestFactoryAbility)_controller.GetAbility(slot)).RecoveryTime = _channelingTime;
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
-            _controller.Update(_channelingTime * 0.01f);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime * 0.01f);
             _controller.CancelCast();
 
             Assert.IsTrue(_controller.CastingState == CastingState.None);
@@ -482,21 +537,36 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Cast_State_Goes_To_Casting_After_Channeling_Completes(uint slot)
+        public void Cast_State_Goes_To_Casting_After_Overchannelling_Completes(uint slot)
         {
             PrepareMockAbility(_controller.GetAbility(slot), slot, false);
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
 
             Assert.IsTrue(_controller.CastingState == CastingState.Casting);
         }
 
         [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cast_State_Goes_To_Casting_After_Channelling_If_Theres_No_Overchannelling_Time(uint slot)
+        {
+            ((TestFactoryAbility)_controller.GetAbility(slot)).OverchannellingTime = 0;
+            
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+
+            Assert.AreEqual(CastingState.Casting, _controller.CastingState);
+        }
+        
+        [Test]
         [TestCase(false, false)]
         [TestCase(true, true)]
         public void Can_Only_Cast_If_Requirements_Are_Met(bool requirementsAreMet, bool expected)
         {
-            var testAbility = new TestFactoryAbility(_cd, 0, 0, 0, _mockFactory);
+            var testAbility = new TestFactoryAbility(_cd, 0, 0, 0, 0, _mockFactory);
             testAbility.CanCastAbility = requirementsAreMet;
             _controller.SetAbility(0, testAbility);
             
@@ -508,11 +578,12 @@ namespace Tests.Runtime.RPG.Abilities
         [Test]
         public void Ability_Is_Properly_Interrupted()
         {
-            var testAbility = new TestFactoryAbility(_cd, 0, 0, 0, _mockFactory);
+            var testAbility = new TestFactoryAbility(_cd, 0, 0, 0, 0, _mockFactory);
             _controller.SetAbility(0, testAbility);
             
             bool result = _controller.StartChanneling(0);
             _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
 
             Assert.AreEqual(CastingState.Casting, _controller.CastingState);
             

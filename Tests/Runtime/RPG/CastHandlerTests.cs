@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using INUlib.RPG.AbilitiesSystem;
+using UnityEngine;
 
 namespace Tests.Runtime.RPG
 {
@@ -9,6 +10,7 @@ namespace Tests.Runtime.RPG
         #region Setup
         private CastHandler _handler;
         private float channelingTime = 1f;
+        private float overChannellingTime = 1f;
         private float castTime = 1f;
         private float recoveryTime = 1f;
         private CastingState _castingState = CastingState.None;
@@ -16,7 +18,9 @@ namespace Tests.Runtime.RPG
 
         private int _abilityDrawGizmosCalled = 0;
         private int _abilityUpdatesCalled = 0;
-
+        
+        private float _elapsedOverChannel = 0;
+        private float _maxOverchannel = 0;
 
         public bool finishConcentration;
         
@@ -26,12 +30,14 @@ namespace Tests.Runtime.RPG
             finishConcentration = false;
             _abilityUpdatesCalled = 0;
             _abilityDrawGizmosCalled = 0;
+            _elapsedOverChannel = 0;
+            _maxOverchannel = 0;
             
             AbilityObject obj = Substitute.ForPartsOf<AbilityObject>();
             CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
-            TimelineData timelineData = new TimelineData(channelingTime, castTime, recoveryTime, AbilityCastType.FireAndForget);
+            TimelineData timelineData = new TimelineData(channelingTime, overChannellingTime, castTime, recoveryTime, AbilityCastType.FireAndForget);
 
-            obj.When(x => x.OnUpdate(Arg.Any<float>())).Do(x =>
+            obj.When(x => x.OnUpdate(Arg.Any<float>(), Arg.Any<CastingState>())).Do(x =>
             {
                 _abilityUpdatesCalled++;
             });
@@ -39,6 +45,12 @@ namespace Tests.Runtime.RPG
             obj.When(x => x.OnDrawGizmos()).Do(x =>
             {
                 _abilityDrawGizmosCalled++;
+            });
+            
+            obj.When(x => x.OnOverchannel(Arg.Any<float>(), Arg.Any<float>())).Do(x =>
+            {
+                _elapsedOverChannel = (float)x[0];
+                _maxOverchannel = (float)x[1];
             });
             
             CastObjects objs = new CastObjects(policy, obj, timelineData, () => finishConcentration); 
@@ -93,11 +105,26 @@ namespace Tests.Runtime.RPG
             int fired = 0;
             _handler.Timeline.Timeline_And_Recovery_Finished += () => fired++;
             _handler.Update(channelingTime);
+            _handler.Update(overChannellingTime);
             finishConcentration = true;
             
             _handler.Update(recoveryTime);
             _handler.Update(recoveryTime);
             Assert.AreEqual(1, fired, $"Expected timeline to finish and fire 1 time, but it was fired {fired} times");
+        }
+
+        [Test]
+        public void CastHandler_Properly_Notifies_Ability_Object_Of_Overchanneling()
+        {
+            float elapsed = 0.2f;
+            
+            _handler.Update(channelingTime);
+            _castingState = CastingState.OverChanneling;
+            
+            _handler.Update(elapsed);
+            
+            Assert.That(_elapsedOverChannel, Is.EqualTo(elapsed).Within(0.0001f), "Elapsed Overchanneling time was not the same as the passed parameter");
+            Assert.AreEqual(overChannellingTime, _maxOverchannel, "Overchannel Duration was not the same as the passed parameter");
         }
         #endregion
     }

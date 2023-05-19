@@ -61,10 +61,19 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="deltaTime">The amount of time that has passed since the last frame</param>
         public void Update(float deltaTime)
         {
+            CastingState currentCastState = _castStateGetter();
+            
             _castObjects.timeline?.Update(deltaTime);
-            _castObjects.abilityObject.OnUpdate(deltaTime);
-
-            if (_castStateGetter() == CastingState.Casting && _castObjects.endConcentrationCondition())
+            _castObjects.abilityObject.OnUpdate(deltaTime, currentCastState);
+            if (currentCastState == CastingState.OverChanneling && _castObjects.timeline != null)
+            {
+                CastTimeline timeline = _castObjects.timeline;
+                float elapsedOverchannel = timeline.ElapsedOverchannelingTime;
+                float overchannelDuration = timeline.data.overChannellingTime;
+                _castObjects.abilityObject.OnOverchannel(elapsedOverchannel, overchannelDuration);
+            }
+            
+            if (currentCastState == CastingState.Casting && _castObjects.endConcentrationCondition())
             {
                 _castObjects.timeline?.FinishConcentration();
             }
