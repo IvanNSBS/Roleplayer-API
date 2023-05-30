@@ -81,7 +81,18 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Defines what should happen with this ability when the cast has been interrupted
         /// </summary>
-        public virtual void OnInterrupt(){ }
+        public virtual void OnInterrupt() { }
+        
+        public virtual void OnCastStarted() { }
+        public virtual void OnCastFinished() { }
+        public virtual void OnChannelingFinished() { }
+        public virtual void OnOverChannelingStarted() { }
+        public virtual void OnOverChannelingFinished() { }
+        public virtual void OnRecoveryStarted() { }
+        public virtual void OnRecoveryFinished() { }
+        
+        public virtual void OnConcentrationStarted() { }
+        public virtual void OnConcentrationFinished() { }
         #endregion
     }
 }

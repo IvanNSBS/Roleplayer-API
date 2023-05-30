@@ -95,15 +95,25 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             _castObjects.timeline.UnleashAbility += _castObjects.abilityObject.UnleashAbility;
 
-            if (_casting.DiscardPolicy == DiscardPolicy.AfterRecovery)
+            if (_casting.DiscardPolicy == DiscardPolicy.Auto)
             {
                 _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.InvokeNotifyDiscard;
             }
-            else if (_casting.DiscardPolicy == DiscardPolicy.AfterCastingOrConcentrating)
-            {
-                _castObjects.timeline.ConcentrationFinished_RecoveryStarted += _castObjects.abilityObject.InvokeNotifyDiscard;
-            }
             
+            _castObjects.timeline.ChannelingFinished_OverchannelingStarted += _castObjects.abilityObject.OnChannelingFinished;
+            _castObjects.timeline.ChannelingFinished_OverchannelingStarted += _castObjects.abilityObject.OnOverChannelingStarted;
+            
+            _castObjects.timeline.OverchannelingFinished_CastingStarted += _castObjects.abilityObject.OnOverChannelingFinished;
+            _castObjects.timeline.OverchannelingFinished_CastingStarted += _castObjects.abilityObject.OnCastStarted;
+            
+            _castObjects.timeline.CastFinished += _castObjects.abilityObject.OnCastFinished;
+            _castObjects.timeline.CastFinished += _castObjects.abilityObject.OnConcentrationStarted;
+            
+            _castObjects.timeline.ConcentrationFinished_RecoveryStarted += _castObjects.abilityObject.OnConcentrationFinished;
+            _castObjects.timeline.ConcentrationFinished_RecoveryStarted += _castObjects.abilityObject.OnRecoveryStarted;
+            
+            _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.OnRecoveryFinished;
+
             _castObjects.timeline.Start();
         }
         #endregion

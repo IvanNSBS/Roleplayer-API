@@ -365,6 +365,27 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
+        public void AbilityObject_Correctly_Finishes_Every_Cast_Process(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.shouldFinishConcentration = true;
+            ability.DiscardPolicy = DiscardPolicy.Auto;
+            
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.Update(0);
+            _controller.Update(_recoveryTime);
+
+            Assert.IsNull(_controller.ActiveAbilities.FirstOrDefault(x => x.AbilityObject == ability.obj));
+            Assert.AreEqual(CastingState.None, _controller.CastingState);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
         public void AbilityObject_Correctly_Finishes_Casting(uint slot)
         {
             _controller.StartChanneling(slot);

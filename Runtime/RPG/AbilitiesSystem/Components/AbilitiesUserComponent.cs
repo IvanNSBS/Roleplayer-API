@@ -24,6 +24,10 @@ namespace INUlib.RPG.AbilitiesSystem
         #endregion
 
 
+        #region Properties
+        public CastingState CastingState => _controller.CastingState; 
+        #endregion
+        
         #region Methods
         public CooldownHandler GetCooldownHandler() => _controller.CooldownsHandler;
         public virtual void Initialize(uint slotAmount, TCaster dataHub) => 
@@ -37,6 +41,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public virtual TAbility GetAbility(uint slot) => _controller.GetAbility(slot);
         public virtual bool IsAbilityOnCD(uint slot) => _controller.CooldownsHandler.IsAbilityOnCd(slot);
         public virtual bool HasAbilityInSlot(uint slot) => _controller.HasAbilityInSlot(slot);
+        public virtual void SkipOverchanneling(bool skip) => _controller.SkipOverchanneling(skip);
         #endregion
     }
 }
