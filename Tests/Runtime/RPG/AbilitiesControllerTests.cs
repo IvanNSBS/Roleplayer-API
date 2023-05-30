@@ -394,7 +394,7 @@ namespace Tests.Runtime.RPG.Abilities
             
             var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
             Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
-            Assert.AreEqual(CastingState.Recovery, _controller.CastingState);
+            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
         }
         
         [Test]
@@ -413,7 +413,7 @@ namespace Tests.Runtime.RPG.Abilities
             
             var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
             Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
-            Assert.AreEqual(CastingState.Recovery, _controller.CastingState);
+            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
         }
 
         [Test]

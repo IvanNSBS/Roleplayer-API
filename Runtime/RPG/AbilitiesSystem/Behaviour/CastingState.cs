@@ -26,6 +26,6 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// The ability has finished casting and concentrating and its finishing
         /// </summary>
-        Recovery = 5
+        CastRecovery = 5
     }
 }

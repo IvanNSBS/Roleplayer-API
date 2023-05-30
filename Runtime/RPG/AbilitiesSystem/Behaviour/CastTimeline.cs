@@ -12,15 +12,6 @@ namespace INUlib.RPG.AbilitiesSystem
         Finished = 3
     }
 
-    public enum TimelineCallbackState
-    {
-        Channeling = 0,
-        Overchanneling = 1,
-        Casting = 2,
-        Concentrating = 3,
-        CastRecovery = 4
-    }
-
     [Serializable]
     public class TimelineData
     {
@@ -74,15 +65,15 @@ namespace INUlib.RPG.AbilitiesSystem
         private float _currentClbkElapsedTime;
         
         private TimelineState _state;
-        private TimelineCallbackState _clbkState;
+        private CastingState _clbkState;
         private HashSet<Action> _eventsFired;
 
-        private Dictionary<TimelineCallbackState, Tuple<float, Action>> _clbkTimers;
+        private Dictionary<CastingState, Tuple<float, Action>> _clbkTimers;
         #endregion
         
         #region Properties
         public TimelineState state => _state;
-        public TimelineCallbackState clbkState => _clbkState;
+        public CastingState clbkState => _clbkState;
         public TimelineData data => _data;
         public float TotalElapsedTime => _totalElapsedTime;
         public float CurrentStateElapsedTime => _currentClbkElapsedTime;
@@ -106,26 +97,26 @@ namespace INUlib.RPG.AbilitiesSystem
             _data = timelineData;
             _eventsFired = new HashSet<Action>();
 
-            _clbkTimers = new Dictionary<TimelineCallbackState, Tuple<float, Action>>()
+            _clbkTimers = new Dictionary<CastingState, Tuple<float, Action>>()
             {
                 {
-                    TimelineCallbackState.Channeling,
+                    CastingState.Channeling,
                     new Tuple<float, Action>(_data.channelingTime, () => ChannelingFinished_OverchannelingStarted?.Invoke())
                 },
                 {
-                    TimelineCallbackState.Overchanneling,
+                    CastingState.OverChanneling,
                     new Tuple<float, Action>(_data.overChannellingTime, () => OverchannelingFinished_CastingStarted?.Invoke())
                 },
                 {
-                    TimelineCallbackState.Casting,
+                    CastingState.Casting,
                     new Tuple<float, Action>(_data.castTime, () => CastFinished?.Invoke())
                 },
                 {
-                    TimelineCallbackState.Concentrating,
+                    CastingState.Concentrating,
                     new Tuple<float, Action>(0, () => ConcentrationFinished_RecoveryStarted?.Invoke())
                 },
                 {
-                    TimelineCallbackState.CastRecovery,
+                    CastingState.CastRecovery,
                     new Tuple<float, Action>(_data.recoveryTime, () =>
                     {
                         Timeline_And_Recovery_Finished?.Invoke();
@@ -146,6 +137,8 @@ namespace INUlib.RPG.AbilitiesSystem
             
             TimelineStarted?.Invoke();
             _state = TimelineState.Running;
+            if (_clbkState == CastingState.None)
+                _clbkState = CastingState.Channeling;
         }
 
         /// <summary>
@@ -165,7 +158,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _totalElapsedTime = 0;
             _eventsFired.Clear();
             _state = TimelineState.Pending;
-            _clbkState = TimelineCallbackState.Channeling;
+            _clbkState = CastingState.None;
         }
 
         public void FinishConcentration()
@@ -185,7 +178,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _totalElapsedTime += deltaTime;
             _currentClbkElapsedTime += deltaTime;
 
-            if (_clbkState == TimelineCallbackState.Concentrating && data.castType == AbilityCastType.Concentration)
+            if (_clbkState == CastingState.Concentrating && data.castType == AbilityCastType.Concentration)
                 return;
             
             if (_currentClbkElapsedTime >= _clbkTimers[_clbkState].Item1)
@@ -200,7 +193,7 @@ namespace INUlib.RPG.AbilitiesSystem
         protected void GoToNextState()
         {
             IncreaseStateAndFireCallbacks();
-            bool isAtConcentrating = _clbkState == TimelineCallbackState.Concentrating;
+            bool isAtConcentrating = _clbkState == CastingState.Concentrating;
             bool isConcentrationSpell = data.castType == AbilityCastType.Concentration;
             
             // Concentration step should be skipped if it's not a concentration ability
@@ -211,7 +204,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
             
             // Skip every state that has a timer very close to 0 so we don't need to wait for the next frame to fire it
-            while((int)_clbkState <= (int)TimelineCallbackState.CastRecovery && _clbkTimers[_clbkState].Item1 < 0.0001f)
+            while((int)_clbkState <= (int)CastingState.CastRecovery && _clbkTimers[_clbkState].Item1 < 0.0001f)
             {
                 if (isAtConcentrating && isConcentrationSpell)
                     break;
@@ -222,7 +215,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         private void IncreaseStateAndFireCallbacks()
         {
-            if (_clbkState > TimelineCallbackState.CastRecovery)
+            if (_clbkState > CastingState.CastRecovery)
                 return;
             
             Action clbk = _clbkTimers[_clbkState].Item2;

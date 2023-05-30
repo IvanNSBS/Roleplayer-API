@@ -168,7 +168,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterConcentrating)
                 _cdHandler.PutOnCooldown(_casting);
             
-            _castingState = CastingState.Recovery;
+            _castingState = CastingState.CastRecovery;
         }
 
         public void FinishRecovery()

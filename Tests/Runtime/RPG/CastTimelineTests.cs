@@ -386,38 +386,38 @@ namespace Tests.Runtime.RPG
         }
 
         [Test]
-        [TestCase(TimelineCallbackState.Channeling)]
-        [TestCase(TimelineCallbackState.Overchanneling)]
-        [TestCase(TimelineCallbackState.Casting)]
-        [TestCase(TimelineCallbackState.Concentrating)]
-        [TestCase(TimelineCallbackState.CastRecovery)]
-        public void Timeline_Properly_Updates_Clbk_State(TimelineCallbackState expected)
+        [TestCase(CastingState.Channeling)]
+        [TestCase(CastingState.OverChanneling)]
+        [TestCase(CastingState.Casting)]
+        [TestCase(CastingState.Concentrating)]
+        [TestCase(CastingState.CastRecovery)]
+        public void Timeline_Properly_Updates_Clbk_State(CastingState expected)
         {
             TimelineData data = new TimelineData(1f, 1f, 1f, 1f, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Start();
 
-            if (expected == TimelineCallbackState.Channeling)
+            if (expected == CastingState.Channeling)
             {
                 _castTimeline.Update(0f);
             }
 
-            if (expected == TimelineCallbackState.Overchanneling)
+            if (expected == CastingState.OverChanneling)
             {
                 _castTimeline.Update(1f);
             }
-            if (expected == TimelineCallbackState.Casting)
+            if (expected == CastingState.Casting)
             {
                 _castTimeline.Update(1f);
                 _castTimeline.Update(1f);
             }
-            if (expected == TimelineCallbackState.Concentrating)
+            if (expected == CastingState.Concentrating)
             {
                 _castTimeline.Update(1f);
                 _castTimeline.Update(1f);
                 _castTimeline.Update(1f);
             }
-            if (expected == TimelineCallbackState.CastRecovery)
+            if (expected == CastingState.CastRecovery)
             {
                 _castTimeline.Update(1f);
                 _castTimeline.Update(1f);
