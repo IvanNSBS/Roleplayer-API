@@ -15,6 +15,12 @@ namespace INUlib.RPG.AbilitiesSystem
         StartCooldownPolicy StartCooldownPolicy { get; }
         
         /// <summary>
+        /// Whether to manually discard the AbilityObject from withing or
+        /// automatically after cast timeline finishes
+        /// </summary>
+        DiscardPolicy DiscardPolicy { get; }
+        
+        /// <summary>
         /// Getter for the ability max cooldown.
         /// </summary>
         /// <value></value>

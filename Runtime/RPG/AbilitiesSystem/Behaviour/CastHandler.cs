@@ -95,9 +95,7 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             _castObjects.timeline.CastFinished += _castObjects.abilityObject.UnleashAbility;
 
-            // TODO: Selecting to discard after recovery finished by being fire and forget is not correct.
-            // TODO: Some abilities might be fire and forget and not be discarded right after.
-            if (_casting.AbilityCastType == AbilityCastType.FireAndForget)
+            if (_casting.DiscardPolicy == DiscardPolicy.Manual)
             {
                 _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.InvokeNotifyDiscard;
             }

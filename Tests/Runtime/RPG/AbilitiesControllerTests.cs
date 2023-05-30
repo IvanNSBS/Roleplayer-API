@@ -101,6 +101,7 @@ namespace Tests.Runtime.RPG.Abilities
             
             public float RecoveryTime { get; set;  }
             public AbilityCastType AbilityCastType { get; set; }
+            public DiscardPolicy DiscardPolicy { get; set; }
         }
         #endregion
 
