@@ -216,11 +216,11 @@ namespace INUlib.RPG.AbilitiesSystem
             {
                 IncreaseStateAndFireCallbacks();
             }
-
             
             // Skip every state that has a timer very close to 0 so we don't need to wait for the next frame to fire it
             while((int)_clbkState <= (int)CastingState.CastRecovery && _clbkTimers[_clbkState].Item1 < 0.0001f)
             {
+                isAtConcentrating = _clbkState == CastingState.Concentrating;
                 if (isAtConcentrating && isConcentrationSpell)
                     break;
                 

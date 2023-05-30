@@ -454,6 +454,21 @@ namespace Tests.Runtime.RPG
             
             Assert.AreEqual(1, fired, $"Expected Unleash ability to be called once but it was called {fired}");
         }
+
+        [Test]
+        public void Concentration_Spell_With_Zero_Cast_Time_Wont_Skip_Concentration_When_Going_To_Next_Step_In_The_Same_Frame()
+        {
+            TimelineData data = new (2f, 1f, 0f, 3f, 0, AbilityCastType.Concentration);
+            _castTimeline = new CastTimeline(data);
+            
+            _castTimeline.Start();
+            
+            _castTimeline.Update(2f); 
+            _castTimeline.Update(1f); 
+            _castTimeline.Update(1.2f);
+            
+            Assert.AreEqual(CastingState.Concentrating, _castTimeline.clbkState);
+        }
         #endregion
     }
 }
