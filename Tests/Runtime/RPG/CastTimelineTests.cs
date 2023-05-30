@@ -496,6 +496,20 @@ namespace Tests.Runtime.RPG
             
             Assert.AreEqual(CastingState.Casting, _castTimeline.clbkState);
         }
+
+        [Test]
+        public void Timeline_Properly_Jumps_To_Recovery_Start()
+        {
+            TimelineData data = new (2f, 100f, 1f, 3f, 0, AbilityCastType.FireAndForget);
+            _castTimeline = new CastTimeline(data);
+            _castTimeline.Start();
+            
+            _castTimeline.Update(0.01f);
+            _castTimeline.JumpToStartRecoveryState();
+            
+            Assert.AreEqual(CastingState.CastRecovery, _castTimeline.clbkState);
+            Assert.AreEqual(0f, _castTimeline.CurrentStateElapsedTime);
+        }
         #endregion
     }
 }

@@ -131,7 +131,21 @@ namespace INUlib.RPG.AbilitiesSystem
             }
             else if (_castingState == CastingState.Casting || _castingState == CastingState.Concentrating)
             {
-                _castHandler.AbilityObject.OnInterrupt();
+                _castHandler.AbilityObject.OnCancelRequested();
+            }
+            
+            _castHandler?.Timeline.JumpToStartRecoveryState();
+        } 
+        
+        /// <summary>
+        /// ForCancels the ability channeling for the current spell,
+        /// reseting the ElapsedCasting timer and setting the casting spell to null
+        /// </summary>
+        public virtual void ForceInterruptCast() 
+        {
+            if (_castHandler != null)
+            {
+                _castHandler.AbilityObject.OnForcedInterrupt();
             }
             
             _casting = null;

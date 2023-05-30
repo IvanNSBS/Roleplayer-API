@@ -55,7 +55,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Communicates to the CastPolicy that a cancel cast was requested
         /// </summary>
         public void OnCastCanceled() => _castObjects.policy?.OnCancelRequested(_castStateGetter());
-
+        
         /// <summary>
         /// Updates the timeline and the ability object, passing the time that has passed since the last frame.
         /// It will try to finish concentration on every frame if the casting state is Casting and the ability

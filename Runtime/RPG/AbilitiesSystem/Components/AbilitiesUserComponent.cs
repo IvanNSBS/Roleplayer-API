@@ -36,6 +36,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public virtual TAbility GetAbilityBeingCast() => _controller.GetCastingAbility();
         public virtual CastHandler GetCastHandler() => _controller.GetCastHandler();
         public virtual void CancelCast() => _controller.CancelCast();
+        public virtual void ForceInterruptCast() => _controller.ForceInterruptCast();
         public virtual float GetElapsedChannelingTime() => _controller.ElapsedChannelingTime;
         public virtual void SetAbility(uint slot, TAbility ability) => _controller.SetAbility(slot, ability);
         public virtual TAbility GetAbility(uint slot) => _controller.GetAbility(slot);

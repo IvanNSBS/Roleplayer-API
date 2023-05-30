@@ -79,9 +79,15 @@ namespace INUlib.RPG.AbilitiesSystem
         }
         
         /// <summary>
-        /// Defines what should happen with this ability when the cast has been interrupted
+        /// Defines what should happen to the ability object when the cast has been forcefully interrupted
+        /// by an external factor such as a stun status effect.
         /// </summary>
-        public virtual void OnInterrupt() { }
+        public virtual void OnForcedInterrupt() { }
+        
+        /// <summary>
+        /// Defines what should happen to the ability object when the user inputs a cancel cast.
+        /// </summary>
+        public virtual void OnCancelRequested() { }
         
         public virtual void OnCastStarted() { }
         public virtual void OnCastFinished() { }

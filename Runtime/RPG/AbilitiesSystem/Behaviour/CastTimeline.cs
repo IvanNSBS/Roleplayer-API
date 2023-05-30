@@ -191,6 +191,14 @@ namespace INUlib.RPG.AbilitiesSystem
                 GoToNextState();                
             }
         }
+
+        public void JumpToStartRecoveryState()
+        {
+            // TODO: Instantly jump to recovery state or go through each one, like it is being done right now,
+            // TODO: Triggering every event on the way?
+            while (_clbkState != CastingState.CastRecovery)
+                GoToNextState();
+        }
         
         /// <summary>
         /// Updates the timeline, making time move forward

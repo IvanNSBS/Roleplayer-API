@@ -70,7 +70,12 @@ namespace Tests.Runtime.RPG.Abilities
 
                 abilityObject.When(x => x.UnleashAbility()).Do(x => casted = true);
                 
-                abilityObject.When(x => x.OnInterrupt()).Do(x =>
+                abilityObject.When(x => x.OnCancelRequested()).Do(x =>
+                {
+                    interrupted = true;
+                });
+                
+                abilityObject.When(x => x.OnForcedInterrupt()).Do(x =>
                 {
                     interrupted = true;
                 });
@@ -584,13 +589,26 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Cast_State_Goes_To_None_After_Cancel_Channeling(uint slot)
+        public void Cast_State_Goes_To_Recovery_After_Cancel_Channeling(uint slot)
         {
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime*0.1f);
             _controller.CancelCast();
 
-            Assert.IsTrue(_controller.CastingState == CastingState.None);
+            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cast_State_Goes_To_None_After_Forced_Interrupt(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime*0.1f);
+            _controller.ForceInterruptCast();
+
+            Assert.AreEqual(CastingState.None, _controller.CastingState);
         }
         
         [Test]
@@ -603,8 +621,8 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime*0.1f);
             _controller.CancelCast();
-
-            Assert.IsTrue(_controller.CastingState == CastingState.None);
+            
+            Assert.AreEqual(CastingState.None, _controller.CastingState);
         }
         
         [Test]
@@ -619,8 +637,8 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_overChannelingTime);
             _controller.Update(_castTime * 0.01f);
             _controller.CancelCast();
-
-            Assert.IsTrue(_controller.CastingState == CastingState.None);
+            
+            Assert.AreEqual(CastingState.None, _controller.CastingState);
             Assert.IsTrue(((TestFactoryAbility)_controller.GetAbility(slot)).interrupted);
         }
 
@@ -670,7 +688,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Ability_Receives_Interrupt_While_Casting(uint slot)
+        public void Ability_Receives_CancelRequest_While_Casting(uint slot)
         {
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             _controller.StartChanneling(slot);
@@ -679,6 +697,23 @@ namespace Tests.Runtime.RPG.Abilities
 
             Assert.AreEqual(CastingState.Casting, _controller.CastingState);
             _controller.CancelCast();
+            
+            Assert.IsTrue(ability.interrupted);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Receives_Forced_Interrupt_While_Casting(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+
+            Assert.AreEqual(CastingState.Casting, _controller.CastingState);
+            _controller.ForceInterruptCast();
             
             Assert.IsTrue(ability.interrupted);
         }
