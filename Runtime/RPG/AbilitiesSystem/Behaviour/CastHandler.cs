@@ -93,7 +93,7 @@ namespace INUlib.RPG.AbilitiesSystem
         #region Helper Methods
         private void SetupTimeline()
         {
-            _castObjects.timeline.CastFinished += _castObjects.abilityObject.UnleashAbility;
+            _castObjects.timeline.UnleashAbility += _castObjects.abilityObject.UnleashAbility;
 
             if (_casting.DiscardPolicy == DiscardPolicy.Manual)
             {

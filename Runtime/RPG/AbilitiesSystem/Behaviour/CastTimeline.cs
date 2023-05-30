@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using INUlib.Utils.Math;
 using Newtonsoft.Json;
 
 namespace INUlib.RPG.AbilitiesSystem
@@ -39,6 +40,13 @@ namespace INUlib.RPG.AbilitiesSystem
         /// to wait to be able to try to cast another ability again
         /// </summary>
         public readonly float recoveryTime;
+
+        /// <summary>
+        /// During the cast state, when to unleash the spell.
+        /// This value will be clamped between 0 and castTime so it will always fire at the start or at the end
+        /// of the cast state.
+        /// </summary>
+        public readonly float unleashDuringCastTime;
         
         public readonly AbilityCastType castType;
         #endregion
@@ -46,12 +54,13 @@ namespace INUlib.RPG.AbilitiesSystem
         
         #region Methods
         [JsonConstructor]
-        public TimelineData(float channelingTime, float overChannellingTime, float castTime, float recoveryTime, AbilityCastType castType)
+        public TimelineData(float channelingTime, float overChannellingTime, float castTime, float recoveryTime, float unleashDuringCastTime,AbilityCastType castType)
         {
             this.channelingTime = channelingTime;
             this.overChannellingTime = overChannellingTime;
             this.castTime = castTime;
             this.recoveryTime = recoveryTime;
+            this.unleashDuringCastTime = INUMath.Clamp(unleashDuringCastTime, 0, castTime);
             this.castType = castType;
         }
         #endregion
@@ -87,6 +96,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public event Action ChannelingFinished_OverchannelingStarted = delegate {  };
         public event Action OverchannelingFinished_CastingStarted = delegate {  };
         public event Action CastFinished = delegate {  };
+        public event Action UnleashAbility = delegate {  };
         public event Action ConcentrationFinished_RecoveryStarted = delegate {  };
         #endregion
         
@@ -180,7 +190,12 @@ namespace INUlib.RPG.AbilitiesSystem
 
             if (_clbkState == CastingState.Concentrating && data.castType == AbilityCastType.Concentration)
                 return;
-            
+
+            if (_clbkState == CastingState.Casting && _currentClbkElapsedTime >= _data.unleashDuringCastTime && !_eventsFired.Contains(UnleashAbility))
+            {
+                UnleashAbility?.Invoke();
+                _eventsFired.Add(UnleashAbility);
+            }
             if (_currentClbkElapsedTime >= _clbkTimers[_clbkState].Item1)
             {
                 GoToNextState();

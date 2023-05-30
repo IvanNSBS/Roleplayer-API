@@ -91,7 +91,7 @@ namespace Tests.Runtime.RPG.Abilities
             public int Charges => 1;
             public bool CanCastAbility {get; set;}
             public float Cooldown {get; set;}
-            public TimelineData CastTimeline => new (ChannelingTime, OverchannellingTime, CastTime, RecoveryTime, AbilityCastType);
+            public TimelineData CastTimeline => new (ChannelingTime, OverchannellingTime, CastTime, RecoveryTime, 0, AbilityCastType);
 
             public float CastTime { get; set; }
             

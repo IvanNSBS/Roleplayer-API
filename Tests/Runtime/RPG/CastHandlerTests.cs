@@ -35,7 +35,7 @@ namespace Tests.Runtime.RPG
             AbilityObject obj = Substitute.ForPartsOf<AbilityObject>();
             IAbilityBase parent = Substitute.For<IAbilityBase>();
             CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
-            TimelineData timelineData = new TimelineData(channelingTime, overChannellingTime, castTime, recoveryTime, AbilityCastType.FireAndForget);
+            TimelineData timelineData = new TimelineData(channelingTime, overChannellingTime, castTime, recoveryTime, 0, AbilityCastType.FireAndForget);
 
             obj.When(x => x.OnUpdate(Arg.Any<float>(), Arg.Any<CastingState>())).Do(x =>
             {

@@ -98,7 +98,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 handler.Timeline.ConcentrationFinished_RecoveryStarted += FinishConcentration;
                 handler.Timeline.Timeline_And_Recovery_Finished += FinishRecovery;
                 handler.AbilityObject.NotifyDiscard += () => RemoveAbility(handler);
-                
+
                 // Updates cast handler with a deltaTime of 0 so instant spells(0 channeling and castTime)
                 // might be cast on the same frame instead of the next
                 _castHandler.Update(0f);
