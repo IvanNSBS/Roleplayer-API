@@ -361,6 +361,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime*0.5f);
             _controller.CancelCast();
+            _controller.Update(_recoveryTime);
 
             Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
             Assert.IsNull(_controller.GetCastingAbility());
@@ -589,19 +590,6 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Cast_State_Goes_To_Recovery_After_Cancel_Channeling(uint slot)
-        {
-            _controller.StartChanneling(slot);
-            _controller.Update(_channelingTime*0.1f);
-            _controller.CancelCast();
-
-            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
-        }
-        
-        [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
         public void Cast_State_Goes_To_None_After_Forced_Interrupt(uint slot)
         {
             _controller.StartChanneling(slot);
@@ -615,21 +603,21 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Cast_State_Goes_To_None_After_Cancel_Overchannelling(uint slot)
+        public void Cast_State_Goes_To_Recovery_After_Cancel_While_Overchannelling(uint slot)
         {
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime*0.1f);
             _controller.CancelCast();
             
-            Assert.AreEqual(CastingState.None, _controller.CastingState);
+            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Cast_State_Goes_To_None_After_Cancel_Casting(uint slot)
+        public void Cast_State_Goes_To_Recovery_After_Cancel_While_Casting(uint slot)
         {
             ((TestFactoryAbility)_controller.GetAbility(slot)).RecoveryTime = _channelingTime;
             _controller.StartChanneling(slot);
@@ -638,8 +626,37 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime * 0.01f);
             _controller.CancelCast();
             
-            Assert.AreEqual(CastingState.None, _controller.CastingState);
+            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
             Assert.IsTrue(((TestFactoryAbility)_controller.GetAbility(slot)).interrupted);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cast_State_Goes_To_Recovery_After_Cancel_While_Channeling(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime*0.1f);
+            _controller.CancelCast();
+
+            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cast_State_Goes_To_Recovery_After_Cancel_While_Concentrating(uint slot)
+        {
+            ((TestFactoryAbility)_controller.GetAbility(slot)).AbilityCastType = AbilityCastType.Concentration;
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.CancelCast();
+
+            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
         }
 
         [Test]
@@ -773,11 +790,11 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Ability_Casting_Is_Completely_Cleared_When_Cancelled(uint slot)
+        public void Ability_Casting_Is_Completely_Cleared_When_Forced_Interrupt(uint slot)
         {
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
-            _controller.CancelCast();
+            _controller.ForceInterruptCast();
             
             Assert.IsNull(_controller.GetCastingAbility(), "Was still casting something after cancel");
             Assert.IsNull(_controller.GetCastHandler(), "Cast Handler was not null after cancel");

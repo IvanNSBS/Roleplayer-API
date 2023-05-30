@@ -194,10 +194,11 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public void JumpToStartRecoveryState()
         {
-            // TODO: Instantly jump to recovery state or go through each one, like it is being done right now,
-            // TODO: Triggering every event on the way?
-            while (_clbkState != CastingState.CastRecovery)
-                GoToNextState();
+            if (_clbkState == CastingState.CastRecovery)
+                return;
+            
+            _clbkState = CastingState.Concentrating;
+            GoToNextState();
         }
         
         /// <summary>
