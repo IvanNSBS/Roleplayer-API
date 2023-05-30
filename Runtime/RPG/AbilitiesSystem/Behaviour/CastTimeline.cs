@@ -180,6 +180,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// If set to true during Channeling, it will prepare to skip Overchanneling.
         /// If set to true during Overchanneling, it'll end it prematurely.
+        /// Will have no effect if the casting state is not Channeling or Overchanneling
         /// </summary>
         /// <param name="skip">Whether or not to skip overchanneling</param>
         public void SkipOverchanneling(bool skip)
