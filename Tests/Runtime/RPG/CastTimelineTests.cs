@@ -469,6 +469,33 @@ namespace Tests.Runtime.RPG
             
             Assert.AreEqual(CastingState.Concentrating, _castTimeline.clbkState);
         }
+
+        [Test]
+        public void Overchanneling_Is_Properly_Skipped_If_Set_To_Skip_Overchanneling()
+        {
+            TimelineData data = new (2f, 100f, 1f, 3f, 0, AbilityCastType.FireAndForget);
+            _castTimeline = new CastTimeline(data);
+            _castTimeline.Start();
+            _castTimeline.SkipOverchanneling(true);
+            
+            _castTimeline.Update(2f); 
+            
+            Assert.AreEqual(CastingState.Casting, _castTimeline.clbkState);
+        }
+
+        [Test]
+        public void Overchanneling_Is_Ended_Prematurely_When_Skipped()
+        {
+            TimelineData data = new (2f, 100f, 1f, 3f, 0, AbilityCastType.FireAndForget);
+            _castTimeline = new CastTimeline(data);
+            _castTimeline.Start();
+            
+            _castTimeline.Update(2f);
+            _castTimeline.Update(0.1f);
+            _castTimeline.SkipOverchanneling(true);
+            
+            Assert.AreEqual(CastingState.Casting, _castTimeline.clbkState);
+        }
         #endregion
     }
 }

@@ -111,6 +111,14 @@ namespace INUlib.RPG.AbilitiesSystem
             return true;
         }
 
+        public void SkipOverchanneling(bool skip)
+        {
+            if (_castingState != CastingState.Channeling)
+                return;
+
+            _castHandler.Timeline.SkipOverchanneling(skip);
+        }
+        
         /// <summary>
         /// Cancels the ability channeling for the current spell,
         /// reseting the ElapsedCasting timer and setting the casting spell to null

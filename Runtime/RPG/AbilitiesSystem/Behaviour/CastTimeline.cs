@@ -72,6 +72,7 @@ namespace INUlib.RPG.AbilitiesSystem
         private TimelineData _data;
         private float _totalElapsedTime;
         private float _currentClbkElapsedTime;
+        private bool _skipOverchanneling;
         
         private TimelineState _state;
         private CastingState _clbkState;
@@ -177,6 +178,20 @@ namespace INUlib.RPG.AbilitiesSystem
         }
 
         /// <summary>
+        /// If set to true during Channeling, it will prepare to skip Overchanneling.
+        /// If set to true during Overchanneling, it'll end it prematurely.
+        /// </summary>
+        /// <param name="skip">Whether or not to skip overchanneling</param>
+        public void SkipOverchanneling(bool skip)
+        {
+            _skipOverchanneling = skip;
+            if (_skipOverchanneling && _clbkState == CastingState.OverChanneling)
+            {
+                GoToNextState();                
+            }
+        }
+        
+        /// <summary>
         /// Updates the timeline, making time move forward
         /// </summary>
         /// <param name="deltaTime">How much time passed since the last frame</param>
@@ -208,6 +223,9 @@ namespace INUlib.RPG.AbilitiesSystem
         protected void GoToNextState()
         {
             IncreaseStateAndFireCallbacks();
+            if(_clbkState == CastingState.OverChanneling && _skipOverchanneling)
+                IncreaseStateAndFireCallbacks();
+            
             bool isAtConcentrating = _clbkState == CastingState.Concentrating;
             bool isConcentrationSpell = data.castType == AbilityCastType.Concentration;
             
