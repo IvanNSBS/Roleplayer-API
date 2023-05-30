@@ -8,7 +8,7 @@
         Auto = 0,
         
         /// <summary>
-        /// Ability will be discarded only when the AbilityObject manually calls NotifyDiscard from withing
+        /// Ability will be discarded only when the AbilityObject manually calls NotifyDiscard from within
         /// </summary>
         Manual = 2,
     }
