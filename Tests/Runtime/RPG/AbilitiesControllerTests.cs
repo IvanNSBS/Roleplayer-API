@@ -2,7 +2,6 @@ using NSubstitute;
 using System.Linq;
 using NUnit.Framework;
 using INUlib.RPG.AbilitiesSystem;
-using NUnit.Framework.Internal;
 
 namespace Tests.Runtime.RPG.Abilities
 {
@@ -21,6 +20,7 @@ namespace Tests.Runtime.RPG.Abilities
             public bool removeOnUpdate;
             public bool interrupted;
             public bool shouldFinishConcentration;
+            public bool casted;
             
             public TestFactoryAbility(float cd, float channelingTime, float overchannellingTime, float castTime, float recoveryTime, ICasterInfo factoryRef)
             {
@@ -68,6 +68,8 @@ namespace Tests.Runtime.RPG.Abilities
                         }
                     });
                 }
+
+                abilityObject.When(x => x.UnleashAbility()).Do(x => casted = true);
                 
                 abilityObject.When(x => x.OnInterrupt()).Do(x =>
                 {
@@ -102,18 +104,10 @@ namespace Tests.Runtime.RPG.Abilities
         #region Test Abilities Controller
         public class TestAbilitiesController : AbilitiesController<IAbility<ICasterInfo>, ICasterInfo>
         {
-            public bool casted = false;
             public int Clicks => _castHandler.TimesCastCalled;
-            
 
             public TestAbilitiesController(uint slotAmnt, ICasterInfo caster) : base(slotAmnt, caster)
             {
-            }
-
-            protected override void FinishChanneling()
-            {
-                base.FinishChanneling();
-                casted = true;
             }
         }
         #endregion
@@ -187,11 +181,14 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Ability_Is_Unleashed_After_Finish_Cast(uint slot)
+        public void Ability_Is_Unleashed_After_Finish_Channeling(uint slot)
         {
             _controller.StartChanneling(slot);
-            _controller.Update(1);
-            Assert.IsTrue(_controller.casted);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+
+            TestFactoryAbility ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            Assert.IsTrue(ability.casted);
         }
 
         [Test]
@@ -320,7 +317,8 @@ namespace Tests.Runtime.RPG.Abilities
             TestFactoryAbility ab = new TestFactoryAbility(_cd, 0, 0,0,0, _mockFactory);
             _controller.SetAbility(slot, ab);
             _controller.StartChanneling(slot);
-            Assert.IsTrue(_controller.casted);
+            
+            Assert.IsTrue(ab.casted);
         }
 
         [Test]

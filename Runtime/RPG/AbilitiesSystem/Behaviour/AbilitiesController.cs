@@ -143,6 +143,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterChanneling)
                 _cdHandler.PutOnCooldown(_casting);
             
+            _castHandler.AbilityObject.UnleashAbility();
             _castingState = CastingState.Casting;
             _elapsedChanneling = 0f;
         }
