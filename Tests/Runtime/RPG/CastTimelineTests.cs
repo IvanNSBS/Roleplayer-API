@@ -153,7 +153,7 @@ namespace Tests.Runtime.RPG
             int fired = 0;
             TimelineData data = new TimelineData(channelingTime, 0f, castTime, 1, 0, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
-            _castTimeline.CastFinished += () => fired++;
+            _castTimeline.CastFinished_ConcentrationStarted += () => fired++;
             _castTimeline.Start();
             _castTimeline.Update(channelingTime);
             _castTimeline.Update(castTime);
@@ -314,7 +314,7 @@ namespace Tests.Runtime.RPG
             TimelineData data = new TimelineData(channelingTime, 0f, 1f, recoveryTime, 0, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             
-            _castTimeline.CastFinished += () => fired++;
+            _castTimeline.CastFinished_ConcentrationStarted += () => fired++;
             _castTimeline.Timeline_And_Recovery_Finished += () => fired++;
             _castTimeline.Start();
             _castTimeline.Update(channelingTime);
@@ -371,7 +371,7 @@ namespace Tests.Runtime.RPG
             TimelineData data = new TimelineData(channelingTime, 0f, 1f, recoveryTime, 0, AbilityCastType.Concentration);
             _castTimeline = new CastTimeline(data);
             
-            _castTimeline.CastFinished += () => fired++;
+            _castTimeline.CastFinished_ConcentrationStarted += () => fired++;
             _castTimeline.Start();
             _castTimeline.Update(channelingTime);
             _castTimeline.Update(castTime);

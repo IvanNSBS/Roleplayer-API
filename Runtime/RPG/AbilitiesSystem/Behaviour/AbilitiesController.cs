@@ -94,7 +94,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 handler.AbilityObject.Disable();
                 handler.Timeline.ChannelingFinished_OverchannelingStarted += FinishChanneling;
                 handler.Timeline.OverchannelingFinished_CastingStarted += FinishOverchannelling;
-                handler.Timeline.CastFinished += FinishCastingAbility;
+                handler.Timeline.CastFinished_ConcentrationStarted += FinishCastingAbility;
                 handler.Timeline.ConcentrationFinished_RecoveryStarted += FinishConcentration;
                 handler.Timeline.Timeline_And_Recovery_Finished += FinishRecovery;
                 handler.AbilityObject.NotifyDiscard += () => RemoveAbility(handler);

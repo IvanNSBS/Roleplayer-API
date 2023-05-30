@@ -96,7 +96,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public event Action ChannelingFinished_OverchannelingStarted = delegate {  };
         public event Action OverchannelingFinished_CastingStarted = delegate {  };
-        public event Action CastFinished = delegate {  };
+        public event Action CastFinished_ConcentrationStarted = delegate {  };
         public event Action UnleashAbility = delegate {  };
         public event Action ConcentrationFinished_RecoveryStarted = delegate {  };
         #endregion
@@ -120,7 +120,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 },
                 {
                     CastingState.Casting,
-                    new Tuple<float, Action>(_data.castTime, () => CastFinished?.Invoke())
+                    new Tuple<float, Action>(_data.castTime, () => CastFinished_ConcentrationStarted?.Invoke())
                 },
                 {
                     CastingState.Concentrating,

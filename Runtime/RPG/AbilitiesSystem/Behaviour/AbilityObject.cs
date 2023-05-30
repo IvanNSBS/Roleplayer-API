@@ -89,16 +89,12 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public virtual void OnCancelRequested() { }
         
-        public virtual void OnCastStarted() { }
-        public virtual void OnCastFinished() { }
-        public virtual void OnChannelingFinished() { }
-        public virtual void OnOverChannelingStarted() { }
-        public virtual void OnOverChannelingFinished() { }
-        public virtual void OnRecoveryStarted() { }
+        public virtual void OnCastFinishedConcentrationStartedAndConcentrationStarted() { }
+        public virtual void OnChannelingFinishedAndOverchannelingStarted() { }
+        public virtual void OnOverChannelingFinishedAndCastStarted() { }
         public virtual void OnRecoveryFinished() { }
         
-        public virtual void OnConcentrationStarted() { }
-        public virtual void OnConcentrationFinished() { }
+        public virtual void OnConcentrationFinishedAndRecoveryStarted() { }
         #endregion
     }
 }
