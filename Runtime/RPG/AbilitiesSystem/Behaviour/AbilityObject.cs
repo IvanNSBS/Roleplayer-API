@@ -73,7 +73,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Ends the ability life, calling the Discard logic and removing it from the AbilitiesController
         /// Active Ability Objects, marking it to be collectd by the GC.
         /// </summary>
-        public void InvokeNotifyDiscard()
+        public virtual void InvokeNotifyDiscard()
         {
             NotifyDiscard?.Invoke();
         }

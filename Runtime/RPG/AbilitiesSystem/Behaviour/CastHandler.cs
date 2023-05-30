@@ -95,9 +95,13 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             _castObjects.timeline.UnleashAbility += _castObjects.abilityObject.UnleashAbility;
 
-            if (_casting.DiscardPolicy == DiscardPolicy.Manual)
+            if (_casting.DiscardPolicy == DiscardPolicy.AfterRecovery)
             {
                 _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.InvokeNotifyDiscard;
+            }
+            else if (_casting.DiscardPolicy == DiscardPolicy.AfterCastingOrConcentrating)
+            {
+                _castObjects.timeline.ConcentrationFinished_RecoveryStarted += _castObjects.abilityObject.InvokeNotifyDiscard;
             }
             
             _castObjects.timeline.Start();
