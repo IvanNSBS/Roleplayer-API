@@ -610,7 +610,7 @@ namespace Tests.Runtime.RPG.Abilities
 
             Assert.AreEqual(CastingState.None, _controller.CastingState);
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
