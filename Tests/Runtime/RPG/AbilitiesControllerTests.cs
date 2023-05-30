@@ -733,8 +733,8 @@ namespace Tests.Runtime.RPG.Abilities
         {
             TestFactoryAbility ab0 = (TestFactoryAbility)_controller.GetAbility(0);
             TestFactoryAbility ab1 = (TestFactoryAbility)_controller.GetAbility(1);
-            ab0.AbilityCastType = AbilityCastType.Concentration;
-            ab1.AbilityCastType = AbilityCastType.Concentration;
+            ab0.DiscardPolicy = DiscardPolicy.Manual;
+            ab1.DiscardPolicy = DiscardPolicy.Manual;
             ab0.shouldFinishConcentration = true;
 
             _controller.StartChanneling(0);
@@ -762,8 +762,8 @@ namespace Tests.Runtime.RPG.Abilities
         {
             TestFactoryAbility ab0 = (TestFactoryAbility)_controller.GetAbility(0);
             TestFactoryAbility ab1 = (TestFactoryAbility)_controller.GetAbility(1);
-            ab0.AbilityCastType = AbilityCastType.Concentration;
-            ab1.AbilityCastType = AbilityCastType.Concentration;
+            ab0.DiscardPolicy = DiscardPolicy.Manual;
+            ab1.DiscardPolicy = DiscardPolicy.Manual;
             ab0.shouldFinishConcentration = true;
 
             _controller.StartChanneling(0);
