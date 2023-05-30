@@ -24,12 +24,6 @@ namespace INUlib.RPG.AbilitiesSystem
 
         #region Events
         /// <summary>
-        /// Event to be fired when the ability cast process was finished
-        /// and the CastState will be marked as None
-        /// </summary>
-        public event Action NotifyFinishCast;
-
-        /// <summary>
         /// Event to be called when the ability has been completed and it can be
         /// discarded by the garbage collector
         /// </summary>
@@ -75,15 +69,6 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public virtual void OnDrawGizmos() { }
 
-        /// <summary>
-        /// Finishes the Ability Cast, invoking the OnFinishCast event and calling the OnFinishCasting 
-        /// behaviour, marking the actor cast state as None.
-        /// </summary>
-        public void InvokeNotifyFinishCast()
-        {
-            NotifyFinishCast?.Invoke();
-        }
-        
         /// <summary>
         /// Ends the ability life, calling the Discard logic and removing it from the AbilitiesController
         /// Active Ability Objects, marking it to be collectd by the GC.

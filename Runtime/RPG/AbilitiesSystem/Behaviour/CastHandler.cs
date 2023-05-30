@@ -68,15 +68,16 @@ namespace INUlib.RPG.AbilitiesSystem
             
             _castObjects.timeline?.Update(deltaTime);
             _castObjects.abilityObject.OnUpdate(deltaTime, currentCastState);
+            
             if (currentCastState == CastingState.OverChanneling && _castObjects.timeline != null)
             {
                 CastTimeline timeline = _castObjects.timeline;
-                float elapsedOverchannel = timeline.ElapsedOverchannelingTime;
+                float elapsedOverchannel = timeline.CurrentStateElapsedTime;
                 float overchannelDuration = timeline.data.overChannellingTime;
                 _castObjects.abilityObject.OnOverchannel(elapsedOverchannel, overchannelDuration);
             }
             
-            if (currentCastState == CastingState.Casting && _castObjects.endConcentrationCondition())
+            if (currentCastState == CastingState.Concentrating && _castObjects.endConcentrationCondition())
             {
                 _castObjects.timeline?.FinishConcentration();
             }
@@ -92,11 +93,12 @@ namespace INUlib.RPG.AbilitiesSystem
         #region Helper Methods
         private void SetupTimeline()
         {
-            _castObjects.timeline.CastFinished_RecoveryStarted += _castObjects.abilityObject.UnleashAbility;
+            _castObjects.timeline.CastFinished += _castObjects.abilityObject.UnleashAbility;
 
-            if (_castObjects.timeline.data.castType == AbilityCastType.FireAndForget)
+            // TODO: Selecting to discard after recovery finished by being fire and forget is not correct.
+            // TODO: Some abilities might be fire and forget and not be discarded right after.
+            if (_casting.AbilityCastType == AbilityCastType.FireAndForget)
             {
-                _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.InvokeNotifyFinishCast;
                 _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.InvokeNotifyDiscard;
             }
             

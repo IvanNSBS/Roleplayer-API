@@ -15,6 +15,17 @@ namespace INUlib.RPG.AbilitiesSystem
         OverChanneling = 2,
         
         ///<summary>The ability has been fully chanelled and the effect is being unleashed</summary>
-        Casting = 3
+        Casting = 3,
+        
+        /// <summary>
+        /// The ability was cast and the user is concentrating on it to keep the effect up. Only used
+        /// with concentration spells
+        /// </summary>
+        Concentrating = 4,
+        
+        /// <summary>
+        /// The ability has finished casting and concentrating and its finishing
+        /// </summary>
+        Recovery = 5
     }
 }

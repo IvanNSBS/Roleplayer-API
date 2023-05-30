@@ -94,7 +94,10 @@ namespace INUlib.RPG.AbilitiesSystem
                 handler.AbilityObject.Disable();
                 handler.Timeline.ChannelingFinished_OverchannelingStarted += FinishChanneling;
                 handler.Timeline.OverchannelingFinished_CastingStarted += FinishOverchannelling;
-                handler.AbilityObject.NotifyFinishCast += FinishCastAbilityCasting;
+                handler.Timeline.CastFinished += FinishCastingAbility;
+                handler.Timeline.ConcentrationFinished_RecoveryStarted += FinishConcentration;
+                handler.Timeline.Timeline_And_Recovery_Finished += FinishRecovery;
+                
                 handler.AbilityObject.NotifyDiscard += () => RemoveAbility(handler);
                 
                 // Updates cast handler with a deltaTime of 0 so instant spells(0 channeling and castTime)
@@ -119,7 +122,7 @@ namespace INUlib.RPG.AbilitiesSystem
             {
                 _castHandler?.OnCastCanceled();
             }
-            else if (_castingState == CastingState.Casting)
+            else if (_castingState == CastingState.Casting || _castingState == CastingState.Concentrating)
             {
                 _castHandler.AbilityObject.OnInterrupt();
             }
@@ -152,16 +155,29 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Finishes casting the current ability, setting the Casted Ability to null and
         /// the casting state to None
         /// </summary>        
-        public void FinishCastAbilityCasting()
+        public void FinishCastingAbility()
         {
             if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterCasting)
                 _cdHandler.PutOnCooldown(_casting);
             
+            _castingState = CastingState.Concentrating;
+        }
+
+        public void FinishConcentration()
+        {
+            if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterConcentrating)
+                _cdHandler.PutOnCooldown(_casting);
+            
+            _castingState = CastingState.Recovery;
+        }
+
+        public void FinishRecovery()
+        {
             _castingState = CastingState.None;
             _casting = null;
             _castHandler = null;
         }
-
+        
         public void RemoveAbility(CastHandler abilityObject) => _activeAbilities.Remove(abilityObject);
         #endregion
 

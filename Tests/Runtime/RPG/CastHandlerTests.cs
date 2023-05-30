@@ -1,7 +1,6 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using INUlib.RPG.AbilitiesSystem;
-using UnityEngine;
 
 namespace Tests.Runtime.RPG
 {
@@ -65,8 +64,7 @@ namespace Tests.Runtime.RPG
         public void Casthandler_Properly_Setup_Timeline()
         {
             Assert.AreNotEqual(TimelineState.Pending, _handler.Timeline.state);
-            Assert.AreEqual(0f, _handler.Timeline.ElapsedTime, "Elapsed Time was not correct");
-            Assert.AreEqual(0f, _handler.Timeline.CompletePercent, "Complete Percent was not correct");
+            Assert.AreEqual(0f, _handler.Timeline.TotalElapsedTime, "Elapsed Time was not correct");
         }
 
         [Test]
@@ -78,7 +76,7 @@ namespace Tests.Runtime.RPG
         public void CastHandler_Properly_Updates_Timeline(float deltaTime)
         {
             _handler.Update(deltaTime);
-            Assert.AreEqual(deltaTime, _handler.Timeline.ElapsedTime);
+            Assert.AreEqual(deltaTime, _handler.Timeline.TotalElapsedTime);
         }
         
         [Test]

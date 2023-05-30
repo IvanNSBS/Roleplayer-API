@@ -63,7 +63,6 @@ namespace Tests.Runtime.RPG.Abilities
                         float deltaTime = (float)x[0];
                         if (deltaTime > 0.01f)
                         {
-                            abilityObject.InvokeNotifyFinishCast();
                             abilityObject.InvokeNotifyDiscard();
                         }
                     });
@@ -72,6 +71,11 @@ namespace Tests.Runtime.RPG.Abilities
                 abilityObject.When(x => x.UnleashAbility()).Do(x => casted = true);
                 
                 abilityObject.When(x => x.OnInterrupt()).Do(x =>
+                {
+                    interrupted = true;
+                });
+                
+                policy.When(x => x.OnCancelRequested(Arg.Any<CastingState>())).Do(x =>
                 {
                     interrupted = true;
                 });
@@ -123,7 +127,7 @@ namespace Tests.Runtime.RPG.Abilities
         private float _overChannelingTime = 0.2f;
         private float _channelingTime = 1;
         private float _castTime = 0.5f;
-        private float _recoveryTime = 0f;
+        private float _recoveryTime = 1f;
         
         [SetUp]
         public void Setup() 
@@ -327,13 +331,19 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         public void Cant_Cast_While_On_Cooldown(uint slot)
         {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            
             _controller.StartChanneling(slot);
-            _controller.Update(1f);
-            _controller.Update(1f);
-            _controller.FinishCastAbilityCasting();
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.Update(_recoveryTime);
+            
             _controller.StartChanneling(slot);
 
-            Assert.IsTrue(_controller.GetCastingAbility() == null && _controller.CooldownsHandler.IsAbilityOnCd(slot));
+            Assert.IsNull(_controller.GetCastingAbility(), "Casting ability was not null");
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on Cooldown");
         }
 
         [Test]
@@ -358,13 +368,52 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
 
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
-            ability.obj.InvokeNotifyFinishCast();
 
             var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
             Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
-            Assert.AreEqual(_controller.CastingState, CastingState.None);
+            Assert.AreEqual(CastingState.Concentrating, _controller.CastingState);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void AbilityObject_Correctly_Finishes_Concentration(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.shouldFinishConcentration = true;
+            _controller.Update(0);
+            
+            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
+            Assert.AreEqual(CastingState.Recovery, _controller.CastingState);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void AbilityObject_Correctly_Finishes_Cast_If_Is_Fire_And_Forget(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            
+            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
+            Assert.AreEqual(CastingState.Recovery, _controller.CastingState);
         }
 
         [Test]
@@ -379,24 +428,6 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime*0.1f);
         
             Assert.AreEqual(1, _controller.ActiveAbilities.Count);
-        }
-
-        [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
-        public void AbilityObject_Correctly_Finishes_Casting_During_His_Update(uint slot)
-        {
-            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
-            ability.removeOnUpdate = true;
-            _controller.StartChanneling(slot);
-            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
-            
-            _controller.Update(_channelingTime);
-            _controller.Update(_castTime);
-
-            Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
-            Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
 
         [Test]
@@ -454,18 +485,37 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void AbilityObject_Correctly_Finishes_The_Effect(uint slot)
+        public void AbilityObject_Correctly_Finishes_Entire_Cast_Process(uint slot)
         {
-            _controller.StartChanneling(slot);
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            
+            _controller.StartChanneling(slot);
             var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
             _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.Update(_recoveryTime);
             
-            ability.obj.InvokeNotifyFinishCast();
             ability.obj.InvokeNotifyDiscard();
             
+            Assert.AreEqual(CastingState.None, _controller.CastingState);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void AbilityObject_Correctly_Notifies_Discard(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            
+            _controller.StartChanneling(slot);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            
+            ability.obj.InvokeNotifyDiscard();
             Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
-            Assert.AreEqual(_controller.CastingState, CastingState.None);
         }
 
         [Test]
@@ -595,19 +645,86 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
-        public void Ability_Is_Properly_Interrupted()
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Receives_Interrupt_While_Casting(uint slot)
         {
-            var testAbility = new TestFactoryAbility(_cd, 0, 0, 0, 0, _mockFactory);
-            _controller.SetAbility(0, testAbility);
-            
-            bool result = _controller.StartChanneling(0);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
 
             Assert.AreEqual(CastingState.Casting, _controller.CastingState);
+            _controller.CancelCast();
+            
+            Assert.IsTrue(ability.interrupted);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Receives_Interrupt_While_Concentrating(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            bool result = _controller.StartChanneling(slot);
+
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+
+            Assert.AreEqual(CastingState.Concentrating, _controller.CastingState);
             
             _controller.CancelCast();
-            Assert.IsTrue(testAbility.interrupted);
+            Assert.IsTrue(ability.interrupted);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Receives_Interrupt_While_Channeling(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime*0.1f);
+            
+            Assert.AreEqual(CastingState.Channeling, _controller.CastingState);
+            
+            _controller.CancelCast();
+            Assert.IsTrue(ability.interrupted);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Receives_Interrupt_While_Overchanneling(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+
+            Assert.AreEqual(CastingState.OverChanneling, _controller.CastingState);
+            _controller.CancelCast();
+            
+            Assert.IsTrue(ability.interrupted);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Casting_Is_Completely_Cleared_When_Cancelled(uint slot)
+        {
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.CancelCast();
+            
+            Assert.IsNull(_controller.GetCastingAbility(), "Was still casting something after cancel");
+            Assert.IsNull(_controller.GetCastHandler(), "Cast Handler was not null after cancel");
+            Assert.AreEqual(CastingState.None, _controller.CastingState, "Cast state was not None after cancel");
         }
 
         [Test]
@@ -621,14 +738,11 @@ namespace Tests.Runtime.RPG.Abilities
 
             _controller.StartChanneling(0);
             var handler = _controller.GetCastHandler();
-            handler.Timeline.Timeline_And_Recovery_Finished += () =>
-            {
-                handler.AbilityObject.InvokeNotifyFinishCast();
-            };
             
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
             _controller.Update(_castTime);
+            _controller.Update(0f);
             _controller.Update(_recoveryTime);
             
             Assert.IsTrue(
@@ -653,14 +767,11 @@ namespace Tests.Runtime.RPG.Abilities
 
             _controller.StartChanneling(0);
             var handler = _controller.GetCastHandler();
-            handler.Timeline.Timeline_And_Recovery_Finished += () =>
-            {
-                handler.AbilityObject.InvokeNotifyFinishCast();
-            };
             
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
             _controller.Update(_castTime);
+            _controller.Update(0);
             _controller.Update(_recoveryTime);
             
             Assert.IsTrue(
