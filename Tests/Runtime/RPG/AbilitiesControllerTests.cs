@@ -20,7 +20,7 @@ namespace Tests.Runtime.RPG.Abilities
             public bool removeOnUpdate;
             public bool interrupted;
             public bool shouldFinishConcentration;
-            public bool casted;
+            public int casted;
             
             public TestFactoryAbility(float cd, float channelingTime, float overchannellingTime, float castTime, float recoveryTime, ICasterInfo factoryRef)
             {
@@ -68,7 +68,7 @@ namespace Tests.Runtime.RPG.Abilities
                     });
                 }
 
-                abilityObject.When(x => x.UnleashAbility()).Do(x => casted = true);
+                abilityObject.When(x => x.UnleashAbility()).Do(x => casted++);
                 
                 abilityObject.When(x => x.OnCancelRequested()).Do(x =>
                 {
@@ -191,14 +191,15 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Ability_Is_Unleashed_After_Finish_Channeling(uint slot)
+        public void Ability_Is_Unleashed_During_Cast(uint slot)
         {
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
 
             TestFactoryAbility ability = (TestFactoryAbility)_controller.GetAbility(slot);
-            Assert.IsTrue(ability.casted);
+            Assert.AreEqual(1, ability.casted);
         }
 
         [Test]
@@ -327,8 +328,9 @@ namespace Tests.Runtime.RPG.Abilities
             TestFactoryAbility ab = new TestFactoryAbility(_cd, 0, 0,0,0, _mockFactory);
             _controller.SetAbility(slot, ab);
             _controller.StartChanneling(slot);
+            _controller.Update(0);
             
-            Assert.IsTrue(ab.casted);
+            Assert.AreEqual(1, ab.casted);
         }
 
         [Test]

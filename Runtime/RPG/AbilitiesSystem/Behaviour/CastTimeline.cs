@@ -217,7 +217,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if (_clbkState == CastingState.Concentrating && data.castType == AbilityCastType.Concentration)
                 return;
 
-            if (_clbkState == CastingState.Casting && _currentClbkElapsedTime >= _data.unleashDuringCastTime && !_eventsFired.Contains(UnleashAbility))
+            if (CanUnleashDuringCasting())
             {
                 UnleashAbility?.Invoke();
                 _eventsFired.Add(UnleashAbility);
@@ -225,6 +225,12 @@ namespace INUlib.RPG.AbilitiesSystem
             if (_currentClbkElapsedTime >= _clbkTimers[_clbkState].Item1)
             {
                 GoToNextState();
+                
+                if (DidNotUnleashAfterIncreaseState())
+                {
+                    UnleashAbility?.Invoke();
+                    _eventsFired.Add(UnleashAbility);
+                }
             }
         }
         #endregion
@@ -271,6 +277,24 @@ namespace INUlib.RPG.AbilitiesSystem
 
             _clbkState++;
             _currentClbkElapsedTime = 0f;
+        }
+
+        private bool CanUnleashDuringCasting()
+        {
+            bool isCasting = _clbkState == CastingState.Casting;
+            bool isTimeToUnleash = _currentClbkElapsedTime >= _data.unleashDuringCastTime;
+            bool notFiredAlready = !_eventsFired.Contains(UnleashAbility);
+
+            return isCasting && isTimeToUnleash && notFiredAlready;
+        }
+
+        /// <summary>
+        /// Can happen when cast times are all 0 and the unleash isn't caught during the update since casting
+        /// will be skipped.
+        /// </summary>
+        private bool DidNotUnleashAfterIncreaseState()
+        {
+            return _clbkState > CastingState.Casting && !_eventsFired.Contains(UnleashAbility);
         }
         #endregion
     }
