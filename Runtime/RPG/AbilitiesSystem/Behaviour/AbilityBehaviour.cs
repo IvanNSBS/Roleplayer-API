@@ -47,6 +47,8 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             _hasUnleashed = true;
         }
+        
+        public virtual void OnNewCastRequested(int currentCastIndex, CastingState currentCastState) { }
 
         /// <summary>
         /// What to do on a frame update
@@ -87,7 +89,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Defines what should happen to the ability object when the user inputs a cancel cast.
         /// </summary>
-        public virtual void OnCancelRequested() { }
+        public virtual void OnCancelRequested(CastingState currentCastState) { }
         
         public virtual void OnCastFinishedConcentrationStartedAndConcentrationStarted() { }
         public virtual void OnChannelingFinishedAndOverchannelingStarted() { }

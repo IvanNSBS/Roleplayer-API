@@ -40,6 +40,12 @@ namespace INUlib.RPG.AbilitiesSystem
         TimelineData CastTimeline { get; }
 
         /// <summary>
+        /// Getter for an array of TimelineData.
+        /// It will be used for subsequent cast requests on a cast handler.
+        /// </summary>
+        TimelineData[] OnRecastTimelines { get; }
+        
+        /// <summary>
         /// Ability category ID. Primarily used for specific Cooldown Reductions
         /// </summary>
         /// <value></value>
@@ -70,15 +76,13 @@ namespace INUlib.RPG.AbilitiesSystem
 
     public class CastObjects
     {
-        public readonly CastHandlerPolicy policy;
         public readonly AbilityBehaviour AbilityBehaviour;
-        public readonly CastTimeline timeline;
+        public CastTimeline timeline;
         public readonly Func<bool> endConcentrationCondition;
         
-        public CastObjects(CastHandlerPolicy policy, AbilityBehaviour abilityBehaviour, TimelineData timelineData, Func<bool> endConcentrationCondition)
+        public CastObjects(AbilityBehaviour abilityBehaviour, TimelineData timelineData, Func<bool> endConcentrationCondition)
         {
             this.timeline = new CastTimeline(timelineData);
-            this.policy = policy;
             this.AbilityBehaviour = abilityBehaviour;
             this.endConcentrationCondition = endConcentrationCondition;
         }

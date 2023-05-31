@@ -55,7 +55,7 @@ namespace INUlib.RPG.AbilitiesSystem
         
         #region Methods
         [JsonConstructor]
-        public TimelineData(float channelingTime, float overChannellingTime, float castTime, float recoveryTime, float unleashDuringCastTime,AbilityCastType castType)
+        public TimelineData(float channelingTime, float overChannellingTime, float castTime, float recoveryTime, float unleashDuringCastTime, AbilityCastType castType)
         {
             this.channelingTime = channelingTime;
             this.overChannellingTime = overChannellingTime;
@@ -109,33 +109,7 @@ namespace INUlib.RPG.AbilitiesSystem
             _data = timelineData;
             _eventsFired = new HashSet<Action>();
 
-            _clbkTimers = new Dictionary<CastingState, Tuple<float, Action>>()
-            {
-                {
-                    CastingState.Channeling,
-                    new Tuple<float, Action>(_data.channelingTime, () => ChannelingFinished_OverchannelingStarted?.Invoke())
-                },
-                {
-                    CastingState.OverChanneling,
-                    new Tuple<float, Action>(_data.overChannellingTime, () => OverchannelingFinished_CastingStarted?.Invoke())
-                },
-                {
-                    CastingState.Casting,
-                    new Tuple<float, Action>(_data.castTime, () => CastFinished_ConcentrationStarted?.Invoke())
-                },
-                {
-                    CastingState.Concentrating,
-                    new Tuple<float, Action>(0, () => ConcentrationFinished_RecoveryStarted?.Invoke())
-                },
-                {
-                    CastingState.CastRecovery,
-                    new Tuple<float, Action>(_data.recoveryTime, () =>
-                    {
-                        Timeline_And_Recovery_Finished?.Invoke();
-                        _state = TimelineState.Finished;
-                    })
-                },
-            };
+            SetupTimersCallback();
         }
 
         /// <summary>
@@ -233,6 +207,17 @@ namespace INUlib.RPG.AbilitiesSystem
                 }
             }
         }
+
+        public void UpdateTimelineData(TimelineData newData)
+        {
+            if (newData == null)
+                _data = new TimelineData(0,0,0,0,0, _data.castType);
+            else
+                _data = newData;
+            SetupTimersCallback();
+        }
+
+        public void ClearUnleashCallbacks() => UnleashAbility = null;
         #endregion
         
         
@@ -295,6 +280,37 @@ namespace INUlib.RPG.AbilitiesSystem
         private bool DidNotUnleashAfterIncreaseState()
         {
             return _clbkState > CastingState.Casting && !_eventsFired.Contains(UnleashAbility);
+        }
+        
+        private void SetupTimersCallback()
+        {
+            _clbkTimers = new Dictionary<CastingState, Tuple<float, Action>>()
+            {
+                {
+                    CastingState.Channeling,
+                    new Tuple<float, Action>(_data.channelingTime, () => ChannelingFinished_OverchannelingStarted?.Invoke())
+                },
+                {
+                    CastingState.OverChanneling,
+                    new Tuple<float, Action>(_data.overChannellingTime, () => OverchannelingFinished_CastingStarted?.Invoke())
+                },
+                {
+                    CastingState.Casting,
+                    new Tuple<float, Action>(_data.castTime, () => CastFinished_ConcentrationStarted?.Invoke())
+                },
+                {
+                    CastingState.Concentrating,
+                    new Tuple<float, Action>(0, () => ConcentrationFinished_RecoveryStarted?.Invoke())
+                },
+                {
+                    CastingState.CastRecovery,
+                    new Tuple<float, Action>(_data.recoveryTime, () =>
+                    {
+                        Timeline_And_Recovery_Finished?.Invoke();
+                        _state = TimelineState.Finished;
+                    })
+                },
+            };
         }
         #endregion
     }

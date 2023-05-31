@@ -110,9 +110,11 @@ namespace INUlib.RPG.AbilitiesSystem
                 // might be cast on the same frame instead of the next
                 _castHandler.Update(0f);
             }
-            else if((hh = GetActiveHandler(GetAbility(slot))) != null)
+            else if((hh = GetActiveHandler(GetAbility(slot))) != null && notCastingAnotherSpell)
             {
-                hh.OnCast();
+                _castingState = CastingState.Channeling;
+                _casting = (TAbility)hh.Parent;
+                hh.OnAnotherCastRequested();
             }
 
             return true;
@@ -132,15 +134,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public virtual void CancelCast() 
         {
-            if (_castingState == CastingState.Channeling || _castingState == CastingState.OverChanneling)
-            {
-                _castHandler?.OnCastCanceled();
-            }
-            else if (_castingState == CastingState.Casting || _castingState == CastingState.Concentrating)
-            {
-                _castHandler.AbilityBehaviour.OnCancelRequested();
-            }
-            
+            _castHandler?.AbilityBehaviour.OnCancelRequested(_castingState);
             _castHandler?.Timeline.JumpToStartRecoveryState();
         } 
         

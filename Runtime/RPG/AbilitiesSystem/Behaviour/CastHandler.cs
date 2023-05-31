@@ -10,7 +10,7 @@ namespace INUlib.RPG.AbilitiesSystem
     public class CastHandler
     {
         #region Fields
-        private int _timesCastCalled;
+        private int _timesRecastCalled;
 
         private Func<CastingState> _castStateGetter;
         private CastObjects _castObjects;
@@ -20,7 +20,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         #region Properties
         public AbilityBehaviour AbilityBehaviour => _castObjects.AbilityBehaviour;
-        public int TimesCastCalled => _timesCastCalled;
+        public int TimesRecastCalled => _timesRecastCalled;
         public CastTimeline Timeline => _castObjects.timeline;
         public IAbilityBase Parent => _casting;
         #endregion
@@ -30,12 +30,11 @@ namespace INUlib.RPG.AbilitiesSystem
         public CastHandler(IAbilityBase casting, CastObjects castObjects, Func<CastingState> castStateGetter)
         {
             _casting = casting;
-            _timesCastCalled = 0;
+            _timesRecastCalled = 0;
             _castStateGetter = castStateGetter;
             _castObjects = castObjects;
             
             SetupTimeline();
-            OnCast();
         }
         #endregion
 
@@ -45,16 +44,27 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Receives a cast request, incrementing how many times the cast was called
         /// and invoking the OnCastRequested for the CastHandlerPolicy
         /// </summary>
-        public void OnCast()
+        public void OnAnotherCastRequested()
         {
-            _timesCastCalled++;
-            _castObjects.policy?.OnCastRequested(_timesCastCalled, _castStateGetter());
+            _timesRecastCalled++;
+            TimelineData recastTimelineData;
+            if (_casting.OnRecastTimelines == null || _casting.OnRecastTimelines.Length == 0 ||
+                _timesRecastCalled >= _casting.OnRecastTimelines.Length)
+            {
+                recastTimelineData = null;
+            }
+            else
+            {
+                recastTimelineData = _casting.OnRecastTimelines[_timesRecastCalled];
+            }
+            
+            _castObjects.timeline.Reset();
+            _castObjects.timeline.ClearUnleashCallbacks();
+            _castObjects.timeline.UpdateTimelineData(recastTimelineData);
+            _castObjects.timeline.UnleashAbility += () => _castObjects.AbilityBehaviour.OnNewCastRequested(_timesRecastCalled, _castStateGetter());
+            
+            _castObjects.timeline.Start();
         }
-        
-        /// <summary>
-        /// Communicates to the CastPolicy that a cancel cast was requested
-        /// </summary>
-        public void OnCastCanceled() => _castObjects.policy?.OnCancelRequested(_castStateGetter());
         
         /// <summary>
         /// Updates the timeline and the ability object, passing the time that has passed since the last frame.

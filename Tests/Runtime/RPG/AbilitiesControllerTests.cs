@@ -53,7 +53,6 @@ namespace Tests.Runtime.RPG.Abilities
             public CastObjects Cast(ICasterInfo dataFactory, uint fromSlot) 
             {
                 isEqual = dataFactory == _factoryRef;
-                CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
                 AbilityBehaviour abilityBehaviour = Substitute.ForPartsOf<AbilityBehaviour>();
 
                 if (removeOnUpdate)
@@ -70,7 +69,7 @@ namespace Tests.Runtime.RPG.Abilities
 
                 abilityBehaviour.When(x => x.OnAbilityUnleashed()).Do(x => casted++);
                 
-                abilityBehaviour.When(x => x.OnCancelRequested()).Do(x =>
+                abilityBehaviour.When(x => x.OnCancelRequested(Arg.Any<CastingState>())).Do(x =>
                 {
                     interrupted = true;
                 });
@@ -80,13 +79,8 @@ namespace Tests.Runtime.RPG.Abilities
                     interrupted = true;
                 });
                 
-                policy.When(x => x.OnCancelRequested(Arg.Any<CastingState>())).Do(x =>
-                {
-                    interrupted = true;
-                });
-                
                 obj = abilityBehaviour;
-                return new CastObjects(policy, abilityBehaviour, CastTimeline, ConcentrationEndCondition);
+                return new CastObjects(abilityBehaviour, CastTimeline, ConcentrationEndCondition);
             }
 
             public bool CanCast(ICasterInfo caster) => CanCastAbility;
@@ -107,6 +101,7 @@ namespace Tests.Runtime.RPG.Abilities
             public float RecoveryTime { get; set;  }
             public AbilityCastType AbilityCastType { get; set; }
             public DiscardPolicy DiscardPolicy { get; set; }
+            public TimelineData[] OnRecastTimelines { get; set; }
         }
         #endregion
 
@@ -114,8 +109,6 @@ namespace Tests.Runtime.RPG.Abilities
         #region Test Abilities Controller
         public class TestAbilitiesController : AbilitiesController<IAbility<ICasterInfo>, ICasterInfo>
         {
-            public int Clicks => _castHandler.TimesCastCalled;
-
             public TestAbilitiesController(uint slotAmnt, ICasterInfo caster) : base(slotAmnt, caster)
             {
             }
@@ -616,10 +609,27 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u, 6)]
         public void Cast_Policy_Correctly_Calls_On_Cast_Again_After_First_Cast(uint slot, int castTimes)
         {
-            for(int i = 0; i < castTimes; i++)
-                _controller.StartChanneling(slot);
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            ability.DiscardPolicy = DiscardPolicy.Manual;
+
+            _controller.StartChanneling(slot);
+            var handler = _controller.GetCastHandler();
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.Update(_recoveryTime);
             
-            Assert.AreEqual(castTimes, _controller.Clicks);
+            for (int i = 0; i < castTimes; i++)
+            {
+                _controller.StartChanneling(slot);
+                _controller.Update(_channelingTime);
+                _controller.Update(_overChannelingTime);
+                _controller.Update(_castTime);
+                _controller.Update(_recoveryTime);
+            }
+            
+            Assert.AreEqual(castTimes, handler.TimesRecastCalled);
         }
 
         [Test]
@@ -888,7 +898,7 @@ namespace Tests.Runtime.RPG.Abilities
             Assert.IsNull(_controller.GetCastingAbility(), "No ability should be cast at this moment");
             
             _controller.StartChanneling(0);
-            Assert.AreEqual(2, handler.TimesCastCalled);            
+            Assert.AreEqual(1, handler.TimesRecastCalled);            
         }
 
         [Test]
