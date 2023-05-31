@@ -224,7 +224,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <returns>True if ability exists in the slots and was reset. False otherwise</returns>
         public bool PutOnCooldown(IAbilityBase ability)
         {
-            int index = Array.FindIndex(_cooldowns, 0, _cooldowns.Length, x => x.ability == ability);
+            int index = Array.FindIndex(_cooldowns, 0, _cooldowns.Length, x => x != null && x.ability == ability);
             if (index < 0)
                 return false;
             return PutOnCooldown((uint)index);
