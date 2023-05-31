@@ -569,6 +569,27 @@ namespace Tests.Runtime.RPG.Abilities
             ability.obj.InvokeNotifyDiscard();
             Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
         }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Object_Is_Automatically_Discarded_With_Auto_Discard_Policy(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            ability.DiscardPolicy = DiscardPolicy.Auto;
+            
+            _controller.StartChanneling(slot);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.Update(_recoveryTime);
+            
+            Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
+        }
 
         [Test]
         [TestCase(0u, 5)]
