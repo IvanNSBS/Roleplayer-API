@@ -41,7 +41,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Getter for the AbilityController Data Hub
         /// </summary>
-        public TCaster DataHub => _caster;
+        public TCaster CasterInfo => _caster;
 
         /// <summary>
         /// Getter for the current actor casting state
@@ -86,7 +86,13 @@ namespace INUlib.RPG.AbilitiesSystem
             bool notOnSecondaryCd = !_cdHandler.IsAbilityOnSecondaryCd(slot);
             bool notCastingAnotherSpell = _casting == null;
             
-            if(hasCharges && notOnCd && notOnSecondaryCd && notCastingAnotherSpell)
+            if((hh = GetActiveHandler(GetAbility(slot))) != null && notCastingAnotherSpell)
+            {
+                _castingState = CastingState.Channeling;
+                _casting = (TAbility)hh.Parent;
+                hh.OnAnotherCastRequested();
+            }
+            else if(hasCharges && notOnCd && notOnSecondaryCd && notCastingAnotherSpell)
             {
                 _casting = _abilities[slot];
                 _castingState = CastingState.Channeling;
@@ -109,12 +115,6 @@ namespace INUlib.RPG.AbilitiesSystem
                 // Updates cast handler with a deltaTime of 0 so instant spells(0 channeling and castTime)
                 // might be cast on the same frame instead of the next
                 _castHandler.Update(0f);
-            }
-            else if((hh = GetActiveHandler(GetAbility(slot))) != null && notCastingAnotherSpell)
-            {
-                _castingState = CastingState.Channeling;
-                _casting = (TAbility)hh.Parent;
-                hh.OnAnotherCastRequested();
             }
 
             return true;
