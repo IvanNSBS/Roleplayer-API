@@ -50,7 +50,7 @@ namespace Tests.Runtime.RPG.Abilities
                 AbilityCastType = AbilityCastType.Concentration;
             }
 
-            public CastObjects Cast(ICasterInfo dataFactory) 
+            public CastObjects Cast(ICasterInfo dataFactory, uint fromSlot) 
             {
                 isEqual = dataFactory == _factoryRef;
                 CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();

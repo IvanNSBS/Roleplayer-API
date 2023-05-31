@@ -91,7 +91,7 @@ namespace INUlib.RPG.AbilitiesSystem
             {
                 _casting = _abilities[slot];
                 _castingState = CastingState.Channeling;
-                CastObjects castInfo = _casting.Cast(_caster);
+                CastObjects castInfo = _casting.Cast(_caster, slot);
 
                 var handler = new CastHandler(_casting, castInfo, GetCastingState);
                 _castHandler = handler;
