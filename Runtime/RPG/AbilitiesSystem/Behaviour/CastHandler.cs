@@ -77,7 +77,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 _castObjects.abilityObject.OnOverchannel(elapsedOverchannel, overchannelDuration);
             }
             
-            if (currentCastState == CastingState.Concentrating && _castObjects.endConcentrationCondition())
+            if (_castObjects.endConcentrationCondition != null && currentCastState == CastingState.Concentrating && _castObjects.endConcentrationCondition())
             {
                 _castObjects.timeline?.FinishConcentration();
             }

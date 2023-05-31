@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using INUlib.Utils.Math;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
