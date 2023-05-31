@@ -187,7 +187,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.Update(0.5f, _abilities[slotIdx]);
             CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
 
-            Assert.AreEqual(info.totalCooldown, info.currentCooldown);
+            Assert.AreEqual(info.maxCooldown, info.currentCooldown);
         }
 
         [Test]
@@ -246,7 +246,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.PutOnCooldown(slot);
             CooldownInfo cdInfo = _handler.GetCooldownInfo(slot);
 
-            Assert.AreEqual(cdInfo.totalCooldown, cdInfo.currentCooldown);
+            Assert.AreEqual(cdInfo.maxCooldown, cdInfo.currentCooldown);
         }
 
         [Test]
@@ -421,7 +421,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Wont_Go_To_Cooldown_If_It_Has_Cooldown_Set_To_Zero(uint slot)
         {
             _abilities[slot].Cooldown.Returns(0);
-            Assert.AreEqual(0, _handler.GetCooldownInfo(slot).totalCooldown);
+            Assert.AreEqual(0, _handler.GetCooldownInfo(slot).maxCooldown);
 
             _handler.PutOnCooldown(slot);
             bool onCooldown = _handler.IsAbilityOnCd(slot);

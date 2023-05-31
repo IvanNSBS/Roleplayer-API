@@ -11,26 +11,56 @@ namespace INUlib.RPG.AbilitiesSystem
     /// </summary>
     public class CooldownInfo
     {
+        /// <summary>
+        /// The ability current cooldown
+        /// </summary>
         public readonly float currentCooldown;
-        public readonly float totalCooldown;
-        public readonly float totalCooldownWithoutCdr;
+        
+        /// <summary>
+        /// The maximum cooldown of the ability, considering cooldown reductions
+        /// </summary>
+        public readonly float maxCooldown;
+        
+        /// <summary>
+        /// The raw maximum cooldown of the ability, not counting cooldown reductions
+        /// </summary>
+        public readonly float maxCooldownWithoutCdr;
+        
+        /// <summary>
+        /// How many charges are available to the ability
+        /// </summary>
         public readonly int availableCharges;
+        
+        /// <summary>
+        /// The max amount of charges the ability can have
+        /// </summary>
         public readonly int maxCharges;
+        
+        /// <summary>
+        /// The ability current amount of temporary charges
+        /// </summary>
         public readonly int temporaryCharges;
         
-        public readonly float secondaryCooldown;
+        /// <summary>
+        /// The current secondary cooldown maximum value
+        /// </summary>
+        public readonly float maxSecondaryCooldown;
+        
+        /// <summary>
+        /// The current secondary cooldown
+        /// </summary>
         public readonly float currentSecondaryCooldown;
         
-        public CooldownInfo(int charges, int temporaryCharges, int maxCharges, float ccd, float tcd, float tcdwcdr, float scCd, float cscCd)
+        public CooldownInfo(int charges, int temporaryCharges, int maxCharges, float ccd, float mxd, float mcdWtcdr, float scCd, float cscCd)
         {
             availableCharges = charges;
             this.maxCharges = maxCharges;
             this.temporaryCharges = temporaryCharges;
             currentCooldown = ccd;
-            totalCooldown = tcd;
-            totalCooldownWithoutCdr = tcdwcdr;
+            maxCooldown = mxd;
+            maxCooldownWithoutCdr = mcdWtcdr;
 
-            secondaryCooldown = scCd;
+            maxSecondaryCooldown = scCd;
             currentSecondaryCooldown = cscCd;
         }
     }
@@ -46,13 +76,40 @@ namespace INUlib.RPG.AbilitiesSystem
 
         protected class CooldownHelper
         {
+            /// <summary>
+            /// Which ability this CooldownHelper belongs to
+            /// </summary>
             public IAbilityBase ability;
+            
+            /// <summary>
+            /// The ability maximum amount of charges
+            /// </summary>
             public int maxCharges;
-            public int temporaryCharges;
-            public float secondaryCooldown;
-            public float maxSecondaryCooldown;
-            public float cooldown;
+            
+            /// <summary>
+            /// The ability current amount of charges
+            /// </summary>
             public int currentCharges;
+            
+            /// <summary>
+            /// The ability current amount of temporary charges
+            /// </summary>
+            public int temporaryCharges;
+            
+            /// <summary>
+            /// The ability current cooldown
+            /// </summary>
+            public float cooldown;
+            
+            /// <summary>
+            /// The ability current secondary cooldown
+            /// </summary>
+            public float secondaryCooldown;
+            
+            /// <summary>
+            /// The ability current total secondary cooldown
+            /// </summary>
+            public float totalSecondaryCooldown;
 
             public CooldownHelper(IAbilityBase ability)
             {
@@ -63,7 +120,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 maxCharges = ability.Charges;
                 temporaryCharges = 0;
                 secondaryCooldown = 0;
-                maxSecondaryCooldown = 0;
+                totalSecondaryCooldown = 0;
             }
 
             public bool HasCharges() => temporaryCharges + currentCharges > 0;
@@ -172,7 +229,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 if (_cooldowns[i].secondaryCooldown < 0)
                 {
                     _cooldowns[i].secondaryCooldown = 0;
-                    _cooldowns[i].maxSecondaryCooldown = 0;
+                    _cooldowns[i].totalSecondaryCooldown = 0;
                 }
             }
         }
@@ -208,7 +265,7 @@ namespace INUlib.RPG.AbilitiesSystem
             float totalCdNoCdr = _cooldowns[slot].ability.Cooldown;
 
             float currentSecondaryCd = _cooldowns[slot].secondaryCooldown;
-            float maxSecondaryCooldown = _cooldowns[slot].maxSecondaryCooldown;
+            float maxSecondaryCooldown = _cooldowns[slot].totalSecondaryCooldown;
 
             return new CooldownInfo(
                 charges, tempCharges, maxCharges, cd, 
@@ -270,7 +327,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 return false;
 
             _cooldowns[slot].secondaryCooldown = cooldown;
-            _cooldowns[slot].maxSecondaryCooldown = cooldown;
+            _cooldowns[slot].totalSecondaryCooldown = cooldown;
             Update(0f);
             return true;
         }
