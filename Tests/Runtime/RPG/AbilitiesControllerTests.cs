@@ -16,7 +16,7 @@ namespace Tests.Runtime.RPG.Abilities
             private ICasterInfo _factoryRef;
             public bool isEqual;
 
-            public AbilityObject obj;
+            public AbilityBehaviour obj;
             public bool removeOnUpdate;
             public bool interrupted;
             public bool shouldFinishConcentration;
@@ -54,28 +54,28 @@ namespace Tests.Runtime.RPG.Abilities
             {
                 isEqual = dataFactory == _factoryRef;
                 CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
-                AbilityObject abilityObject = Substitute.ForPartsOf<AbilityObject>();
+                AbilityBehaviour abilityBehaviour = Substitute.ForPartsOf<AbilityBehaviour>();
 
                 if (removeOnUpdate)
                 {
-                    abilityObject.When(x => x.OnUpdate(Arg.Any<float>(), Arg.Any<CastingState>())).Do(x =>
+                    abilityBehaviour.When(x => x.OnUpdate(Arg.Any<float>(), Arg.Any<CastingState>())).Do(x =>
                     {
                         float deltaTime = (float)x[0];
                         if (deltaTime > 0.01f)
                         {
-                            abilityObject.InvokeNotifyDiscard();
+                            abilityBehaviour.InvokeNotifyDiscard();
                         }
                     });
                 }
 
-                abilityObject.When(x => x.UnleashAbility()).Do(x => casted++);
+                abilityBehaviour.When(x => x.OnAbilityUnleashed()).Do(x => casted++);
                 
-                abilityObject.When(x => x.OnCancelRequested()).Do(x =>
+                abilityBehaviour.When(x => x.OnCancelRequested()).Do(x =>
                 {
                     interrupted = true;
                 });
                 
-                abilityObject.When(x => x.OnForcedInterrupt()).Do(x =>
+                abilityBehaviour.When(x => x.OnForcedInterrupt()).Do(x =>
                 {
                     interrupted = true;
                 });
@@ -85,8 +85,8 @@ namespace Tests.Runtime.RPG.Abilities
                     interrupted = true;
                 });
                 
-                obj = abilityObject;
-                return new CastObjects(policy, abilityObject, CastTimeline, ConcentrationEndCondition);
+                obj = abilityBehaviour;
+                return new CastObjects(policy, abilityBehaviour, CastTimeline, ConcentrationEndCondition);
             }
 
             public bool CanCast(ICasterInfo caster) => CanCastAbility;
@@ -218,7 +218,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.Update(_recoveryTime);
             
-            _controller.GetCastHandler().AbilityObject.InvokeNotifyDiscard();
+            _controller.GetCastHandler().AbilityBehaviour.InvokeNotifyDiscard();
             
             Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on cooldown");
             Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
@@ -424,7 +424,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(0);
             _controller.Update(_recoveryTime);
 
-            Assert.IsNull(_controller.ActiveAbilities.FirstOrDefault(x => x.AbilityObject == ability.obj));
+            Assert.IsNull(_controller.ActiveAbilities.FirstOrDefault(x => x.AbilityBehaviour == ability.obj));
             Assert.AreEqual(CastingState.None, _controller.CastingState);
         }
         
@@ -441,7 +441,7 @@ namespace Tests.Runtime.RPG.Abilities
 
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
 
-            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
             Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
             Assert.AreEqual(CastingState.Concentrating, _controller.CastingState);
         }
@@ -460,7 +460,7 @@ namespace Tests.Runtime.RPG.Abilities
             ability.shouldFinishConcentration = true;
             _controller.Update(0);
             
-            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
             Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
             Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
         }
@@ -479,7 +479,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_overChannelingTime);
             _controller.Update(_castTime);
             
-            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
             Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
             Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
         }
@@ -559,7 +559,7 @@ namespace Tests.Runtime.RPG.Abilities
             ability.AbilityCastType = AbilityCastType.FireAndForget;
             
             _controller.StartChanneling(slot);
-            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
             _controller.Update(_castTime);
@@ -580,7 +580,7 @@ namespace Tests.Runtime.RPG.Abilities
             ability.AbilityCastType = AbilityCastType.FireAndForget;
             
             _controller.StartChanneling(slot);
-            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
             
             ability.obj.InvokeNotifyDiscard();
             Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
@@ -597,7 +597,7 @@ namespace Tests.Runtime.RPG.Abilities
             ability.DiscardPolicy = DiscardPolicy.Auto;
             
             _controller.StartChanneling(slot);
-            var found = _controller.ActiveAbilities.First(x => x.AbilityObject == ability.obj);
+            var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
             
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);

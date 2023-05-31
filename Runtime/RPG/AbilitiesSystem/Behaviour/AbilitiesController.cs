@@ -96,15 +96,15 @@ namespace INUlib.RPG.AbilitiesSystem
                 _castHandler = handler;
                 _activeAbilities.Add(_castHandler);
 
-                handler.AbilityObject.Disable();
+                handler.AbilityBehaviour.Disable();
                 handler.Timeline.ChannelingFinished_OverchannelingStarted += FinishChanneling;
                 handler.Timeline.OverchannelingFinished_CastingStarted += FinishOverchannelling;
                 handler.Timeline.CastFinished_ConcentrationStarted += FinishCastingAbility;
                 handler.Timeline.ConcentrationFinished_RecoveryStarted += FinishConcentration;
                 handler.Timeline.Timeline_And_Recovery_Finished += FinishRecovery;
-                handler.AbilityObject.NotifyDiscard += () => RemoveAbility(handler);
+                handler.AbilityBehaviour.NotifyDiscard += () => RemoveAbility(handler);
                 if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterDiscard)
-                    handler.AbilityObject.NotifyDiscard += () => _cdHandler.PutOnCooldown(slot);
+                    handler.AbilityBehaviour.NotifyDiscard += () => _cdHandler.PutOnCooldown(slot);
 
                 // Updates cast handler with a deltaTime of 0 so instant spells(0 channeling and castTime)
                 // might be cast on the same frame instead of the next
@@ -138,7 +138,7 @@ namespace INUlib.RPG.AbilitiesSystem
             }
             else if (_castingState == CastingState.Casting || _castingState == CastingState.Concentrating)
             {
-                _castHandler.AbilityObject.OnCancelRequested();
+                _castHandler.AbilityBehaviour.OnCancelRequested();
             }
             
             _castHandler?.Timeline.JumpToStartRecoveryState();
@@ -152,7 +152,7 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             if (_castHandler != null)
             {
-                _castHandler.AbilityObject.OnForcedInterrupt();
+                _castHandler.AbilityBehaviour.OnForcedInterrupt();
             }
             
             _casting = null;

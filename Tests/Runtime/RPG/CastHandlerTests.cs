@@ -32,7 +32,7 @@ namespace Tests.Runtime.RPG
             _elapsedOverChannel = 0;
             _maxOverchannel = 0;
             
-            AbilityObject obj = Substitute.ForPartsOf<AbilityObject>();
+            AbilityBehaviour obj = Substitute.ForPartsOf<AbilityBehaviour>();
             IAbilityBase parent = Substitute.For<IAbilityBase>();
             CastHandlerPolicy policy = Substitute.For<CastHandlerPolicy>();
             TimelineData timelineData = new TimelineData(channelingTime, overChannellingTime, castTime, recoveryTime, 0, AbilityCastType.FireAndForget);

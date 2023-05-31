@@ -19,7 +19,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
 
         #region Properties
-        public AbilityObject AbilityObject => _castObjects.abilityObject;
+        public AbilityBehaviour AbilityBehaviour => _castObjects.AbilityBehaviour;
         public int TimesCastCalled => _timesCastCalled;
         public CastTimeline Timeline => _castObjects.timeline;
         public IAbilityBase Parent => _casting;
@@ -67,14 +67,14 @@ namespace INUlib.RPG.AbilitiesSystem
             CastingState currentCastState = _castStateGetter();
             
             _castObjects.timeline?.Update(deltaTime);
-            _castObjects.abilityObject.OnUpdate(deltaTime, currentCastState);
+            _castObjects.AbilityBehaviour.OnUpdate(deltaTime, currentCastState);
             
             if (currentCastState == CastingState.OverChanneling && _castObjects.timeline != null)
             {
                 CastTimeline timeline = _castObjects.timeline;
                 float elapsedOverchannel = timeline.CurrentStateElapsedTime;
                 float overchannelDuration = timeline.data.overChannellingTime;
-                _castObjects.abilityObject.OnOverchannel(elapsedOverchannel, overchannelDuration);
+                _castObjects.AbilityBehaviour.OnOverchannel(elapsedOverchannel, overchannelDuration);
             }
             
             if (_castObjects.endConcentrationCondition != null && currentCastState == CastingState.Concentrating && _castObjects.endConcentrationCondition())
@@ -85,7 +85,7 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public void DrawGizmos()
         {
-            _castObjects.abilityObject.OnDrawGizmos();
+            _castObjects.AbilityBehaviour.OnDrawGizmos();
         }
         #endregion
         
@@ -93,19 +93,19 @@ namespace INUlib.RPG.AbilitiesSystem
         #region Helper Methods
         private void SetupTimeline()
         {
-            _castObjects.timeline.UnleashAbility += _castObjects.abilityObject.UnleashAbility;
+            _castObjects.timeline.UnleashAbility += _castObjects.AbilityBehaviour.OnAbilityUnleashed;
 
             if (_casting.DiscardPolicy == DiscardPolicy.Auto)
             {
-                _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.InvokeNotifyDiscard;
+                _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.AbilityBehaviour.InvokeNotifyDiscard;
             }
             
-            _castObjects.timeline.ChannelingFinished_OverchannelingStarted += _castObjects.abilityObject.OnChannelingFinishedAndOverchannelingStarted;
-            _castObjects.timeline.OverchannelingFinished_CastingStarted += _castObjects.abilityObject.OnOverChannelingFinishedAndCastStarted;
-            _castObjects.timeline.CastFinished_ConcentrationStarted += _castObjects.abilityObject.OnCastFinishedConcentrationStartedAndConcentrationStarted;
-            _castObjects.timeline.ConcentrationFinished_RecoveryStarted += _castObjects.abilityObject.OnConcentrationFinishedAndRecoveryStarted;
+            _castObjects.timeline.ChannelingFinished_OverchannelingStarted += _castObjects.AbilityBehaviour.OnChannelingFinishedAndOverchannelingStarted;
+            _castObjects.timeline.OverchannelingFinished_CastingStarted += _castObjects.AbilityBehaviour.OnOverChannelingFinishedAndCastStarted;
+            _castObjects.timeline.CastFinished_ConcentrationStarted += _castObjects.AbilityBehaviour.OnCastFinishedConcentrationStartedAndConcentrationStarted;
+            _castObjects.timeline.ConcentrationFinished_RecoveryStarted += _castObjects.AbilityBehaviour.OnConcentrationFinishedAndRecoveryStarted;
             
-            _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.abilityObject.OnRecoveryFinished;
+            _castObjects.timeline.Timeline_And_Recovery_Finished += _castObjects.AbilityBehaviour.OnRecoveryFinished;
 
             _castObjects.timeline.Start();
         }

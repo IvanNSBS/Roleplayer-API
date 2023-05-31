@@ -8,7 +8,7 @@ namespace INUlib.RPG.AbilitiesSystem
     /// The Ability Object is created as soon as the casting stats, and can gather info about the entire cast process.
     /// but it must only start affecting the world after the channeling starts through the UnleashAbility method
     /// </summary>
-    public abstract class AbilityObject
+    public abstract class AbilityBehaviour
     {
         #region Fields
         /// <summary>
@@ -43,7 +43,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// Function that contains the logic to make the ability be released in the game world
         /// </summary>
-        public virtual void UnleashAbility()
+        public virtual void OnAbilityUnleashed()
         {
             _hasUnleashed = true;
         }
