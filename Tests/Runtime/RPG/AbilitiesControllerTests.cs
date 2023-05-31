@@ -206,6 +206,28 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
+        public void Ability_Goes_On_Cooldown_After_Discard_With_After_Discard_Policy(uint slot)
+        {
+            TestFactoryAbility ability = (TestFactoryAbility)_controller.GetAbility(slot); 
+            ability.StartCooldownPolicy = StartCooldownPolicy.AfterDiscard;
+            ability.DiscardPolicy = DiscardPolicy.Manual;
+            
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(_castTime);
+            _controller.Update(_recoveryTime);
+            
+            _controller.GetCastHandler().AbilityObject.InvokeNotifyDiscard();
+            
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on cooldown");
+            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
         public void Ability_Goes_On_Cooldown_After_Finish_Overchannelling_With_After_Channeling_CD_Policy(uint slot)
         {
             ((TestFactoryAbility)_controller.GetAbility(slot)).StartCooldownPolicy = StartCooldownPolicy.AfterChanneling;

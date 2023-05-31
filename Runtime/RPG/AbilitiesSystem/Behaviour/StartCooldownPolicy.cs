@@ -16,6 +16,9 @@ namespace INUlib.RPG.AbilitiesSystem
         AfterCasting = 1,
         
         [EnumMember(Value = "after_concentrating")]
-        AfterConcentrating = 2
+        AfterConcentrating = 2,
+        
+        [EnumMember(Value = "after_discard")]
+        AfterDiscard = 3
     }
 }
