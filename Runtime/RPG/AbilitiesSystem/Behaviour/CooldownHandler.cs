@@ -537,7 +537,10 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public void SetAbility(uint slot, IAbilityBase ability)
         {
-            _cooldowns[slot] = new CooldownHelper(ability);
+            if (ability == null)
+                _cooldowns[slot] = null;
+            else
+                _cooldowns[slot] = new CooldownHelper(ability);
         }
 
         protected bool ClampAbilityCooldown(uint slot, float newValue)
