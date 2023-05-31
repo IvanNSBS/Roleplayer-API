@@ -375,6 +375,22 @@ namespace Tests.Runtime.RPG.Abilities
             Assert.IsNull(_controller.GetCastingAbility(), "Casting ability was not null");
             Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on Cooldown");
         }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cant_Cast_While_On_Secondary_Cooldown(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+
+            _controller.CooldownsHandler.PutOnSecondaryCooldown(slot, 10f);
+            _controller.StartChanneling(slot);
+            
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnSecondaryCd(slot), "Ability was not on secondary Cd");
+            Assert.IsNull(_controller.GetCastingAbility(), "Casting should've been null");
+        }
 
         [Test]
         [TestCase(0u)]

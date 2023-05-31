@@ -123,6 +123,58 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
+        [TestCase(0u, 2.874f)]
+        [TestCase(1u, 3.442f)]
+        [TestCase(2u, 4.32f)]
+        [TestCase(3u, 0.32f)]
+        [TestCase(4u, 0.44f)]
+        public void CooldownHandler_Correctly_Sets_Secondary_Cooldown(uint slotIdx, float cd)
+        {
+            _handler.PutOnSecondaryCooldown(slotIdx, cd);
+            float curr = _handler.GetCooldownInfo(slotIdx).currentSecondaryCooldown;
+
+            Assert.AreEqual(cd, curr);
+        }
+
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void CooldownHandler_Correctly_Returns_If_Ability_Is_On_Secondary_Cd(uint slotIdx)
+        {
+            _handler.PutOnSecondaryCooldown(slotIdx, 10);
+            Assert.IsTrue(_handler.IsAbilityOnSecondaryCd(slotIdx));
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void CooldownHandler_Does_Not_Go_On_Secondary_CD_When_Using_Values_Close_And_Below_0(uint slotIdx)
+        {
+            _handler.PutOnSecondaryCooldown(slotIdx, 0);
+            Assert.IsFalse(_handler.IsAbilityOnSecondaryCd(slotIdx));
+        }
+        
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void CooldownHandler_Correctly_Decreases_Secondary_Cooldown_On_Update(uint slotIdx)
+        {
+            _handler.PutOnSecondaryCooldown(slotIdx, 10);
+            _handler.Update(1f);
+
+            float curr = _handler.GetCooldownInfo(slotIdx).currentSecondaryCooldown;
+            Assert.AreEqual(9f, curr);
+        }
+
+        [Test]
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
@@ -509,11 +561,29 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         [TestCase(3u)]
         [TestCase(4u)]
-        public void Ability_Correctly_Removes_Temporary_Charges(uint slot)
+        public void Ability_Correctly_Removes_All_Temporary_Charges(uint slot)
         {
             _handler.AddExtraAbilityCharges(slot, 100);
-            _handler.RemoveAbilityTemporaryCharges(slot);
+            _handler.RemoveAllAbilityTemporaryCharges(slot);
             Assert.AreEqual(0, _handler.GetCooldownInfo(slot).temporaryCharges);
+        }
+        
+        [Test]
+        [TestCase(0u, 100, 32)]
+        [TestCase(1u, 100, 2)]
+        [TestCase(2u, 100, 200)]
+        [TestCase(3u, 100, 89)]
+        [TestCase(4u, 100, 44)]
+        public void Ability_Correctly_Removes_Temporary_Charges(uint slot, int startAmount, int removeAmount)
+        {
+            _handler.AddExtraAbilityCharges(slot, startAmount);
+            _handler.RemoveAbilityTemporaryCharges(slot, removeAmount);
+
+            int expected = startAmount - removeAmount;
+            if (expected < 0)
+                expected = 0;
+            
+            Assert.AreEqual(expected, _handler.GetCooldownInfo(slot).temporaryCharges);
         }
 
         [Test]

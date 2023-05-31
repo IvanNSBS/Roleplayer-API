@@ -275,7 +275,6 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(recoveryTime * 0.01f);
             _castTimeline.Update(999);
 
-            Debug.Log(_castTimeline.clbkState);
             Assert.AreEqual(0, fired);
         }
         

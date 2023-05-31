@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
+using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
@@ -82,7 +82,12 @@ namespace INUlib.RPG.AbilitiesSystem
                 return false;
 
             CastHandler hh;
-            if(_cdHandler.AbilityHasCharges(slot) && !_cdHandler.IsAbilityOnCd(slot) && _casting == null)
+            bool hasCharges = _cdHandler.AbilityHasCharges(slot);
+            bool notOnCd = !_cdHandler.IsAbilityOnCd(slot);
+            bool notOnSecondaryCd = !_cdHandler.IsAbilityOnSecondaryCd(slot);
+            bool notCastingAnotherSpell = _casting == null;
+            
+            if(hasCharges && notOnCd && notOnSecondaryCd && notCastingAnotherSpell)
             {
                 _casting = _abilities[slot];
                 _castingState = CastingState.Channeling;
