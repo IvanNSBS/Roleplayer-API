@@ -39,7 +39,7 @@ namespace INUlib.RPG.AbilitiesSystem
         public CooldownHandler CooldownsHandler => _cdHandler;
 
         /// <summary>
-        /// Getter for the AbilityController Data Hub
+        /// Getter for the AbilityController Caster Info
         /// </summary>
         public TCaster CasterInfo => _caster;
 
@@ -109,9 +109,13 @@ namespace INUlib.RPG.AbilitiesSystem
                 handler.Timeline.ConcentrationFinished_RecoveryStarted += FinishConcentration;
                 handler.Timeline.Timeline_And_Recovery_Finished += FinishRecovery;
                 handler.AbilityBehaviour.NotifyDiscard += () => RemoveAbility(handler);
+                handler.Timeline.UnleashAbility += () => _cdHandler.ConsumeCharges(slot, 1);
+
                 if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterDiscard)
                     handler.AbilityBehaviour.NotifyDiscard += () => _cdHandler.PutOnCooldown(slot);
-
+               
+                handler.SetupAbilityBehaviourTimelineCallbacks();
+                
                 // Updates cast handler with a deltaTime of 0 so instant spells(0 channeling and castTime)
                 // might be cast on the same frame instead of the next
                 _castHandler.Update(0f);

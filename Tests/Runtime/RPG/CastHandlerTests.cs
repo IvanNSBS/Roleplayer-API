@@ -54,6 +54,7 @@ namespace Tests.Runtime.RPG
             
             CastObjects objs = new CastObjects(obj, timelineData, () => finishConcentration); 
             _handler = new CastHandler(parent, objs, CastStateGetter);
+            _handler.SetupAbilityBehaviourTimelineCallbacks();
         }
         #endregion
 

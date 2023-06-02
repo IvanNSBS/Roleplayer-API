@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using INUlib.Utils.Math;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
@@ -39,7 +40,7 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// The ability current amount of temporary charges
         /// </summary>
-        public readonly int temporaryCharges;
+        public readonly int extraCharges;
         
         /// <summary>
         /// The current secondary cooldown maximum value
@@ -51,11 +52,11 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         public readonly float currentSecondaryCooldown;
         
-        public CooldownInfo(int charges, int temporaryCharges, int maxCharges, float ccd, float mxd, float mcdWtcdr, float scCd, float cscCd)
+        public CooldownInfo(int charges, int extraCharges, int maxCharges, float ccd, float mxd, float mcdWtcdr, float scCd, float cscCd)
         {
             availableCharges = charges;
             this.maxCharges = maxCharges;
-            this.temporaryCharges = temporaryCharges;
+            this.extraCharges = extraCharges;
             currentCooldown = ccd;
             maxCooldown = mxd;
             maxCooldownWithoutCdr = mcdWtcdr;
@@ -94,7 +95,7 @@ namespace INUlib.RPG.AbilitiesSystem
             /// <summary>
             /// The ability current amount of temporary charges
             /// </summary>
-            public int temporaryCharges;
+            public int extraCharges;
             
             /// <summary>
             /// The ability current cooldown
@@ -118,19 +119,31 @@ namespace INUlib.RPG.AbilitiesSystem
                 cooldown = 0;
                 currentCharges = ability.Charges;
                 maxCharges = ability.Charges;
-                temporaryCharges = 0;
+                extraCharges = 0;
                 secondaryCooldown = 0;
                 totalSecondaryCooldown = 0;
             }
 
-            public bool HasCharges() => temporaryCharges + currentCharges > 0;
+            public bool HasCharges() => extraCharges + currentCharges > 0;
 
-            public void ConsumeCharge()
+            public void ConsumeCharge(int charges)
             {
-                if (temporaryCharges > 0)
-                    temporaryCharges--;
-                else
-                    currentCharges--;
+                if (extraCharges > 0)
+                {
+                    int delta = charges - extraCharges;
+                    if (delta < 0)
+                        delta = 0;
+                    
+                    Debug.Log($"Delta: {delta} ## charges: {currentCharges} ## extra: {extraCharges} ");
+                    extraCharges -= charges;
+                    // if there were more charges to remove than we had temporary charges, we remove the remaining
+                    // charges from the current charges
+                    currentCharges -= delta;
+                }
+                else if(currentCharges >= charges)
+                {
+                    currentCharges -= charges;
+                }
             }
         }
 
@@ -258,7 +271,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 return null;
 
             int charges = _cooldowns[slot].currentCharges;
-            int tempCharges = _cooldowns[slot].temporaryCharges;
+            int tempCharges = _cooldowns[slot].extraCharges;
             int maxCharges = _cooldowns[slot].maxCharges;
             float cd = _cooldowns[slot].cooldown;
             float totalCd = GetAbilityCooldownWithCdr(slot);
@@ -302,18 +315,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if (invalidSlot)
                 return false;
 
-            bool hasEnoughCharges = _cooldowns[slot].HasCharges();
-            if (!hasEnoughCharges)
-                return false;
-
-            // TODO: When putting on cooldown we consider the abilities array, but perhaps
-            // TODO: changing it to use the CooldownHelper would be better and we could drop all usages
-            // TODO: of the abilities array and use something else instead
-            // If was at max charges, cooldown needs to be updated
-            if (_cooldowns[slot].currentCharges == _cooldowns[slot].ability.Charges)
-                ClampAbilityCooldown(slot, _cooldowns[slot].ability.Cooldown);
-
-            _cooldowns[slot].ConsumeCharge();
+            ClampAbilityCooldown(slot, _cooldowns[slot].ability.Cooldown);
 
             // Updates with a deltaTime of 0 so spells with 0 cooldown won't
             // need to wait until the next frame to be refreshed
@@ -362,8 +364,12 @@ namespace INUlib.RPG.AbilitiesSystem
             if (!IsSlotValid(slot))
                 return false;
 
+            bool wasOnCooldownOnPreviousFrame = IsAbilityOnCd(slot);
             ClampAbilityCooldown(slot, _cooldowns[slot].cooldown - amount);
-            bool chargesUpdated = TryAddChargesAfterCDUpdate(slot);
+            bool isNotCooldownOnThisFrame = !IsAbilityOnCd(slot);
+            bool finishedCooldownThisFrame = wasOnCooldownOnPreviousFrame && isNotCooldownOnThisFrame;
+            
+            bool chargesUpdated = TryAddChargesAfterCDUpdate(slot, finishedCooldownThisFrame);
             bool maxCharges = _cooldowns[slot].currentCharges == _cooldowns[slot].ability.Charges;
             if (chargesUpdated && !maxCharges)
                 ClampAbilityCooldown(slot, _cooldowns[slot].ability.Cooldown);
@@ -380,7 +386,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if (slot < 0 || slot >= _cooldowns.Length)
                 return false;
 
-            return _cooldowns[slot].cooldown > 0 && _cooldowns[slot].currentCharges == 0;
+            return _cooldowns[slot].cooldown > 0;
         }
 
         /// <summary>                                                                                  
@@ -407,6 +413,27 @@ namespace INUlib.RPG.AbilitiesSystem
                 return false;
 
             return _cooldowns[slot].currentCharges > 0;
+        }
+
+        /// <summary>
+        /// Consumes charges from an ability.
+        /// </summary>
+        /// <param name="slot">The ability slot to remove the charges</param>
+        /// <param name="charges">How many charges to remove</param>
+        /// <returns>
+        /// The new amount of charges an ability have or -1 if no charges were removed due to invalid
+        /// slot or not enough charges to consume
+        /// </returns>
+        public int ConsumeCharges(uint slot, int charges)
+        {
+            if (charges <= 0 || !IsSlotValid(slot))
+                return -1;
+
+            if (_cooldowns[slot].extraCharges + _cooldowns[slot].currentCharges < charges)
+                return -1;
+            
+            _cooldowns[slot].ConsumeCharge(charges);
+            return _cooldowns[slot].extraCharges + _cooldowns[slot].currentCharges;
         }
 
         /// <summary>
@@ -496,7 +523,7 @@ namespace INUlib.RPG.AbilitiesSystem
             if (!IsSlotValid(slot))
                 return false;
 
-            _cooldowns[slot].temporaryCharges += amount;
+            _cooldowns[slot].extraCharges += amount;
             return true;
         }
 
@@ -505,12 +532,12 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <param name="slot">The ability slot index</param>
         /// <returns>True if the temporary charges was removed. False otherwise</returns>
-        public bool RemoveAllAbilityTemporaryCharges(uint slot)
+        public bool RemoveAllAbilityExtraCharges(uint slot)
         {
             if (!IsSlotValid(slot))
                 return false;
 
-            _cooldowns[slot].temporaryCharges = 0;
+            _cooldowns[slot].extraCharges = 0;
             return true;
         }
         
@@ -523,16 +550,16 @@ namespace INUlib.RPG.AbilitiesSystem
         /// The new amount of temporary charges of the ability.
         /// -1 if there were no valid abilities at the given slot
         /// </returns>
-        public int RemoveAbilityTemporaryCharges(uint slot, int amount)
+        public int ConsumeExtraCharges(uint slot, int amount)
         {
             if (!IsSlotValid(slot))
                 return -1;
 
-            _cooldowns[slot].temporaryCharges -= amount;
-            if (_cooldowns[slot].temporaryCharges < 0)
-                _cooldowns[slot].temporaryCharges = 0;
+            _cooldowns[slot].extraCharges -= amount;
+            if (_cooldowns[slot].extraCharges < 0)
+                _cooldowns[slot].extraCharges = 0;
             
-            return _cooldowns[slot].temporaryCharges;
+            return _cooldowns[slot].extraCharges;
         }
 
         /// <summary>
@@ -624,18 +651,20 @@ namespace INUlib.RPG.AbilitiesSystem
             return maxCooldown;
         }
 
-        protected bool TryAddChargesAfterCDUpdate(uint slot)
+        protected bool TryAddChargesAfterCDUpdate(uint slot, bool finishedCooldownThisFrame)
         {
             CooldownHelper cd = _cooldowns[slot];
             IAbilityBase ability = _cooldowns[slot].ability;
 
-            bool shouldUpdate = cd.cooldown <= 0.001f && cd.currentCharges < ability.Charges;
-            if (shouldUpdate)
+                        
+            bool canAddMoreCharges = cd.currentCharges < ability.Charges;
+            bool shouldUpdateCharges = canAddMoreCharges && finishedCooldownThisFrame;
+            if (shouldUpdateCharges)
             {
                 cd.currentCharges = INUMath.Clamp(cd.currentCharges + 1, 0, ability.Charges);
             }
 
-            return shouldUpdate;
+            return shouldUpdateCharges;
         }
 
         protected bool IsSlotValid(uint slot) => 

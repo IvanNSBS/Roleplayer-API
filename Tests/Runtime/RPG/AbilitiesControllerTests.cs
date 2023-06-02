@@ -152,7 +152,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void Controller_Is_Constructed_Correctly()
         {
             Assert.IsTrue(_controller.AbilitySlots == 3);
-            Assert.IsTrue(_controller.DataHub == _mockFactory);
+            Assert.IsTrue(_controller.CasterInfo == _mockFactory);
         }
 
         [Test]

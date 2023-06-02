@@ -33,8 +33,6 @@ namespace INUlib.RPG.AbilitiesSystem
             _timesRecastCalled = 0;
             _castStateGetter = castStateGetter;
             _castObjects = castObjects;
-            
-            SetupTimeline();
         }
         #endregion
 
@@ -101,7 +99,7 @@ namespace INUlib.RPG.AbilitiesSystem
         
         
         #region Helper Methods
-        private void SetupTimeline()
+        public void SetupAbilityBehaviourTimelineCallbacks()
         {
             _castObjects.timeline.UnleashAbility += _castObjects.AbilityBehaviour.OnAbilityUnleashed;
 

@@ -437,6 +437,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void Cooldown_Handler_Properly_Adds_Spell_Charges(uint slot)
         {
             _handler.PutOnCooldown(slot);
+            _handler.ConsumeCharges(slot, 1);
             var cdInfo = _handler.GetCooldownInfo(slot);
             
             Assert.AreEqual(_abilityCharges-1 , cdInfo.availableCharges);
@@ -445,19 +446,6 @@ namespace Tests.Runtime.RPG.Abilities
             cdInfo = _handler.GetCooldownInfo(slot);
             
             Assert.AreEqual(_abilityCharges, cdInfo.availableCharges);
-        }
-
-        [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
-        [TestCase(3u)]
-        [TestCase(4u)]
-        public void PutOnCooldown_Returns_False_If_Ability_Has_No_Charges(uint slot)
-        {
-            _handler.SetAbilityMaxCharges(slot, 0, false);
-            bool output = _handler.PutOnCooldown(slot);
-            Assert.IsFalse(output);          
         }
 
         [Test]
@@ -552,7 +540,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Correctly_Adds_Extra_Charges(uint slot, int amount)
         {
             _handler.AddExtraAbilityCharges(slot, amount);
-            Assert.AreEqual(amount, _handler.GetCooldownInfo(slot).temporaryCharges);
+            Assert.AreEqual(amount, _handler.GetCooldownInfo(slot).extraCharges);
         }
 
         [Test]
@@ -564,8 +552,8 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Correctly_Removes_All_Temporary_Charges(uint slot)
         {
             _handler.AddExtraAbilityCharges(slot, 100);
-            _handler.RemoveAllAbilityTemporaryCharges(slot);
-            Assert.AreEqual(0, _handler.GetCooldownInfo(slot).temporaryCharges);
+            _handler.RemoveAllAbilityExtraCharges(slot);
+            Assert.AreEqual(0, _handler.GetCooldownInfo(slot).extraCharges);
         }
         
         [Test]
@@ -577,13 +565,13 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Correctly_Removes_Temporary_Charges(uint slot, int startAmount, int removeAmount)
         {
             _handler.AddExtraAbilityCharges(slot, startAmount);
-            _handler.RemoveAbilityTemporaryCharges(slot, removeAmount);
+            _handler.ConsumeExtraCharges(slot, removeAmount);
 
             int expected = startAmount - removeAmount;
             if (expected < 0)
                 expected = 0;
             
-            Assert.AreEqual(expected, _handler.GetCooldownInfo(slot).temporaryCharges);
+            Assert.AreEqual(expected, _handler.GetCooldownInfo(slot).extraCharges);
         }
 
         [Test]
@@ -654,10 +642,10 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Correctly_Uses_Extra_Charges_When_They_Are_Avaialble(uint slot)
         {
             _handler.AddExtraAbilityCharges(slot, 1);
-            _handler.PutOnCooldown(slot);
+            _handler.ConsumeCharges(slot, 1);
             var cdInfo = _handler.GetCooldownInfo(slot);
 
-            Assert.AreEqual(0, cdInfo.temporaryCharges);
+            Assert.AreEqual(0, cdInfo.extraCharges);
             Assert.AreEqual(1, cdInfo.availableCharges);
         }
         #endregion
