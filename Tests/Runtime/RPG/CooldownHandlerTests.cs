@@ -508,6 +508,46 @@ namespace Tests.Runtime.RPG.Abilities
         }
 
         [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void Ability_Adds_Only_One_Charge_After_Cooldown_Finishes(uint slot)
+        {
+            _handler.SetAbilityMaxCharges(slot, 10, false);
+            _handler.RemoveAvailableCharges(slot, 100);
+            _handler.PutOnCooldown(slot);
+            _handler.Update(_abilityMaxCd);
+
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            int available = cdInfo.availableCharges;
+            
+            Assert.AreEqual(1, available);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        [TestCase(3u)]
+        [TestCase(4u)]
+        public void Ability_Adds_Charges_On_Loop_When_Updating_Cooldown_If_Charges_Were_Consumed(uint slot)
+        {
+            _handler.SetAbilityMaxCharges(slot, 3, false);
+            _handler.RemoveAvailableCharges(slot, 100);
+            _handler.PutOnCooldown(slot);
+            
+            for(int i = 0; i < 3; i++)
+                 _handler.Update(_abilityMaxCd);
+            
+            var cdInfo = _handler.GetCooldownInfo(slot);
+            int available = cdInfo.availableCharges;
+            
+            Assert.AreEqual(3, available);
+        }
+        
+        [Test]
         [TestCase(0u, 0)]
         [TestCase(1u, 1)]
         [TestCase(2u, 5)]

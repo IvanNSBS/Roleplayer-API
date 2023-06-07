@@ -134,7 +134,6 @@ namespace INUlib.RPG.AbilitiesSystem
                     if (delta < 0)
                         delta = 0;
                     
-                    Debug.Log($"Delta: {delta} ## charges: {currentCharges} ## extra: {extraCharges} ");
                     extraCharges -= charges;
                     // if there were more charges to remove than we had temporary charges, we remove the remaining
                     // charges from the current charges
@@ -313,7 +312,7 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             bool invalidSlot = slot > _cooldowns.Length || _cooldowns[slot].ability == null;
             if (invalidSlot)
-                return false;
+                return false; 
 
             ClampAbilityCooldown(slot, _cooldowns[slot].ability.Cooldown);
 
@@ -363,16 +362,19 @@ namespace INUlib.RPG.AbilitiesSystem
         {
             if (!IsSlotValid(slot))
                 return false;
-
+            
             bool wasOnCooldownOnPreviousFrame = IsAbilityOnCd(slot);
             ClampAbilityCooldown(slot, _cooldowns[slot].cooldown - amount);
             bool isNotCooldownOnThisFrame = !IsAbilityOnCd(slot);
             bool finishedCooldownThisFrame = wasOnCooldownOnPreviousFrame && isNotCooldownOnThisFrame;
             
             bool chargesUpdated = TryAddChargesAfterCDUpdate(slot, finishedCooldownThisFrame);
-            bool maxCharges = _cooldowns[slot].currentCharges == _cooldowns[slot].ability.Charges;
+            bool maxCharges = _cooldowns[slot].currentCharges == _cooldowns[slot].maxCharges;
+
             if (chargesUpdated && !maxCharges)
+            {
                 ClampAbilityCooldown(slot, _cooldowns[slot].ability.Cooldown);
+            }
             return true;
         }
 
@@ -654,14 +656,12 @@ namespace INUlib.RPG.AbilitiesSystem
         protected bool TryAddChargesAfterCDUpdate(uint slot, bool finishedCooldownThisFrame)
         {
             CooldownHelper cd = _cooldowns[slot];
-            IAbilityBase ability = _cooldowns[slot].ability;
-
                         
-            bool canAddMoreCharges = cd.currentCharges < ability.Charges;
+            bool canAddMoreCharges = cd.currentCharges < cd.maxCharges;
             bool shouldUpdateCharges = canAddMoreCharges && finishedCooldownThisFrame;
             if (shouldUpdateCharges)
             {
-                cd.currentCharges = INUMath.Clamp(cd.currentCharges + 1, 0, ability.Charges);
+                cd.currentCharges = INUMath.Clamp(cd.currentCharges + 1, 0, cd.maxCharges);
             }
 
             return shouldUpdateCharges;
