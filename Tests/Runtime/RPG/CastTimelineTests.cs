@@ -529,6 +529,42 @@ namespace Tests.Runtime.RPG
                 "Expected value is 10. If value was 2 then it fired in the wrong order. If it was 1, no event was fired"
             );
         }
+
+        [Test]
+        public void Timeline_ElapsedTime_Is_Perfectly_Linked_With_CurrentStateElapsedTime()
+        {
+            float channelingTime = 1f;
+            float overChannelingTime = 2f;
+            TimelineData data = new (channelingTime, overChannelingTime, 0, 0, 0.1f, AbilityCastType.FireAndForget);
+            _castTimeline = new CastTimeline(data);
+            
+            _castTimeline.Start();
+            _castTimeline.Update(channelingTime + overChannelingTime*0.5f);
+
+            float expected = _castTimeline.TotalElapsedTime;
+            float currentState = _castTimeline.CurrentStateElapsedTime;
+            Assert.AreEqual(expected,  currentState + channelingTime);
+        }
+
+        [Test]
+        public void Timeline_Will_Fire_All_Callbacks_And_Finish_With_A_Single_Update_If_DeltaTime_Is_High_Enough_For_FireAnd_Forget_Abilities()
+        {
+            float times = 1f;
+            int x = 0;
+            
+            TimelineData data = new (times, times, times, times, 0.1f, AbilityCastType.FireAndForget);
+            _castTimeline = new CastTimeline(data);
+            _castTimeline.ChannelingFinished_OverchannelingStarted += () => x++;
+            _castTimeline.OverchannelingFinished_CastingStarted += () => x++;
+            _castTimeline.UnleashAbility += () => x++;
+            _castTimeline.CastFinished_ConcentrationStarted += () => x++;
+            _castTimeline.Timeline_And_Recovery_Finished += () => x++;
+            
+            _castTimeline.Start();
+            _castTimeline.Update(times * 5);
+            
+            Assert.AreEqual(5, x, "Not all events were fired during the single update");
+        }
         #endregion
     }
 }

@@ -172,6 +172,7 @@ namespace INUlib.RPG.AbilitiesSystem
                 return;
             
             _clbkState = CastingState.Concentrating;
+            _currentClbkElapsedTime = 0f;
             GoToNextState();
         }
         
@@ -259,8 +260,15 @@ namespace INUlib.RPG.AbilitiesSystem
                 _eventsFired.Add(clbk);
             }
 
+            // dont set to 0. Elapsed time can go much beyond the time limit during a frame drop. If we simply
+            // set _currentClbkElapsedTime to 0 like we were doing before, the timeline would surely "desync"
+            // on frame spikes.
+            _currentClbkElapsedTime -= _clbkTimers[_clbkState].Item1;
             _clbkState++;
-            _currentClbkElapsedTime = 0f;
+            
+            // Update with a deltaTime of 0. If the frame spike was big enough to trigger two state changes
+            // we need to catch that.
+            Update(0);
         }
 
         private bool CanUnleashDuringCasting()
