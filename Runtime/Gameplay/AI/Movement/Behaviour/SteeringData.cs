@@ -1,6 +1,6 @@
 using System;
-using Newtonsoft.Json;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace INUlib.Gameplay.AI.Movement.Behaviour
 {
