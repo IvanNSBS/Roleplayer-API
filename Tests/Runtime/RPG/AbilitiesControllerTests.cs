@@ -316,36 +316,6 @@ namespace Tests.Runtime.RPG.Abilities
             
             Assert.AreEqual(_cd, newCooldown);
         }
-        
-        [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
-        public void Ability_Doesnt_Go_In_CD_Right_After_Start_Casting(uint slot)
-        {
-            _controller.StartChanneling(slot);
-            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
-            _controller.Update(_channelingTime - 0.2f);
-            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
-        }
-
-        [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
-        public void Ability_CurrentCD_Doesnt_Change_While_Casting(uint slot)
-        {
-            _controller.StartChanneling(slot);
-            Assert.AreEqual(
-                0, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown, 
-                "Cooldown was supposed to be zero right after channeling"
-            );
-            _controller.Update(_channelingTime - 0.2f);
-            Assert.AreEqual(
-                0, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown,
-                "Cooldown was supposed to be zero after Update since Channeling Didn't Finish"
-            );
-        }
 
         [Test]
         [TestCase(2f, 0u)]

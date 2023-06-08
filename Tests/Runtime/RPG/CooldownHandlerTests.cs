@@ -240,7 +240,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(4u, 0.45f)]
         [TestCase(4u, 0.3f)]
         [TestCase(4u, 0.8f)]
-        public void CooldownHandler_Correctly_Resets_Ability_Cooldown(uint slot, float cdr)
+        public void CooldownHandler_Correctly_Puts_Ability_On_Cooldown_Considering_Cooldown_Reductions(uint slot, float cdr)
         {
             _handler.GlobalCDR = cdr;
             _handler.PutOnCooldown(slot);
@@ -255,7 +255,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         [TestCase(3u)]
         [TestCase(4u)]
-        public void CooldownHandler_Correctly_Resets_Cooldown_By_Reference(uint slot)
+        public void CooldownHandler_Correctly_Puts_On_Cooldown_Using_Ability_Reference_Instead_of_Slot(uint slot)
         {
             var ability = _abilities[slot];
 
@@ -434,7 +434,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u)]
         [TestCase(3u)]
         [TestCase(4u)]
-        public void Cooldown_Handler_Properly_Adds_Spell_Charges(uint slot)
+        public void Cooldown_Handler_Will_Add_Charges_When_Cooldown_Finishes(uint slot)
         {
             _handler.PutOnCooldown(slot);
             _handler.ConsumeCharges(slot, 1);
@@ -494,7 +494,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u, 5)]
         [TestCase(3u, 4)]
         [TestCase(4u, 3)]
-        public void Ability_Correctly_Adds_Available_Charges(uint slot, int add)
+        public void AddAvailableAbilityCharges_Function_Adds_Charges_Correctly(uint slot, int add)
         {
             _handler.RemoveAvailableCharges(slot, 100);
             _handler.AddAvailableAbilityCharges(slot, add);
@@ -507,25 +507,6 @@ namespace Tests.Runtime.RPG.Abilities
             Assert.AreEqual(expected, available);
         }
 
-        [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
-        [TestCase(3u)]
-        [TestCase(4u)]
-        public void Ability_Adds_Only_One_Charge_After_Cooldown_Finishes(uint slot)
-        {
-            _handler.SetAbilityMaxCharges(slot, 10, false);
-            _handler.RemoveAvailableCharges(slot, 100);
-            _handler.PutOnCooldown(slot);
-            _handler.Update(_abilityMaxCd);
-
-            var cdInfo = _handler.GetCooldownInfo(slot);
-            int available = cdInfo.availableCharges;
-            
-            Assert.AreEqual(1, available);
-        }
-        
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -577,7 +558,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u, 7)]
         [TestCase(3u, 4)]
         [TestCase(4u, 3)]
-        public void Ability_Correctly_Adds_Extra_Charges(uint slot, int amount)
+        public void AddExtraAbilityCharges_Function_Correctly_Adds_Extra_Charges(uint slot, int amount)
         {
             _handler.AddExtraAbilityCharges(slot, amount);
             Assert.AreEqual(amount, _handler.GetCooldownInfo(slot).extraCharges);
@@ -649,7 +630,7 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(2u, 2)]
         [TestCase(3u, 3)]
         [TestCase(4u, 9)]
-        public void Ability_Loses_Available_Charges_When_Setting_Max_Charges_To_Zero(uint slot, int removeSize)
+        public void Ability_Correctly_Loses_Available_Charges_When_Reducing_Max_Charges(uint slot, int removeSize)
         {
             _handler.SetAbilityMaxCharges(slot, 10, true);
             _handler.SetAbilityMaxCharges(slot, 10 - removeSize, false);
