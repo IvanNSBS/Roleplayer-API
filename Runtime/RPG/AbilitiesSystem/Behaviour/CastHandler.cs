@@ -40,7 +40,8 @@ namespace INUlib.RPG.AbilitiesSystem
         #region Methods
         /// <summary>
         /// Receives a cast request, incrementing how many times the cast was called
-        /// and invoking the OnCastRequested for the CastHandlerPolicy
+        /// and notifying the AbilityBehaviour that this event happened, passing how many times
+        /// cast has been requested so far.
         /// </summary>
         public void OnAnotherCastRequested()
         {
@@ -91,6 +92,9 @@ namespace INUlib.RPG.AbilitiesSystem
             }
         }
 
+        /// <summary>
+        /// Calls the ability behaviour OnDrawGizmos logic
+        /// </summary>
         public void DrawGizmos()
         {
             _castObjects.AbilityBehaviour.OnDrawGizmos();
@@ -99,6 +103,12 @@ namespace INUlib.RPG.AbilitiesSystem
         
         
         #region Helper Methods
+        /// <summary>
+        /// Hooks every timeline state change callback to the appropriate ability behaviour function and
+        /// sets up the timeline unleash callback to unleash the ability. If the DiscardPolicy is Auto, will
+        /// hook the InvokeNotifyDiscard callback to the timeline finish event. 
+        /// Also starts the timeline.
+        /// </summary>
         public void SetupAbilityBehaviourTimelineCallbacks()
         {
             _castObjects.timeline.UnleashAbility += _castObjects.AbilityBehaviour.OnAbilityUnleashed;

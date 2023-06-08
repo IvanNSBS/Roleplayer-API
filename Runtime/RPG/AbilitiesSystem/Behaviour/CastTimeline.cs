@@ -208,6 +208,12 @@ namespace INUlib.RPG.AbilitiesSystem
             }
         }
 
+        /// <summary>
+        /// Sets the CastTimeline data.
+        /// If set to null, will generate a timelineData with all times set to 0, meaning everything will be instant
+        /// and keeping the old cast time. 
+        /// </summary>
+        /// <param name="newData"></param>
         public void UpdateTimelineData(TimelineData newData)
         {
             if (newData == null)
@@ -217,6 +223,10 @@ namespace INUlib.RPG.AbilitiesSystem
             SetupTimersCallback();
         }
 
+        /// <summary>
+        /// Clear unleash callbacks. Necessary for the CastHandler to be able to
+        /// recycle the unleash callback on subsequent cast requests.
+        /// </summary>
         public void ClearUnleashCallbacks() => UnleashAbility = null;
         #endregion
         

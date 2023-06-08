@@ -14,7 +14,6 @@ namespace INUlib.RPG.AbilitiesSystem
         protected TCaster _caster;
         protected TAbility[] _abilities;
         protected TAbility _casting;
-        protected float _elapsedChanneling;
         protected CastingState _castingState;
         protected CooldownHandler _cdHandler;
         protected CastHandler _castHandler;
@@ -22,12 +21,6 @@ namespace INUlib.RPG.AbilitiesSystem
         #endregion
 
         #region Properties
-        /// <summary>
-        /// Gets the elapsed cast time for the spell being charged.
-        /// Will return 0 if no spell is being cast;
-        /// </summary>
-        public float ElapsedChannelingTime => _elapsedChanneling;
-
         /// <summary>
         /// Returns the number of AbilitySlots assigned in the constructor
         /// </summary>
@@ -50,6 +43,10 @@ namespace INUlib.RPG.AbilitiesSystem
 
         public IReadOnlyList<CastHandler> ActiveAbilities => _activeAbilities;
         
+        /// <summary>
+        /// Whether or not to update cooldowns on the abilities controller Update function
+        /// or manually from the user explicitly calling UpdateCooldowns function.
+        /// </summary>
         public CooldownUpdateType CooldownUpdateType { get; set; }
         #endregion
 
@@ -141,8 +138,8 @@ namespace INUlib.RPG.AbilitiesSystem
         public void SkipOverchanneling(bool skip) => _castHandler.Timeline.SkipOverchanneling(skip);
         
         /// <summary>
-        /// Cancels the ability channeling for the current spell,
-        /// reseting the ElapsedCasting timer and setting the casting spell to null
+        /// Cancels the ability being cast for the current spell, regardless of the current
+        /// casting state and sets the current ability being cast to null
         /// </summary>
         public virtual void CancelCast() 
         {
@@ -151,8 +148,8 @@ namespace INUlib.RPG.AbilitiesSystem
         } 
         
         /// <summary>
-        /// ForCancels the ability channeling for the current spell,
-        /// reseting the ElapsedCasting timer and setting the casting spell to null
+        /// Force interrupts the current ability being cast,
+        /// clearing which spell is currently being cast and notifying the ability behaviour of this event.
         /// </summary>
         public virtual void ForceInterruptCast() 
         {
@@ -163,7 +160,6 @@ namespace INUlib.RPG.AbilitiesSystem
             
             _casting = null;
             _castHandler = null;
-            _elapsedChanneling = 0f;
             _castingState = CastingState.None;
         } 
 
@@ -181,14 +177,13 @@ namespace INUlib.RPG.AbilitiesSystem
                 _cdHandler.PutOnCooldown(_casting);
             
             _castingState = CastingState.Casting;
-            _elapsedChanneling = 0f;
         }
 
         /// <summary>
         /// Finishes casting the current ability, setting the Casted Ability to null and
         /// the casting state to None
         /// </summary>        
-        public void FinishCastingAbility()
+        protected void FinishCastingAbility()
         {
             if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterCasting)
                 _cdHandler.PutOnCooldown(_casting);
@@ -204,14 +199,14 @@ namespace INUlib.RPG.AbilitiesSystem
             _castingState = CastingState.CastRecovery;
         }
 
-        public void FinishRecovery()
+        protected void FinishRecovery()
         {
             _castingState = CastingState.None;
             _casting = null;
             _castHandler = null;
         }
         
-        public void RemoveAbility(CastHandler abilityObject) => _activeAbilities.Remove(abilityObject);
+        protected void RemoveAbility(CastHandler abilityObject) => _activeAbilities.Remove(abilityObject);
         #endregion
 
 
@@ -223,6 +218,11 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <param name="deltaTime">How much time elapsed since the last frame</param>
         public virtual void UpdateCooldowns(float deltaTime) => _cdHandler.Update(deltaTime);
 
+        /// <summary>
+        /// Updates ability cooldowns if CooldownUpdateType is set to auto and calls each active ability
+        /// update function
+        /// </summary>
+        /// <param name="deltaTime"></param>
         public virtual void Update(float deltaTime)
         {
             if (CooldownUpdateType == CooldownUpdateType.Auto)
@@ -232,6 +232,9 @@ namespace INUlib.RPG.AbilitiesSystem
                 _activeAbilities[i].Update(deltaTime);
         }
 
+        /// <summary>
+        /// Calls every active ability OnDrawGizmos function
+        /// </summary>
         public void OnDrawGizmos()
         {
             for(int i = _activeAbilities.Count - 1; i >= 0; i--)
@@ -239,7 +242,7 @@ namespace INUlib.RPG.AbilitiesSystem
         }
     
         /// <summary>
-        /// Sets the ability on the given index
+        /// Sets the ability on the given index. Setting it to null will clear the ability slot
         /// </summary>
         /// <param name="slot">Slot to set the ability</param>
         /// <param name="ability">The ability that is being added</param>
@@ -267,6 +270,13 @@ namespace INUlib.RPG.AbilitiesSystem
         /// </summary>
         /// <returns>The ability being cast. Null if no ability is being cast</returns>
         public TAbility GetCastingAbility() => _casting;
+        
+        /// <summary>
+        /// Gets the CastHandler for the current ability being cast.
+        /// </summary>
+        /// <returns>
+        /// The cast handler for the current ability being cast or null if no ability is being cast.
+        /// </returns>
         public CastHandler GetCastHandler() => _castHandler;
         #endregion
 

@@ -73,7 +73,6 @@ namespace INUlib.RPG.AbilitiesSystem
     public class CooldownHandler
     {
         #region CD Helper Class
-
         protected class CooldownHelper
         {
             /// <summary>
@@ -144,22 +143,18 @@ namespace INUlib.RPG.AbilitiesSystem
                 }
             }
         }
-
         #endregion
 
         #region Fields
-
         protected float _globalCdr;
         protected float _maxCdrValue = 0.9f;
         protected CooldownHelper[] _cooldowns;
         protected Dictionary<int, float> _categoriesCdr;
         protected Func<float, float, float> _cdrCalcFunction;
-
         #endregion
 
 
         #region Properties
-
         public int CooldownsLength => _cooldowns.Length;
         public IReadOnlyDictionary<int, float> CategoriesCDR => _categoriesCdr;
 
@@ -195,12 +190,10 @@ namespace INUlib.RPG.AbilitiesSystem
                         _categoriesCdr[key] = _maxCdrValue;
             }
         }
-
         #endregion
 
 
         #region Constructor
-
         public CooldownHandler(IAbilityBase[] abilities, Func<float, float, float> cdrCalcFunction = null)
         {
             _cdrCalcFunction = cdrCalcFunction;
@@ -213,7 +206,6 @@ namespace INUlib.RPG.AbilitiesSystem
 
             _categoriesCdr = new Dictionary<int, float>();
         }
-
         #endregion
 
 

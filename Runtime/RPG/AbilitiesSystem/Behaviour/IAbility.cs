@@ -80,12 +80,27 @@ namespace INUlib.RPG.AbilitiesSystem
         bool CanCast(TCaster caster);
     }
 
+    /// <summary>
+    /// Container for all information needed to be passed to the CastHandler once the ability is cast
+    /// </summary>
     public class CastObjects
     {
         public readonly AbilityBehaviour AbilityBehaviour;
         public CastTimeline timeline;
         public readonly Func<bool> endConcentrationCondition;
         
+        /// <summary>
+        /// Constructor for this info container
+        /// </summary>
+        /// <param name="abilityBehaviour">The ability behaviour instantiated by the Ability factory</param>
+        /// <param name="timelineData">The Timeline created by the Ability factory</param>
+        /// <param name="endConcentrationCondition">
+        /// The function that determines when the ability behaviour can finish the concentration.
+        /// Has no effect if ability is not of concentration type and can be set to null in those cases.
+        /// If ability is of concentration type and this callback is set to null it means that the
+        /// ability will stay on Concentration state indefinitely and will only leave this state
+        /// from explicitly calling FinishConcentration from the AbilitiesController.
+        /// </param>
         public CastObjects(AbilityBehaviour abilityBehaviour, TimelineData timelineData, Func<bool> endConcentrationCondition)
         {
             this.timeline = new CastTimeline(timelineData);
