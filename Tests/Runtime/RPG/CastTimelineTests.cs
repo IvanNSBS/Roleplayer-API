@@ -509,6 +509,26 @@ namespace Tests.Runtime.RPG
             Assert.AreEqual(CastingState.CastRecovery, _castTimeline.clbkState);
             Assert.AreEqual(0f, _castTimeline.CurrentStateElapsedTime);
         }
+        
+        [Test]
+        public void Unleash_Callbacks_Are_Fired_In_Order()
+        {
+            int x = 1;
+            
+            TimelineData data = new (0f, 0f, 0f, 3f, 0.1f, AbilityCastType.FireAndForget);
+            _castTimeline = new CastTimeline(data);
+            _castTimeline.UnleashAbility += () => x = 2;
+            _castTimeline.UnleashAbility += () => x *= 5;
+            
+            _castTimeline.Start();
+            _castTimeline.Update(0);
+            
+            
+            Assert.AreEqual(
+                10, x, 
+                "Expected value is 10. If value was 2 then it fired in the wrong order. If it was 1, no event was fired"
+            );
+        }
         #endregion
     }
 }
