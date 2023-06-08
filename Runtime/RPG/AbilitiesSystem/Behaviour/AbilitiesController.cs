@@ -81,18 +81,23 @@ namespace INUlib.RPG.AbilitiesSystem
                 return false;
 
             CastHandler hh;
-            bool hasCharges = _cdHandler.AbilityHasCharges(slot);
-            bool notOnCd = !_cdHandler.IsAbilityOnCd(slot);
-            bool notOnSecondaryCd = !_cdHandler.IsAbilityOnSecondaryCd(slot);
-            bool notCastingAnotherSpell = _casting == null;
+            bool isMultipleChargesAbility = _cdHandler.GetCooldownInfo(slot).maxCharges > 1;
+            bool hasEnoughCharges = _cdHandler.AbilityHasCharges(slot);
             
+            bool notOnPrimaryCd = !_cdHandler.IsAbilityOnCd(slot);
+            bool notOnSecondaryCd = !_cdHandler.IsAbilityOnCastPrevention(slot);
+            bool notCastingAnotherSpell = _casting == null;
+
+            bool canCastMultipleCharges = isMultipleChargesAbility && (hasEnoughCharges || notOnPrimaryCd);
+            bool canCastSingleCharge = !isMultipleChargesAbility && hasEnoughCharges && notOnPrimaryCd;
+
             if((hh = GetActiveHandler(GetAbility(slot))) != null && notCastingAnotherSpell)
             {
                 _castingState = CastingState.Channeling;
                 _casting = (TAbility)hh.Parent;
                 hh.OnAnotherCastRequested();
             }
-            else if(hasCharges && notOnCd && notOnSecondaryCd && notCastingAnotherSpell)
+            else if((canCastSingleCharge || canCastMultipleCharges) && notOnSecondaryCd && notCastingAnotherSpell)
             {
                 _casting = _abilities[slot];
                 _castingState = CastingState.Channeling;

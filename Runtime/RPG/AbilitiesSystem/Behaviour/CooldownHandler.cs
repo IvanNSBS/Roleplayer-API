@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using INUlib.Utils.Math;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace INUlib.RPG.AbilitiesSystem
 {
@@ -43,16 +42,16 @@ namespace INUlib.RPG.AbilitiesSystem
         public readonly int extraCharges;
         
         /// <summary>
-        /// The current secondary cooldown maximum value
+        /// How much the current cast prevention was supposed to last
         /// </summary>
-        public readonly float maxSecondaryCooldown;
+        public readonly float castPreventionDuration;
         
         /// <summary>
-        /// The current secondary cooldown
+        /// The remaining cast prevention time 
         /// </summary>
-        public readonly float currentSecondaryCooldown;
+        public readonly float remainingCastPreventionTime;
         
-        public CooldownInfo(int charges, int extraCharges, int maxCharges, float ccd, float mxd, float mcdWtcdr, float scCd, float cscCd)
+        public CooldownInfo(int charges, int extraCharges, int maxCharges, float ccd, float mxd, float mcdWtcdr, float cpCd, float cCpCd)
         {
             availableCharges = charges;
             this.maxCharges = maxCharges;
@@ -61,8 +60,8 @@ namespace INUlib.RPG.AbilitiesSystem
             maxCooldown = mxd;
             maxCooldownWithoutCdr = mcdWtcdr;
 
-            maxSecondaryCooldown = scCd;
-            currentSecondaryCooldown = cscCd;
+            castPreventionDuration = cpCd;
+            remainingCastPreventionTime = cCpCd;
         }
     }
 
@@ -103,14 +102,14 @@ namespace INUlib.RPG.AbilitiesSystem
             public float cooldown;
             
             /// <summary>
-            /// The ability current secondary cooldown
+            /// The ability current cast prevention cooldown
             /// </summary>
-            public float secondaryCooldown;
+            public float remainingCastPrevention;
             
             /// <summary>
-            /// The ability current total secondary cooldown
+            /// The ability current cast prevention cooldown
             /// </summary>
-            public float totalSecondaryCooldown;
+            public float castPreventionDuration;
 
             public CooldownHelper(IAbilityBase ability)
             {
@@ -120,8 +119,8 @@ namespace INUlib.RPG.AbilitiesSystem
                 currentCharges = ability.Charges;
                 maxCharges = ability.Charges;
                 extraCharges = 0;
-                secondaryCooldown = 0;
-                totalSecondaryCooldown = 0;
+                remainingCastPrevention = 0;
+                castPreventionDuration = 0;
             }
 
             public bool HasCharges() => extraCharges + currentCharges > 0;
@@ -237,11 +236,11 @@ namespace INUlib.RPG.AbilitiesSystem
                 
                 DecreaseCooldown(i, deltaTime);
                 
-                _cooldowns[i].secondaryCooldown -= deltaTime;
-                if (_cooldowns[i].secondaryCooldown < 0)
+                _cooldowns[i].remainingCastPrevention -= deltaTime;
+                if (_cooldowns[i].remainingCastPrevention < 0)
                 {
-                    _cooldowns[i].secondaryCooldown = 0;
-                    _cooldowns[i].totalSecondaryCooldown = 0;
+                    _cooldowns[i].remainingCastPrevention = 0;
+                    _cooldowns[i].castPreventionDuration = 0;
                 }
             }
         }
@@ -276,12 +275,12 @@ namespace INUlib.RPG.AbilitiesSystem
             float totalCd = GetAbilityCooldownWithCdr(slot);
             float totalCdNoCdr = _cooldowns[slot].ability.Cooldown;
 
-            float currentSecondaryCd = _cooldowns[slot].secondaryCooldown;
-            float maxSecondaryCooldown = _cooldowns[slot].totalSecondaryCooldown;
+            float remainingCastPrevention = _cooldowns[slot].remainingCastPrevention;
+            float castPreventionDuration = _cooldowns[slot].castPreventionDuration;
 
             return new CooldownInfo(
                 charges, tempCharges, maxCharges, cd, 
-                totalCd, totalCdNoCdr, maxSecondaryCooldown, currentSecondaryCd
+                totalCd, totalCdNoCdr, castPreventionDuration, remainingCastPrevention
             );
         }
 
@@ -303,17 +302,24 @@ namespace INUlib.RPG.AbilitiesSystem
         /// Tries to put an ability cooldown through its index and removes an ability charge 
         /// Considers CooldownHandler Cooldown Reductions for the ability cooldown
         /// </summary>
-        /// <param name="slot">The ability to reset the cooldown</param>
+        /// <param name="slot">The index of the ability to reset cooldown</param>
+        /// <param name="forceResetCooldown">
+        /// Whether or not to force cooldown to be reset when ability is already on cooldown
+        /// </param>
         /// <returns>
         /// True if there was an ability in the given slot and it had charges to be cast.
         /// False otherwise
         /// </returns>
-        public bool PutOnCooldown(uint slot)
+        public bool PutOnCooldown(uint slot, bool forceResetCooldown = false)
         {
             bool invalidSlot = slot > _cooldowns.Length || _cooldowns[slot].ability == null;
             if (invalidSlot)
                 return false; 
 
+            // don't do anything if the ability is on cooldown and force reset is set to false
+            if (IsAbilityOnCd(slot) && !forceResetCooldown)
+                return false;
+            
             ClampAbilityCooldown(slot, _cooldowns[slot].ability.Cooldown);
 
             // Updates with a deltaTime of 0 so spells with 0 cooldown won't
@@ -322,13 +328,22 @@ namespace INUlib.RPG.AbilitiesSystem
             return true;
         }
 
-        public bool PutOnSecondaryCooldown(uint slot, float cooldown)
+        
+        /// <summary>
+        /// Puts the ability on cast prevention, disabling casting it at all during this time.
+        /// </summary>
+        /// <param name="slot">The slot to prevent casting</param>
+        /// <param name="duration">How much the cast prevention should last</param>
+        /// <returns>
+        /// True if the slot was valid and the ability was put on cast prevention. False otherwise
+        /// </returns>
+        public bool PutOnCastPrevention(uint slot, float duration)
         {
-            if (!IsSlotValid(slot) || cooldown <= 0.001f)
+            if (!IsSlotValid(slot) || duration <= 0.001f)
                 return false;
 
-            _cooldowns[slot].secondaryCooldown = cooldown;
-            _cooldowns[slot].totalSecondaryCooldown = cooldown;
+            _cooldowns[slot].remainingCastPrevention = duration;
+            _cooldowns[slot].castPreventionDuration = duration;
             Update(0f);
             return true;
         }
@@ -392,16 +407,18 @@ namespace INUlib.RPG.AbilitiesSystem
         }
 
         /// <summary>                                                                                  
-        /// Checks if the ability in the given slot is on secondary cooldown right now                           
+        /// Checks if the ability in the given slot is on a cast prevention cooldown right now                           
         /// </summary>                                                                                 
         /// <param name="slot">Slot for the ability</param>                                            
-        /// <returns>True if on cooldown. False if spell is on cooldown or slot is invalid</returns>   
-        public bool IsAbilityOnSecondaryCd(uint slot)
+        /// <returns>
+        /// True if on cast prevention. False if spell is not on cast prevention cooldown or slot is invalid
+        /// </returns>   
+        public bool IsAbilityOnCastPrevention(uint slot)
         {
             if (slot < 0 || slot >= _cooldowns.Length)                                         
                 return false;                                                                  
                                                                                                
-            return _cooldowns[slot].secondaryCooldown > 0;      
+            return _cooldowns[slot].remainingCastPrevention > 0;      
         }
 
         /// <summary>
@@ -615,12 +632,10 @@ namespace INUlib.RPG.AbilitiesSystem
         /// The default function simply sums GlobalCDR and CategoryCdr.
         /// </param>
         public void SetCdrFunction(Func<float, float, float> func) => _cdrCalcFunction = func;
-
         #endregion
 
 
         #region Helper Methods
-
         public void SetAbility(uint slot, IAbilityBase ability)
         {
             if (ability == null)

@@ -291,6 +291,36 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
+        public void PutOnCooldown_Wont_Reset_Cooldown_If_Force_Reset_Cooldown_Is_Set_To_False(uint slot)
+        {
+            _controller.CooldownsHandler.PutOnCooldown(slot);
+            _controller.Update(_cd * 0.5f);
+            float expected = _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown;
+            
+            _controller.CooldownsHandler.PutOnCooldown(slot);
+            float newCooldown = _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown;
+            
+            Assert.AreEqual(expected, newCooldown);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void PutOnCooldown_Resets_Cooldown_If_Force_Reset_Cooldown_Is_Set_To_True(uint slot)
+        {
+            _controller.CooldownsHandler.PutOnCooldown(slot);
+            _controller.Update(_cd * 0.5f);
+            _controller.CooldownsHandler.PutOnCooldown(slot, forceResetCooldown:true);
+            float newCooldown = _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown;
+            
+            Assert.AreEqual(_cd, newCooldown);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
         public void Ability_Doesnt_Go_In_CD_Right_After_Start_Casting(uint slot)
         {
             _controller.StartChanneling(slot);
@@ -374,7 +404,36 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(0u)]
         [TestCase(1u)]
         [TestCase(2u)]
-        public void Cant_Cast_While_On_Cooldown(uint slot)
+        public void Cant_Cast_Multiple_Charges_Ability_While_On_Cooldown_And_There_Is_Not_Enough_Charges(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            _controller.CooldownsHandler.SetAbilityMaxCharges(slot, 2, true);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            ability.StartCooldownPolicy = StartCooldownPolicy.AfterCasting;
+            ability.DiscardPolicy = DiscardPolicy.Auto;
+            ability.Cooldown = 30f;
+
+            for (int i = 0; i < 2; i++)
+            {
+                _controller.StartChanneling(slot);
+                _controller.Update(_channelingTime);
+                _controller.Update(_overChannelingTime);
+                _controller.Update(ability.UnleashTime);
+                _controller.Update(ability.CastTime - ability.UnleashTime);
+                _controller.Update(_recoveryTime);
+            }
+            
+            _controller.StartChanneling(slot);
+
+            Assert.IsNull(_controller.GetCastingAbility(), "Casting ability was not null");
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on Cooldown");
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Cant_Cast_Single_Charge_Ability_While_On_Regular_Cooldown(uint slot)
         {
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             ability.AbilityCastType = AbilityCastType.FireAndForget;
@@ -392,19 +451,39 @@ namespace Tests.Runtime.RPG.Abilities
         }
         
         [Test]
-        [TestCase(0u)]
-        [TestCase(1u)]
-        [TestCase(2u)]
-        public void Cant_Cast_While_On_Secondary_Cooldown(uint slot)
+        [TestCase(0u, 2)]
+        [TestCase(1u, 1)]
+        [TestCase(2u, 3)]
+        public void Cant_Cast_Single_And_Multiple_Charge_Ability_While_On_Secondary_Cooldown(uint slot, int maxCharges)
         {
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             ability.AbilityCastType = AbilityCastType.FireAndForget;
+            _controller.CooldownsHandler.SetAbilityMaxCharges(slot, maxCharges, true);
 
-            _controller.CooldownsHandler.PutOnSecondaryCooldown(slot, 10f);
+            _controller.CooldownsHandler.PutOnCastPrevention(slot, 10f);
             _controller.StartChanneling(slot);
             
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnSecondaryCd(slot), "Ability was not on secondary Cd");
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCastPrevention(slot), "Ability was not on secondary Cd");
             Assert.IsNull(_controller.GetCastingAbility(), "Casting should've been null");
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Can_Cast_Multiple_Charges_Ability_While_On_Regular_Cooldown_If_There_Is_Enough_Charges(uint slot)
+        {
+            var ability = (TestFactoryAbility)_controller.GetAbility(slot);
+            ability.AbilityCastType = AbilityCastType.FireAndForget;
+            _controller.CooldownsHandler.SetAbilityMaxCharges(slot,3, true);
+            _controller.CooldownsHandler.PutOnCooldown(slot);
+            _controller.CooldownsHandler.ConsumeCharges(slot, 1);
+            
+            _controller.StartChanneling(slot);
+            
+            Assert.IsTrue(_controller.CooldownsHandler.AbilityHasCharges(slot), "Ability didnt have enough charges");
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on cooldown");
+            Assert.IsNotNull(_controller.GetCastingAbility(), "Casting should NOT have been null");
         }
 
         [Test]

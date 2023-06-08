@@ -29,7 +29,13 @@ namespace INUlib.RPG.AbilitiesSystem
         /// <summary>
         /// How many times an ability can be used.
         /// A charge will be recovered once the cooldown time has been completed,
-        /// until the max charges are reached
+        /// until the max charges are reached.
+        /// Ability with charges greater than one can be cast even while on cooldown given that there are enough
+        /// charges to be consumed.
+        /// An ability will consume charges once the ability has the effect unleashed in the world
+        /// by the AbilityBehaviour API. This means that unlike charge recovery, charges consumption is not
+        /// directly related to cooldown, although a StartCooldownPolicy of AfterUnleash can be used to
+        /// link them.
         /// </summary>
         int Charges { get; }
         

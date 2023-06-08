@@ -130,8 +130,8 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(4u, 0.44f)]
         public void CooldownHandler_Correctly_Sets_Secondary_Cooldown(uint slotIdx, float cd)
         {
-            _handler.PutOnSecondaryCooldown(slotIdx, cd);
-            float curr = _handler.GetCooldownInfo(slotIdx).currentSecondaryCooldown;
+            _handler.PutOnCastPrevention(slotIdx, cd);
+            float curr = _handler.GetCooldownInfo(slotIdx).remainingCastPreventionTime;
 
             Assert.AreEqual(cd, curr);
         }
@@ -144,8 +144,8 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(4u)]
         public void CooldownHandler_Correctly_Returns_If_Ability_Is_On_Secondary_Cd(uint slotIdx)
         {
-            _handler.PutOnSecondaryCooldown(slotIdx, 10);
-            Assert.IsTrue(_handler.IsAbilityOnSecondaryCd(slotIdx));
+            _handler.PutOnCastPrevention(slotIdx, 10);
+            Assert.IsTrue(_handler.IsAbilityOnCastPrevention(slotIdx));
         }
         
         [Test]
@@ -156,8 +156,8 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(4u)]
         public void CooldownHandler_Does_Not_Go_On_Secondary_CD_When_Using_Values_Close_And_Below_0(uint slotIdx)
         {
-            _handler.PutOnSecondaryCooldown(slotIdx, 0);
-            Assert.IsFalse(_handler.IsAbilityOnSecondaryCd(slotIdx));
+            _handler.PutOnCastPrevention(slotIdx, 0);
+            Assert.IsFalse(_handler.IsAbilityOnCastPrevention(slotIdx));
         }
         
         [TestCase(0u)]
@@ -167,10 +167,10 @@ namespace Tests.Runtime.RPG.Abilities
         [TestCase(4u)]
         public void CooldownHandler_Correctly_Decreases_Secondary_Cooldown_On_Update(uint slotIdx)
         {
-            _handler.PutOnSecondaryCooldown(slotIdx, 10);
+            _handler.PutOnCastPrevention(slotIdx, 10);
             _handler.Update(1f);
 
-            float curr = _handler.GetCooldownInfo(slotIdx).currentSecondaryCooldown;
+            float curr = _handler.GetCooldownInfo(slotIdx).remainingCastPreventionTime;
             Assert.AreEqual(9f, curr);
         }
 
