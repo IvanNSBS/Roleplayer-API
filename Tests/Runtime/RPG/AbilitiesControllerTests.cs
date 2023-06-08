@@ -90,9 +90,10 @@ namespace Tests.Runtime.RPG.Abilities
             public int Charges => 1;
             public bool CanCastAbility {get; set;}
             public float Cooldown {get; set;}
-            public TimelineData CastTimeline => new (ChannelingTime, OverchannellingTime, CastTime, RecoveryTime, 0, AbilityCastType);
+            public TimelineData CastTimeline => new (ChannelingTime, OverchannellingTime, CastTime, RecoveryTime, UnleashTime, AbilityCastType);
 
             public float CastTime { get; set; }
+            public float UnleashTime { get; set; }
             
             public float ChannelingTime { get; set; }
             public float OverchannellingTime { get; set; }
@@ -212,6 +213,27 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_recoveryTime);
             
             _controller.GetCastHandler().AbilityBehaviour.InvokeNotifyDiscard();
+            
+            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on cooldown");
+            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
+        }
+        
+        [Test]
+        [TestCase(0u)]
+        [TestCase(1u)]
+        [TestCase(2u)]
+        public void Ability_Goes_On_Cooldown_After_Unleash_With_After_Unleash_Policy(uint slot)
+        {
+            TestFactoryAbility ability = (TestFactoryAbility)_controller.GetAbility(slot); 
+            ability.StartCooldownPolicy = StartCooldownPolicy.AfterUnleash;
+            ability.DiscardPolicy = DiscardPolicy.Manual;
+            ability.UnleashTime = 0.3f;
+            ability.CastTime = 1f;
+            
+            _controller.StartChanneling(slot);
+            _controller.Update(_channelingTime);
+            _controller.Update(_overChannelingTime);
+            _controller.Update(ability.UnleashTime);
             
             Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on cooldown");
             Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);

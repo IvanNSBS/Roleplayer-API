@@ -113,7 +113,10 @@ namespace INUlib.RPG.AbilitiesSystem
 
                 if(_casting.StartCooldownPolicy == StartCooldownPolicy.AfterDiscard)
                     handler.AbilityBehaviour.NotifyDiscard += () => _cdHandler.PutOnCooldown(slot);
-               
+
+                if (_casting.StartCooldownPolicy == StartCooldownPolicy.AfterUnleash)
+                    handler.Timeline.UnleashAbility += () => _cdHandler.PutOnCooldown(slot);
+                
                 handler.SetupAbilityBehaviourTimelineCallbacks();
                 
                 // Updates cast handler with a deltaTime of 0 so instant spells(0 channeling and castTime)
