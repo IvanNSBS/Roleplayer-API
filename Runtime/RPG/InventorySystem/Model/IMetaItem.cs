@@ -1,6 +1,8 @@
-﻿namespace INUlib.RPG.InventorySystem
+﻿using INUlib.RPG.ItemSystem;
+
+namespace INUlib.RPG.InventorySystem
 {
-    public interface IItem
+    public interface IMetaItem<TInstance> where TInstance : IItemInstance
     {
         int Id { get; }
         int SlotType { get; }
@@ -10,5 +12,7 @@
 
         string GetFullName();
         string GetDescription();
+
+        TInstance CreateInstance();
     }
 }

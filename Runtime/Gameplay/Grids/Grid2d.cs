@@ -16,7 +16,7 @@ namespace INUlib.Gameplay.Grids
         private readonly int _height;
         private readonly float _celSize;
         private Dictionary<int2, T> _itemsInside;
-        private float3 _gridOrigin;
+        private float3 _gridCenter;
         #endregion Fields
         
         
@@ -30,7 +30,7 @@ namespace INUlib.Gameplay.Grids
         /// <returns>
         /// Grid origin position
         /// </returns>
-        public float3 TopLeft => new (_gridOrigin.x - _width * 0.5f * _celSize, _gridOrigin.y - _height * 0.5f * _celSize, 0);
+        public float3 TopLeft => new (_gridCenter.x - _width * 0.5f * _celSize, _gridCenter.y - _height * 0.5f * _celSize, 0);
 
         /// <summary>
         /// Getter for Grid width
@@ -67,12 +67,12 @@ namespace INUlib.Gameplay.Grids
         
         
         #region Constructors
-        public Grid2d(int width, int height, float celSize, float3 startOrigin)
+        public Grid2d(int width, int height, float celSize, float3 gridCenter)
         {
             _width= width;
             _height = height;
             _celSize = celSize;
-            _gridOrigin = startOrigin;
+            _gridCenter = gridCenter;
 
             _itemsInside = new Dictionary<int2, T>();
         }
@@ -88,7 +88,7 @@ namespace INUlib.Gameplay.Grids
         public float3 WorldToLocal(float3 worldPos)
         {
             float3 localPos = worldPos - TopLeft;
-            localPos = new float3(localPos.x, localPos.y, _gridOrigin.z);
+            localPos = new float3(localPos.x, localPos.y, _gridCenter.z);
             return localPos;
         }
 

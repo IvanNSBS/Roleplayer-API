@@ -1,6 +1,8 @@
-﻿namespace INUlib.RPG.InventorySystem
+﻿using INUlib.RPG.ItemSystem;
+
+namespace INUlib.RPG.InventorySystem
 {
-    public interface IStackableItem : IItem
+    public interface IStackableItem : IItemInstance
     {
         
     }

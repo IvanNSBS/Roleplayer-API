@@ -177,12 +177,7 @@
         public float2 xy => new (x, y);
         
         public static float2 operator +(float2 a, float2 b) => new (a.x + b.x, a.y + b.y);
-        public static float2 operator +(float2 a, float3 b) => new (a.x + b.x, a.y + b.y);
-        public static float2 operator +(float2 a, float4 b) => new (a.x + b.x, a.y + b.y);
-        
         public static float2 operator -(float2 a, float2 b) => new (a.x - b.x, a.y - b.y);
-        public static float2 operator -(float2 a, float3 b) => new (a.x - b.x, a.y - b.y);
-        public static float2 operator -(float2 a, float4 b) => new (a.x - b.x, a.y - b.y);
         
         
         public static float2 operator *(float2 a, int b) => new (a.x * b, a.y * b);
@@ -262,11 +257,9 @@
         
         public static float3 operator +(float3 a, float2 b) => new (a.x + b.x, a.y + b.y, a.z);
         public static float3 operator +(float3 a, float3 b) => new (a.x + b.x, a.y + b.y, a.z + b.z);
-        public static float3 operator +(float3 a, float4 b) => new (a.x + b.x, a.y + b.y, a.z + b.z);
         
         public static float3 operator -(float3 a, float2 b) => new (a.x - b.x, a.y - b.y, a.z);
         public static float3 operator -(float3 a, float3 b) => new (a.x - b.x, a.y - b.y, a.z - b.z);
-        public static float3 operator -(float3 a, float4 b) => new (a.x - b.x, a.y - b.y, a.z - b.z);
 
         public static float3 operator *(float3 a, int b) => new (a.x * b, a.y * b, a.z * b);
         public static float3 operator /(float3 a, int b) => new (a.x / b, a.y / b, a.z / b);

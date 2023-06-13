@@ -1,46 +1,59 @@
 ﻿namespace INUlib.RPG.InventorySystem
 {
-    public abstract class EquipmentSlot<T1, T2> where T2 : IEquipmentUser where T1 : class, IEquippableItem<T2>
+    public class EquipmentSlot<T> where T : class, IEquippableItem
     {
         #region Fields
-        private T1 _itemInSlot;
-        private T2 _equipmentUser;
+        private T _itemInSlot;
+        private IEquipmentUser<T> _equipmentUser;
+        private int _slotId;
         #endregion
         
         #region Constructor
-        public EquipmentSlot(T2 equipmentUser)
+        public EquipmentSlot(IEquipmentUser<T> equipmentUser, int slotId)
         {
             _equipmentUser = equipmentUser;
+            _slotId = slotId;
         }
         #endregion
         
         #region Abstract Methods
-        public abstract void AcceptsItemType(int itemTypeId);
+        public bool AcceptsItemType(int itemTypeId) => itemTypeId == _slotId;
         #endregion
         
+        
         #region Methods
-        public IItem UnequipItem()
+        public T UnequipItem()
         {
             if(_itemInSlot == null)
                 return null;
             
-            T1 item = _itemInSlot;
-            _itemInSlot.OnUnequip(_equipmentUser);
+            T unequipped = _itemInSlot;
+            _equipmentUser.OnItemUnequipped(unequipped);
 
             _itemInSlot = null;
-            return item;
+            return unequipped;
         }
 
-        public T1 EquipItem(T1 item)
+        public T EquipItem(T newItem)
         {
-            T1 oldItem = _itemInSlot;
-            oldItem?.OnUnequip(_equipmentUser);
+            if (!AcceptsItemType(newItem.SlotTypeId))
+                return null;
+            
+            T oldItem = _itemInSlot;
+            if(oldItem != null)
+                _equipmentUser.OnItemUnequipped(oldItem);
 
-            _itemInSlot = item;
-            _itemInSlot.OnEquip(_equipmentUser);
+            _itemInSlot = newItem;
+            _equipmentUser.OnItemEquipped(newItem);
+
+            if (oldItem == null)
+                return _itemInSlot;
             
             return oldItem;
-        } 
+        }
+
+        public IEquippableItem GetEquippedItem() => _itemInSlot;
+        public bool HasItemEquipped() => _itemInSlot != null;
         #endregion
     }
 }

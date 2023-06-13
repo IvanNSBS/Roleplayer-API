@@ -1,9 +1,9 @@
-﻿namespace INUlib.RPG.InventorySystem
+﻿using INUlib.RPG.ItemSystem;
+
+namespace INUlib.RPG.InventorySystem
 {
-    public interface IEquippableItem<T> : IItem where T : IEquipmentUser
+    public interface IEquippableItem : IItemInstance
     {
-        int SlotId { get; }
-        void OnEquip(T user);
-        void OnUnequip(T user);
+        int SlotTypeId { get; }
     }
 }

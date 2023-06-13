@@ -1,18 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Utils.Math;
 using System.Linq;
 using INUlib.Gameplay.Grids;
-using Utils.Math;
+using System.Collections.Generic;
+using INUlib.RPG.ItemSystem;
 
 namespace INUlib.RPG.InventorySystem
 {
-    public enum PlacementState
-    {
-        CanPlace,
-        CannotPlace,
-        WillReplace
-    }
-    
-    public class ItemContainer<T> where T : class, IItem
+    public class ItemContainer<T> where T : class, IItemInstance
     {
         #region Fields
         private List<T> _itemsInside;
@@ -43,6 +37,12 @@ namespace INUlib.RPG.InventorySystem
 
 
         #region Methods
+        /// <summary>
+        /// Checks if an item can be placed at the given coordinate
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="slotCoord"></param>
+        /// <returns></returns>
         public PlacementState CanPlaceItemAt(T item, int2 slotCoord)
         {
             bool canPlace = true;
@@ -71,6 +71,19 @@ namespace INUlib.RPG.InventorySystem
             return PlacementState.WillReplace;
         }
 
+        /// <summary>
+        /// Will attempt to place an item at the given coordinate.
+        /// </summary>
+        /// <param name="item">The item to be placed</param>
+        /// <param name="slotCoord">The container coordinate to place it</param>
+        /// <returns>
+        /// Returns the item that was added if the item was added succesfully
+        /// If there was only one item in the same coordinate, the items
+        /// will be switched and the function will return the item that was replaced.
+        /// If the item was not placed because the coordinate is invalid or because
+        /// the new item will occupy the slots of more than one item it will
+        /// return null 
+        /// </returns>
         public T PlaceItemAt(T item, int2 slotCoord)
         {
             PlacementState placement = CanPlaceItemAt(item, slotCoord);
@@ -78,7 +91,7 @@ namespace INUlib.RPG.InventorySystem
             if (!canPlace)
                 return null;
 
-            T replaced = null;
+            T replaced = item;
             List<T> willBeReplaced = GetOverlappingItems(slotCoord, item);
             if (willBeReplaced.Count == 1)
             {
@@ -102,9 +115,31 @@ namespace INUlib.RPG.InventorySystem
             _slotsOccupiedByItem.Add(item, itemSlots);
             return replaced;
         }
+
+        public bool FindSlotForItemAndPlaceIt()
+        {
+            return false;
+        }
         
+        /// <summary>
+        /// Gets the item that is at the given coordinate
+        /// </summary>
+        /// <param name="slotCoord">The coordinate to check the item</param>
+        /// <returns>
+        /// The item at the given coordinate if there's one item there.
+        /// Null if the coordinate is invalid or there is no item in the
+        /// given slot.
+        /// </returns>
         public T GetItemAt(int2 slotCoord) => _itemSlots.GetItemAt(slotCoord);
 
+        /// <summary>
+        /// Removes an item from the container using the item reference.
+        /// </summary>
+        /// <param name="item">The item to be removed</param>
+        /// <returns>
+        /// True if the item was in the inventory
+        /// False otherwise
+        /// </returns>
         public bool RemoveItem(T item)
         {
             var slots = GetAllSlotsOccupiedFromItem(item);
@@ -119,6 +154,14 @@ namespace INUlib.RPG.InventorySystem
             return true;
         }
 
+        /// <summary>
+        /// Removes an item that is occupying a certain slot position
+        /// </summary>
+        /// <param name="slotCoord">The slot to remove the item</param>
+        /// <returns>
+        /// The item that was removed or null if there was no item
+        /// in the coordinate
+        /// </returns>
         public T RemoveItemAt(int2 slotCoord)
         {
             T item = GetItemAt(slotCoord);
@@ -126,13 +169,41 @@ namespace INUlib.RPG.InventorySystem
 
             return item;
         }
+
+        /// <summary>
+        /// Checks if the given item is in the container, given the item Id
+        /// </summary>
+        /// <param name="item">The item to be checked</param>
+        /// <returns>
+        /// The list of coordinates that this item is occupying in the container
+        /// or null if there's no such item.
+        /// </returns>
+        public List<int2> ItemIsInContainer(T item) => ItemIsInContainer(item.ItemId);
+
+        /// <summary>
+        /// Checks if the given item is in the container, given the item Id
+        /// </summary>
+        /// <param name="itemId">The item Id</param>
+        /// <returns>
+        /// The list of coordinates that this item is occupying in the container
+        /// or null if there's no such item.
+        /// </returns>
+        public List<int2> ItemIsInContainer(int itemId)
+        {
+            int id = itemId;
+            T item = _itemsInside.Find(x => x.ItemId == id);
+            if (item == null)
+                return null;
+
+            return _slotsOccupiedByItem[item];
+        }
         #endregion
         
         
         #region Helper Methods
         private List<int2> GetAllSlotsOccupiedFromItem(T item)
         {
-            if (!ItemIsInContainer(item))
+            if (!HasTheItemInside(item))
                 return null;
 
             return _slotsOccupiedByItem[item];
@@ -157,7 +228,7 @@ namespace INUlib.RPG.InventorySystem
             return itemsInArea.ToList();
         }
         
-        private bool ItemIsInContainer(T item) => _itemsInside.Contains(item);
+        private bool HasTheItemInside(T item) => _itemsInside.Contains(item);
         #endregion
     }
 }

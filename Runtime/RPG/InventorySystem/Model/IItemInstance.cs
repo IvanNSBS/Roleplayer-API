@@ -2,6 +2,7 @@
 {
     public interface IItemInstance
     {
-        
+        int ItemId { get; }
+        int InstanceId { get; }
     }
 }
