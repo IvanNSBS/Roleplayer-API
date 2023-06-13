@@ -43,15 +43,15 @@ namespace Tests.Runtime.RPG.InventoySystem
                 _userItemUnequippedCalled++;
             });
             
-            EquipmentSlot<TestEquippable> slot1 = new EquipmentSlot<TestEquippable>(_user, _helmetSlot); 
-            EquipmentSlot<TestEquippable> slot2 = new EquipmentSlot<TestEquippable>(_user, _armorSlot);
-            EquipmentSlot<TestEquippable> slot3 = new EquipmentSlot<TestEquippable>(_user, _weaponSlot);
+            EquipmentSlot<TestEquippable> slot1 = new EquipmentSlot<TestEquippable>(_helmetSlot); 
+            EquipmentSlot<TestEquippable> slot2 = new EquipmentSlot<TestEquippable>(_armorSlot);
+            EquipmentSlot<TestEquippable> slot3 = new EquipmentSlot<TestEquippable>(_weaponSlot);
             List<EquipmentSlot<TestEquippable>> allSlots = new List<EquipmentSlot<TestEquippable>>()
             {
                 slot1, slot2, slot3
             };
             
-            _manager = new EquipmentsManager<TestEquippable>(allSlots);
+            _manager = new EquipmentsManager<TestEquippable>(allSlots, _user);
         }
         #endregion
         

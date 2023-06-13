@@ -8,14 +8,12 @@ namespace Tests.Runtime.RPG.InventoySystem
     {
         #region Setup
         private EquipmentSlot<IEquippableItem> _equipmentSlot;
-        private IEquipmentUser<IEquippableItem> _user;
         private int _acceptsId = 33;
         
         [SetUp]
         public void Setup()
         {
-            _user = Substitute.For<IEquipmentUser<IEquippableItem>>();
-            _equipmentSlot = new EquipmentSlot<IEquippableItem>(_user, _acceptsId);
+            _equipmentSlot = new EquipmentSlot<IEquippableItem>(_acceptsId);
         }
         #endregion
         

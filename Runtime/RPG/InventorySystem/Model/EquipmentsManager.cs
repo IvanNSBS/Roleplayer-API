@@ -7,10 +7,16 @@ namespace INUlib.RPG.InventorySystem
     {
         #region Fields
         private List<EquipmentSlot<TItem>> _equipmentSlots;
+        private IEquipmentUser<TItem> _equipmentUser;
         #endregion
         
         #region Methods;
-        public EquipmentsManager(List<EquipmentSlot<TItem>> slots) => _equipmentSlots = slots;
+        public EquipmentsManager(List<EquipmentSlot<TItem>> slots, IEquipmentUser<TItem> user)
+        {
+            _equipmentUser = user;
+            _equipmentSlots = slots;
+        }
+
         private List<EquipmentSlot<TItem>> GetEquipmentSlots() => _equipmentSlots;
         private EquipmentSlot<TItem> GetSlot(int slotType) => _equipmentSlots.Find(x => x.AcceptsItemType(slotType));
 
@@ -83,8 +89,16 @@ namespace INUlib.RPG.InventorySystem
             if (canPlace == PlacementState.CannotPlace || !HasSlot(slotType))
                 return null;
 
+            TItem equippable = (TItem)item;
             var slot = GetSlot(slotType);
-            return slot.EquipItem((TItem)item);
+            var result = slot.EquipItem(equippable);
+            
+            if(result != null && result != equippable)
+                _equipmentUser.OnItemUnequipped(result);
+            _equipmentUser.OnItemEquipped(equippable);
+
+            return result;
+            
         }
 
         /// <summary>
@@ -107,7 +121,8 @@ namespace INUlib.RPG.InventorySystem
             if (equippedItem == null || equippedItem != equippableItem)
                 return false;
 
-            slot.UnequipItem();
+            var unequipped = slot.UnequipItem();
+            _equipmentUser.OnItemUnequipped(unequipped);
             return true;
         }
 
@@ -128,7 +143,9 @@ namespace INUlib.RPG.InventorySystem
             if (!slot.HasItemEquipped())
                 return null;
 
-            return slot.UnequipItem();
+            var unequipped = slot.UnequipItem();
+            _equipmentUser.OnItemUnequipped(unequipped);
+            return unequipped;
         }
         
         /// <summary>
@@ -149,6 +166,7 @@ namespace INUlib.RPG.InventorySystem
 
             var slot = GetSlot(equip.SlotTypeId);
             slot.EquipItem(equip);
+            _equipmentUser.OnItemEquipped(equip);
             return true;
         }
         #endregion

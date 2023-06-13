@@ -4,14 +4,12 @@
     {
         #region Fields
         private T _itemInSlot;
-        private IEquipmentUser<T> _equipmentUser;
         private int _slotId;
         #endregion
         
         #region Constructor
-        public EquipmentSlot(IEquipmentUser<T> equipmentUser, int slotId)
+        public EquipmentSlot(int slotId)
         {
-            _equipmentUser = equipmentUser;
             _slotId = slotId;
         }
         #endregion
@@ -28,7 +26,6 @@
                 return null;
             
             T unequipped = _itemInSlot;
-            _equipmentUser.OnItemUnequipped(unequipped);
 
             _itemInSlot = null;
             return unequipped;
@@ -40,11 +37,7 @@
                 return null;
             
             T oldItem = _itemInSlot;
-            if(oldItem != null)
-                _equipmentUser.OnItemUnequipped(oldItem);
-
             _itemInSlot = newItem;
-            _equipmentUser.OnItemEquipped(newItem);
 
             if (oldItem == null)
                 return _itemInSlot;
