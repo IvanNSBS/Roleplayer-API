@@ -128,6 +128,20 @@ namespace Tests.Runtime.RPG.InventoySystem
             Assert.IsFalse(deactivated, "Slot should not be deactivated with item inside");
             Assert.IsTrue(_equipmentSlot.IsSlotActive(), "IsSlotActive should be true");
         }
+
+        [Test]
+        public void Slot_Can_Be_Reactivated()
+        {
+            IEquippableItem item = Substitute.For<IEquippableItem>();
+            item.TargetSlotIds.Returns(new []{ _acceptsId });
+
+            _equipmentSlot.TryDeactivate();
+            Assert.IsNull(_equipmentSlot.EquipItem(item), "Item shouldn't be equipped with disabled slot");
+            
+            _equipmentSlot.Activate();
+            Assert.IsTrue(_equipmentSlot.IsSlotActive(), "Slot should have been active");
+            Assert.IsNotNull(_equipmentSlot.EquipItem(item), "Item should be equipped since slot was activated");
+        }
         #endregion
     }
 }
