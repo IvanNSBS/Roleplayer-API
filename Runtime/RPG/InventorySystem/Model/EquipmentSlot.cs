@@ -7,6 +7,7 @@ namespace INUlib.RPG.InventorySystem
         #region Fields
         private T _itemInSlot;
         private int _slotId;
+        private bool _deactivated;
         #endregion
         
         #region Constructor
@@ -19,10 +20,19 @@ namespace INUlib.RPG.InventorySystem
         #region Methods
         public bool AcceptsItemType(int[] itemTypeId)
         {
+            if (_deactivated)
+                return false;
+            
             return itemTypeId != null && itemTypeId.Contains(_slotId);
         }
 
-        public bool AcceptsItemType(int itemTypeId) => itemTypeId == _slotId;
+        public bool AcceptsItemType(int itemTypeId)
+        {
+            if (_deactivated)
+                return false;
+            
+            return itemTypeId == _slotId;
+        }
 
         public T UnequipItem()
         {
@@ -49,6 +59,17 @@ namespace INUlib.RPG.InventorySystem
             return oldItem;
         }
 
+        
+        public bool TryDeactivate()
+        {
+            if (_itemInSlot != null)
+                return false;
+
+            return _deactivated = true;
+        }
+
+        public void Activate() => _deactivated = false;
+        public bool IsSlotActive() => !_deactivated;
         public IEquippableItem GetEquippedItem() => _itemInSlot;
         public bool HasItemEquipped() => _itemInSlot != null;
         #endregion

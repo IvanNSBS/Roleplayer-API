@@ -108,9 +108,25 @@ namespace Tests.Runtime.RPG.InventoySystem
         }
 
         [Test]
-        public void Cant_Equip_Item_In_Disabled_Slot()
+        public void Cant_Equip_Item_In_Deactivated_Slot()
         {
-            Assert.IsTrue(false);
+            IEquippableItem item = Substitute.For<IEquippableItem>();
+            item.TargetSlotIds.Returns(new []{ _acceptsId });
+
+            _equipmentSlot.TryDeactivate();
+            Assert.IsNull(_equipmentSlot.EquipItem(item), "Item shouldn't be equipped with disabled slot");
+        }
+        
+        [Test]
+        public void Cant_Deactivate_Slot_With_Item_Inside()
+        {
+            IEquippableItem item = Substitute.For<IEquippableItem>();
+            item.TargetSlotIds.Returns(new []{ _acceptsId });
+            _equipmentSlot.EquipItem(item);
+            
+            bool deactivated = _equipmentSlot.TryDeactivate();
+            Assert.IsFalse(deactivated, "Slot should not be deactivated with item inside");
+            Assert.IsTrue(_equipmentSlot.IsSlotActive(), "IsSlotActive should be true");
         }
         #endregion
     }
