@@ -4,15 +4,18 @@ namespace INUlib.RPG.InventorySystem
 {
     public interface IEquippableItem : IItemInstance
     {
+        /// <summary>
+        /// Which slots ID this item can be equipped to.
+        /// </summary>
         int[] TargetSlotIds { get; }
         
         /// <summary>
-        /// When the item is equipped, all those other slots will need to be free
-        /// and they will also be be filled on equipping the item.
-        /// Use case: A two handed weapon that requires the other hand to be free
-        /// to be equipped.
-        /// To disable this functionality, this array can return either null or empty. 
+        /// Those slots must be free to equip the item and they will be deactivated(you wont be able to equip items in them)
+        /// while this item is equipped.
+        /// If set to null or an empty array, this effect will be disabled.
+        ///Use case: A two handed weapon that requires the other hand to be free and disables
+        /// the other hand to be equipped.
         /// </summary>
-        // int[] AlsoFilledSlots { get; }
+        int[] DeactivateSlots { get; }
     }
 }

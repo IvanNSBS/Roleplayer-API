@@ -1,6 +1,5 @@
 ﻿using INUlib.RPG.ItemSystem;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace INUlib.RPG.InventorySystem
 {
@@ -17,8 +16,6 @@ namespace INUlib.RPG.InventorySystem
             _equipmentUser = user;
             _equipmentSlots = slots;
         }
-
-        private List<EquipmentSlot<TItem>> GetEquipmentSlots() => _equipmentSlots;
         private EquipmentSlot<TItem> GetSlot(int[] itemSlotIds)
         {
             return _equipmentSlots.Find(x => x.AcceptsItemType(itemSlotIds));
@@ -97,6 +94,21 @@ namespace INUlib.RPG.InventorySystem
         }
 
         /// <summary>
+        /// Checks if the given slot is currently active
+        /// </summary>
+        /// <param name="itemSlotId">The item slot to check</param>
+        /// <returns>
+        /// True if the item slot is active. False if the item slot does not exist or is deactivated.
+        /// </returns>
+        public bool IsSlotActive(int itemSlotId)
+        {
+            if (!HasSlot(itemSlotId))
+                return false;
+
+            return GetSlot(itemSlotId).IsSlotActive();
+        }
+
+        /// <summary>
         /// Tries to equip an item in the given slot.
         /// </summary>
         /// <param name="item">The item to equip in the given slot</param>
@@ -113,16 +125,31 @@ namespace INUlib.RPG.InventorySystem
             if (canPlace == PlacementState.CannotPlace || !HasSlot(itemSlotId))
                 return null;
 
-            TItem equippable = (TItem)item;
+            TItem equip = (TItem)item;
+            var occupiedSlots = GetOccupiedSlots(equip.DeactivateSlots, itemSlotId);
+            int totalOccupiedSlotsCount = canPlace == PlacementState.WillReplace ? 1 + occupiedSlots.Count : occupiedSlots.Count;
+            
+            bool tooMuchOccupiedSlots = totalOccupiedSlotsCount > 1;
+            if (tooMuchOccupiedSlots)
+                return null;
+            
             var slot = GetSlot(itemSlotId);
-            var result = slot.EquipItem(equippable);
+            var returnValue = equip;
             
-            if(result != null && result != equippable)
-                _equipmentUser.OnItemUnequipped(result);
-            _equipmentUser.OnItemEquipped(equippable);
+            // Which slot has an item inside
+            var unequipItemSlot = occupiedSlots.Count == 1 ? occupiedSlots[0] : slot;
+            var unequipped = unequipItemSlot.UnequipItem();
+            if (unequipped != null)
+            {
+                _equipmentUser.OnItemUnequipped(unequipped);
+                returnValue = unequipped;
+            }
 
-            return result;
+            slot.EquipItem(equip);
+            _equipmentUser.OnItemEquipped(equip);
+            DeactivateSlots(equip.DeactivateSlots, itemSlotId);
             
+            return returnValue;
         }
 
         /// <summary>
@@ -130,23 +157,22 @@ namespace INUlib.RPG.InventorySystem
         /// </summary>
         /// <param name="item">The item to be unequipped</param>
         /// <returns>
-        /// True if the item was unequipped.
+        /// True if the item was equipped and thus could be unequipped.
         /// False otherwise.
         /// </returns>
         public bool UnequipItem(IItemInstance item)
         {
-            if (item is not TItem equippableItem)
+            if (item is not TItem equip)
                 return false;
 
-            int[] slotsId = equippableItem.TargetSlotIds;
-            var slot = GetSlot(slotsId);
-
-            var equippedItem = slot.GetEquippedItem();
-            if (equippedItem == null || equippedItem != equippableItem)
+            var slot = FindSlotItemIsEquippedTo(item);
+            if (slot == null)
                 return false;
 
             var unequipped = slot.UnequipItem();
             _equipmentUser.OnItemUnequipped(unequipped);
+            ActivateSlots(unequipped.DeactivateSlots);
+            
             return true;
         }
 
@@ -169,6 +195,8 @@ namespace INUlib.RPG.InventorySystem
 
             var unequipped = slot.UnequipItem();
             _equipmentUser.OnItemUnequipped(unequipped);
+            ActivateSlots(unequipped.DeactivateSlots);
+
             return unequipped;
         }
         
@@ -184,18 +212,106 @@ namespace INUlib.RPG.InventorySystem
         {
             if (item is not TItem equip)
                 return false;
-
+                    
             foreach (var slotId in equip.TargetSlotIds)
             {
                 if (CanItemBeEquippedAt(equip, slotId) != PlacementState.CanPlace)
                     continue;
-                
+
                 var slot = GetSlot(slotId);
+                
+                bool allSlotsDeactivatable = AreAllSlotsDeactivatable(equip.DeactivateSlots, ignore: slotId);
+                if (!allSlotsDeactivatable)
+                    continue;
+                
                 slot.EquipItem(equip);
                 _equipmentUser.OnItemEquipped(equip);
+                DeactivateSlots(equip.DeactivateSlots, slotId);
+                
                 return true;
             }
+            
             return false;
+        }
+        #endregion
+        
+        
+        #region Helper Methods
+        /// <summary>
+        /// Helper method to check if there is at most one deactivatable slot and return it.
+        /// </summary>
+        /// <param name="slotsToDeactivate">The deactivatable slots to check</param>
+        /// <param name="ignore">A slot to ignore</param>
+        /// <returns>
+        /// The only deactivatable slot available or null if all slots are not deactivatable
+        /// </returns>
+        private List<EquipmentSlot<TItem>> GetOccupiedSlots(int[] slotsToDeactivate, int ignore)
+        {
+            List<EquipmentSlot<TItem>> occupied = new List<EquipmentSlot<TItem>>();
+            
+            if (slotsToDeactivate == null)
+                return occupied;
+
+            foreach (int slotId in slotsToDeactivate)
+            {
+                if (!HasSlot(slotId) || slotId == ignore)
+                    continue;
+
+                var slot = GetSlot(slotId);
+                if (slot.HasItemEquipped())
+                    occupied.Add(slot);
+            }
+
+            return occupied;
+        }
+
+        private bool AreAllSlotsDeactivatable(int[] slotsToDeactivate, int ignore)
+        {
+            if (slotsToDeactivate == null || slotsToDeactivate.Length == 0)
+                return true;
+
+            bool allAreDeactivatable = true;
+            foreach (int slotId in slotsToDeactivate)
+            {
+                if (!HasSlot(slotId) || slotId == ignore)
+                    continue;
+
+                if (!GetSlot(slotId).CanBeDeactivated())
+                    allAreDeactivatable = false;
+            }
+
+            return allAreDeactivatable;
+        }
+
+        private void DeactivateSlots(int[] slotsToDeactivate, int ignore)
+        {
+            if (slotsToDeactivate == null || slotsToDeactivate.Length == 0)
+                return;
+
+            foreach (int slotId in slotsToDeactivate)
+            {
+                if (slotId == ignore)
+                    continue;
+
+                GetSlot(slotId)?.TryDeactivate();
+            }
+        }
+        
+        private void ActivateSlots(int[] deactivatedSlots)
+        {
+            if (deactivatedSlots == null || deactivatedSlots.Length == 0)
+                return;
+
+            foreach (int slotId in deactivatedSlots)
+                GetSlot(slotId)?.Activate();
+        }
+
+        private EquipmentSlot<TItem> FindSlotItemIsEquippedTo(IItemInstance item)
+        {
+            if (item is not TItem equip)
+                return null;
+
+            return _equipmentSlots.Find(x => x.GetEquippedItem() == equip);
         }
         #endregion
     }

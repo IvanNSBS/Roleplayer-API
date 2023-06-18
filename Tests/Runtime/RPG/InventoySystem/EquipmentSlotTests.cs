@@ -140,7 +140,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             
             _equipmentSlot.Activate();
             Assert.IsTrue(_equipmentSlot.IsSlotActive(), "Slot should have been active");
-            Assert.IsNotNull(_equipmentSlot.EquipItem(item), "Item should be equipped since slot was activated");
+            Assert.IsNotNull(_equipmentSlot.EquipItem(item), "Item should be equipped since slot was activate");
         }
         #endregion
     }

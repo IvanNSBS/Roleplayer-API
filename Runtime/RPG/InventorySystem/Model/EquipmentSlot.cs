@@ -18,21 +18,8 @@ namespace INUlib.RPG.InventorySystem
         #endregion
         
         #region Methods
-        public bool AcceptsItemType(int[] itemTypeId)
-        {
-            if (_deactivated)
-                return false;
-            
-            return itemTypeId != null && itemTypeId.Contains(_slotId);
-        }
-
-        public bool AcceptsItemType(int itemTypeId)
-        {
-            if (_deactivated)
-                return false;
-            
-            return itemTypeId == _slotId;
-        }
+        public bool AcceptsItemType(int[] itemTypeId) => itemTypeId != null && itemTypeId.Contains(_slotId);
+        public bool AcceptsItemType(int itemTypeId) => itemTypeId == _slotId;
 
         public T UnequipItem()
         {
@@ -47,6 +34,9 @@ namespace INUlib.RPG.InventorySystem
 
         public T EquipItem(T newItem)
         {
+            if (_deactivated)
+                return null;
+            
             if (!AcceptsItemType(newItem.TargetSlotIds))
                 return null;
             
@@ -62,7 +52,7 @@ namespace INUlib.RPG.InventorySystem
         
         public bool TryDeactivate()
         {
-            if (_itemInSlot != null)
+            if (!CanBeDeactivated())
                 return false;
 
             return _deactivated = true;
@@ -72,6 +62,7 @@ namespace INUlib.RPG.InventorySystem
         public bool IsSlotActive() => !_deactivated;
         public IEquippableItem GetEquippedItem() => _itemInSlot;
         public bool HasItemEquipped() => _itemInSlot != null;
+        public bool CanBeDeactivated() => _itemInSlot == null;
         #endregion
     }
 }

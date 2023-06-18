@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System;
+using NSubstitute;
 using NUnit.Framework;
 using System.Collections.Generic;
 using INUlib.RPG.InventorySystem;
@@ -14,8 +15,26 @@ namespace Tests.Runtime.RPG.InventoySystem
             public int ItemId => 0;
             public int InstanceId => 999;
             public int[] TargetSlotIds { get; private set; }
-            public TestEquippable(int slot) => TargetSlotIds = new [] { slot };
-            public TestEquippable(int[] slots) => TargetSlotIds = slots;
+            public int[] DeactivateSlots { get; private set; }
+            public override string ToString() => $"Target Slots: [{String.Join(", ", TargetSlotIds)}]";
+            
+            public TestEquippable(int slot)
+            {
+                TargetSlotIds = new[] { slot };
+                DeactivateSlots = null;
+            }
+
+            public TestEquippable(int slot, int[] deactivateSlots)
+            {
+                TargetSlotIds = new[] { slot };
+                DeactivateSlots = deactivateSlots;
+            }
+
+            public TestEquippable(int[] slots)
+            {
+                TargetSlotIds = slots;
+                DeactivateSlots = null;
+            }
         }
         
         private EquipmentsManager<TestEquippable> _manager;
@@ -175,6 +194,28 @@ namespace Tests.Runtime.RPG.InventoySystem
         }
 
         [Test]
+        public void EquipItem_Properly_Replaces_Previously_Equipped_Item()
+        {
+            TestEquippable itemInstance1 = new TestEquippable(_helmetSlot);
+            TestEquippable itemInstance2 = new TestEquippable(_helmetSlot);
+            _manager.EquipItem(itemInstance1, _helmetSlot);
+            
+            TestEquippable result = _manager.EquipItem(itemInstance2, _helmetSlot);
+            Assert.AreEqual(itemInstance1, result);
+        }
+
+        [Test]
+        public void EquipItem_Properly_Replaces_Item_From_Disable_Slots()
+        {
+            TestEquippable itemInstance1 = new TestEquippable(_helmetSlot);
+            TestEquippable itemInstance2 = new TestEquippable(_armorSlot, new [] { _helmetSlot });
+            _manager.EquipItem(itemInstance1, _helmetSlot);
+            
+            TestEquippable result = _manager.EquipItem(itemInstance2, _armorSlot);
+            Assert.AreEqual(itemInstance1, result);
+        }
+
+        [Test]
         [TestCase(0, true)]
         [TestCase(1, true)]
         [TestCase(2, true)]
@@ -269,6 +310,148 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             _manager.UnequipItemFrom(slotId);
             Assert.AreEqual(0, _userItemUnequippedCalled, "Equipment User OnItemEquipped should NOT have been called");
+        }
+
+        [Test]
+        public void Auto_Equip_Item_Wont_Work_If_There_Is_At_Least_One_DeactivateSlots_That_Is_Not_Empty()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot });
+            TestEquippable item = new TestEquippable(_armorSlot, null);
+
+            _manager.EquipItem(item, _armorSlot);
+            var equipped = _manager.AutoEquipItem(deactivate);
+            
+            Assert.IsFalse(equipped, "Item should not have been equipped");
+        }
+        
+        [Test]
+        public void Cant_Equip_Item_If_More_Than_One_DeactivateSlots_Is_Not_Empty()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot, _weaponSlot });
+            TestEquippable armor = new TestEquippable(_armorSlot, null);
+            TestEquippable weapon = new TestEquippable(_weaponSlot, null);
+
+            _manager.EquipItem(armor, _armorSlot);
+            _manager.EquipItem(weapon, _weaponSlot);
+            
+            var equipped = _manager.EquipItem(deactivate, _helmetSlot);
+            Assert.IsNull(equipped, "Item should not have been equipped");
+        }
+
+        [Test]
+        public void Cant_Equip_Item_If_Item_Slot_Is_Not_Free_And_One_DeactivateSlots_Is_Not_Empty()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot });
+            TestEquippable armor = new TestEquippable(_armorSlot, null);
+            TestEquippable helmet = new TestEquippable(_helmetSlot, null);
+
+            _manager.EquipItem(armor, _armorSlot);
+            _manager.EquipItem(helmet, _helmetSlot);
+            
+            var equipped = _manager.EquipItem(deactivate, _helmetSlot);
+            Assert.IsNull(equipped);
+        }
+
+        [Test]
+        public void Can_Equip_Item_If_Only_One_DeactivateSlots_Is_Not_Empty_And_Item_Slot_Is_Free()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot });
+            TestEquippable item = new TestEquippable(_armorSlot, null);
+
+            _manager.EquipItem(item, _armorSlot);
+            var equipped = _manager.EquipItem(deactivate, _helmetSlot);
+            
+            Assert.AreEqual(item, equipped, "Return should have been the same as the deactivated item slot");
+        }
+
+        [Test]
+        public void Auto_Equip_Item_With_DeactivateSlots_With_Same_Value_As_EquipSlotId_Has_No_Effect()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _helmetSlot });
+            bool equipped = _manager.AutoEquipItem(deactivate);
+            
+            Assert.IsTrue(equipped, "Item should have been equipped");
+            Assert.IsTrue(_manager.IsSlotActive(_helmetSlot), "Equipped item slot should be active");
+        }
+        
+        [Test]
+        public void Equip_Item_With_DeactivateSlots_With_Same_Value_As_EquipSlotId_Has_No_Effect()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _helmetSlot });
+            var equipped = _manager.EquipItem(deactivate, _helmetSlot);
+            
+            Assert.AreEqual(deactivate, equipped, "Item should have been equipped");
+            Assert.IsTrue(_manager.IsSlotActive(_helmetSlot), "Equipped item slot should be active");
+        }
+        
+        [Test]
+        public void AutoEquipping_Item_With_DeactivateSlots_Will_Properly_Deactivate_Them()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot, _weaponSlot });
+            _manager.AutoEquipItem(deactivate);
+
+            Assert.IsFalse(_manager.IsSlotActive(_armorSlot), "Armor slot example should be deactivated");
+            Assert.IsFalse(_manager.IsSlotActive(_weaponSlot), "Weapon slot example should be deactivated");
+        }
+        
+        [Test]
+        public void Equipping_Item_With_DeactivateSlots_Will_Properly_Deactivate_Them()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot, _weaponSlot });
+            _manager.EquipItem(deactivate, _helmetSlot);
+            
+            Assert.IsFalse(_manager.IsSlotActive(_armorSlot), "Armor slot example should be deactivated");
+            Assert.IsFalse(_manager.IsSlotActive(_weaponSlot), "Weapon slot example should be deactivated");
+        }
+        
+        [Test]
+        public void Unequipping_Item_With_DeactivateSlots_Will_Properly_Reactivate_Them()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot, _weaponSlot });
+            _manager.AutoEquipItem(deactivate);
+            _manager.UnequipItem(deactivate);
+            
+            Assert.IsTrue(_manager.IsSlotActive(_armorSlot), "Armor slot example should be activate");
+            Assert.IsTrue(_manager.IsSlotActive(_weaponSlot), "Weapon slot example should be activate");           
+        }
+        
+        [Test]
+        public void Unequip_Item_From_With_DeactivateSlots_Will_Properly_Reactivate_Them()
+        {
+            TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot, _weaponSlot });
+            _manager.AutoEquipItem(deactivate);
+            _manager.UnequipItemFrom(_helmetSlot);
+            
+            Assert.IsTrue(_manager.IsSlotActive(_armorSlot), "Armor slot example should be activate");
+            Assert.IsTrue(_manager.IsSlotActive(_weaponSlot), "Weapon slot example should be activate");           
+        }
+
+        [Test]
+        public void Can_AutoEquip_Item_Which_Has_Multiple_Valid_Slots_If_At_Least_One_Of_Them_Is_Free()
+        {
+            TestEquippable auto = new TestEquippable(new []{ _helmetSlot, _armorSlot, _weaponSlot });
+            TestEquippable armor = new TestEquippable(_armorSlot);
+            TestEquippable helmet = new TestEquippable(_helmetSlot);
+
+            _manager.AutoEquipItem(armor);
+            _manager.AutoEquipItem(helmet);
+
+            bool equipped = _manager.AutoEquipItem(auto);
+            Assert.IsTrue(equipped, "Item should have been automatically equipped");
+        }
+
+        [Test]
+        public void Can_Equip_Item_In_Any_Of_The_Valid_Slots_For_It()
+        {
+            TestEquippable equip = new TestEquippable(new []{ _helmetSlot, _armorSlot, _weaponSlot });
+
+            Assert.AreEqual(equip, _manager.EquipItem(equip, _helmetSlot));
+            _manager.UnequipItem(equip);
+            
+            Assert.AreEqual(equip, _manager.EquipItem(equip, _armorSlot));
+            _manager.UnequipItem(equip);
+            
+            Assert.AreEqual(equip, _manager.EquipItem(equip, _weaponSlot));
         }
         #endregion
     }
