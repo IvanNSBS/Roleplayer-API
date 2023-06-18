@@ -100,8 +100,8 @@ namespace INUlib.Gameplay.Grids
         public int2 LocalToCoord(float3 localPos)
         {
             float3 pos = localPos / _celSize;
-            int x = (int)pos.x;// % (int)celSize;
-            int y = (int)pos.y;// % (int)celSize;
+            int x = (int)System.Math.Round(pos.x);// % (int)celSize;
+            int y = (int)System.Math.Round(pos.y);// % (int)celSize;
             return new int2(x, y);
         }
 
