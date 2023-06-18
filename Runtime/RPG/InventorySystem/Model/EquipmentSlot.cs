@@ -1,4 +1,6 @@
-﻿namespace INUlib.RPG.InventorySystem
+﻿using System.Linq;
+
+namespace INUlib.RPG.InventorySystem
 {
     public class EquipmentSlot<T> where T : class, IEquippableItem
     {
@@ -14,12 +16,14 @@
         }
         #endregion
         
-        #region Abstract Methods
-        public bool AcceptsItemType(int itemTypeId) => itemTypeId == _slotId;
-        #endregion
-        
-        
         #region Methods
+        public bool AcceptsItemType(int[] itemTypeId)
+        {
+            return itemTypeId != null && itemTypeId.Contains(_slotId);
+        }
+
+        public bool AcceptsItemType(int itemTypeId) => itemTypeId == _slotId;
+
         public T UnequipItem()
         {
             if(_itemInSlot == null)
@@ -33,7 +37,7 @@
 
         public T EquipItem(T newItem)
         {
-            if (!AcceptsItemType(newItem.SlotTypeId))
+            if (!AcceptsItemType(newItem.TargetSlotIds))
                 return null;
             
             T oldItem = _itemInSlot;

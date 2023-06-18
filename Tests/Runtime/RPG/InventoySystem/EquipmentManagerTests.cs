@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using INUlib.RPG.InventorySystem;
 using INUlib.RPG.ItemSystem;
-using UnityEditor.Graphs;
 
 namespace Tests.Runtime.RPG.InventoySystem
 {
@@ -14,9 +13,9 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             public int ItemId => 0;
             public int InstanceId => 999;
-            public int SlotTypeId { get; private set; }
-
-            public TestEquippable(int slot) => SlotTypeId = slot;
+            public int[] TargetSlotIds { get; private set; }
+            public TestEquippable(int slot) => TargetSlotIds = new [] { slot };
+            public TestEquippable(int[] slots) => TargetSlotIds = slots;
         }
         
         private EquipmentsManager<TestEquippable> _manager;

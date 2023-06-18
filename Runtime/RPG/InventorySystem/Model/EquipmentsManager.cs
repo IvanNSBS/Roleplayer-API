@@ -1,5 +1,6 @@
 ﻿using INUlib.RPG.ItemSystem;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace INUlib.RPG.InventorySystem
 {
@@ -18,26 +19,33 @@ namespace INUlib.RPG.InventorySystem
         }
 
         private List<EquipmentSlot<TItem>> GetEquipmentSlots() => _equipmentSlots;
-        private EquipmentSlot<TItem> GetSlot(int slotType) => _equipmentSlots.Find(x => x.AcceptsItemType(slotType));
+        private EquipmentSlot<TItem> GetSlot(int[] itemSlotIds)
+        {
+            return _equipmentSlots.Find(x => x.AcceptsItemType(itemSlotIds));
+        }
+        private EquipmentSlot<TItem> GetSlot(int itemSlotIds)
+        {
+            return _equipmentSlots.Find(x => x.AcceptsItemType(itemSlotIds));
+        }
 
         /// <summary>
         /// Checks if a certain item can be equipped at a certain item slot
         /// </summary>
         /// <param name="item">The item to be equipped</param>
-        /// <param name="slotType">The slot to check if the item can be equipped to</param>
+        /// <param name="itemSlotId">The slot to check if the item can be equipped to</param>
         /// <returns>
         /// CannotPlace if there's no slot for the item or the item is not IEquippable.
         /// WillReplace if the item is an IEquippable with the same slot type as the slot AND there is already
         /// another item at the slot.
         /// CanPlace if the item is an IEquippable with the same slot type as the slot AND there is no item in the slot
         /// </returns>
-        public PlacementState CanItemBeEquippedAt(IItemInstance item, int slotType)
+        public PlacementState CanItemBeEquippedAt(IItemInstance item, int itemSlotId)
         {
             if (item is not TItem equippableItem)
                 return PlacementState.CannotPlace;
 
-            var slot = GetSlot(slotType);
-            if(slot == null || !slot.AcceptsItemType(equippableItem.SlotTypeId))
+            var slot = GetSlot( new [] { itemSlotId });
+            if(slot == null || !slot.AcceptsItemType(equippableItem.TargetSlotIds))
                 return PlacementState.CannotPlace;
             
             if (slot.HasItemEquipped())
@@ -59,38 +67,54 @@ namespace INUlib.RPG.InventorySystem
             if (item is not TItem equip)
                 return false;
 
-            return GetSlot(equip.SlotTypeId) != null;
+            return GetSlot(equip.TargetSlotIds) != null;
         }
 
         /// <summary>
         /// Checks if there is a equipment slot for the given slot type in this equipments manager
         /// </summary>
-        /// <param name="slotType">The slot to check</param>
+        /// <param name="itemSlotsId">The slots to check</param>
         /// <returns>
         /// True if there is an equipment slot with this type in this equipments manager.
         /// False otherwise.
         /// </returns>
-        public bool HasSlot(int slotType) => _equipmentSlots.Find(x => x.AcceptsItemType(slotType)) != null; 
+        public bool HasSlot(int itemSlotId)
+        {
+            return _equipmentSlots.Find(x => x.AcceptsItemType(new [] { itemSlotId })) != null;
+        }
+        
+        /// <summary>
+        /// Checks if there is a equipment slot for the given slot type in this equipments manager
+        /// </summary>
+        /// <param name="itemSlotsId">The slots to check</param>
+        /// <returns>
+        /// True if there is an equipment slot with this type in this equipments manager.
+        /// False otherwise.
+        /// </returns>
+        public bool HasSlot(int[] itemSlotsId)
+        {
+            return _equipmentSlots.Find(x => x.AcceptsItemType(itemSlotsId)) != null;
+        }
 
         /// <summary>
         /// Tries to equip an item in the given slot.
         /// </summary>
         /// <param name="item">The item to equip in the given slot</param>
-        /// <param name="slotType">The slot to try to equip the item to</param>
+        /// <param name="itemSlotId">The slot the item will be equipped to</param>
         /// <returns>
         /// Null if the item is not equippable or there is no slot for this item.
         /// Will return the input item if the item was equipped but didn't replace anything.
         /// If the input item replaced an already equipped one, the replaced item will
         /// be returned
         /// </returns>
-        public TItem EquipItem(IItemInstance item, int slotType)
+        public TItem EquipItem(IItemInstance item, int itemSlotId)
         {
-            PlacementState canPlace = CanItemBeEquippedAt(item, slotType);
-            if (canPlace == PlacementState.CannotPlace || !HasSlot(slotType))
+            PlacementState canPlace = CanItemBeEquippedAt(item, itemSlotId);
+            if (canPlace == PlacementState.CannotPlace || !HasSlot(itemSlotId))
                 return null;
 
             TItem equippable = (TItem)item;
-            var slot = GetSlot(slotType);
+            var slot = GetSlot(itemSlotId);
             var result = slot.EquipItem(equippable);
             
             if(result != null && result != equippable)
@@ -114,8 +138,8 @@ namespace INUlib.RPG.InventorySystem
             if (item is not TItem equippableItem)
                 return false;
 
-            int slotId = equippableItem.SlotTypeId;
-            var slot = GetSlot(slotId);
+            int[] slotsId = equippableItem.TargetSlotIds;
+            var slot = GetSlot(slotsId);
 
             var equippedItem = slot.GetEquippedItem();
             if (equippedItem == null || equippedItem != equippableItem)
@@ -139,7 +163,7 @@ namespace INUlib.RPG.InventorySystem
             if (!HasSlot(slotId))
                 return null;
             
-            var slot = GetSlot(slotId);
+            var slot = GetSlot(new[] { slotId });
             if (!slot.HasItemEquipped())
                 return null;
 
@@ -160,14 +184,18 @@ namespace INUlib.RPG.InventorySystem
         {
             if (item is not TItem equip)
                 return false;
-                
-            if (CanItemBeEquippedAt(equip, equip.SlotTypeId) != PlacementState.CanPlace)
-                return false;
 
-            var slot = GetSlot(equip.SlotTypeId);
-            slot.EquipItem(equip);
-            _equipmentUser.OnItemEquipped(equip);
-            return true;
+            foreach (var slotId in equip.TargetSlotIds)
+            {
+                if (CanItemBeEquippedAt(equip, slotId) != PlacementState.CanPlace)
+                    continue;
+                
+                var slot = GetSlot(slotId);
+                slot.EquipItem(equip);
+                _equipmentUser.OnItemEquipped(equip);
+                return true;
+            }
+            return false;
         }
         #endregion
     }

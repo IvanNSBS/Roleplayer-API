@@ -29,12 +29,22 @@ namespace Tests.Runtime.RPG.InventoySystem
             bool value = _equipmentSlot.AcceptsItemType(slotType);
             Assert.AreEqual(expected, value);
         }
+        
+        [Test]
+        [TestCase(new int[]{ 0, 1, 2 }, false)]
+        [TestCase(new int[]{ 0, 1, 33 }, true)]
+        [TestCase(new int[]{ 33 }, true)]
+        public void Correctly_Runs_AcceptsItemType_With_Id_Array(int[] slotType, bool expected)
+        {
+            bool value = _equipmentSlot.AcceptsItemType(slotType);
+            Assert.AreEqual(expected, value);
+        }
 
         [Test]
         public void Returns_Same_Item_When_Equipping_Item_Without_Anything_To_Replace()
         {
             IEquippableItem item = Substitute.For<IEquippableItem>();
-            item.SlotTypeId.Returns(_acceptsId);
+            item.TargetSlotIds.Returns(new []{ _acceptsId} );
             
             var equipped = _equipmentSlot.EquipItem(item);
             Assert.AreSame(equipped, item);
@@ -51,7 +61,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         public void Equip_Item_Is_Successfull_When_Has_The_Same_Slot_Type()
         {
             IEquippableItem item = Substitute.For<IEquippableItem>();
-            item.SlotTypeId.Returns(_acceptsId);
+            item.TargetSlotIds.Returns(new []{_acceptsId});
             
             _equipmentSlot.EquipItem(item);
             
@@ -63,7 +73,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         public void Equip_Item_Is_Unuccessfull_When_Slot_Type_Is_Different()
         {
             IEquippableItem item = Substitute.For<IEquippableItem>();
-            item.SlotTypeId.Returns(999);
+            item.TargetSlotIds.Returns(new []{ 999 });
             
             _equipmentSlot.EquipItem(item);
             
@@ -75,7 +85,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         public void Get_Equipped_Item_Returns_Null_After_Equipping_And_Removing_An_Item()
         {
             IEquippableItem item = Substitute.For<IEquippableItem>();
-            item.SlotTypeId.Returns(_acceptsId);
+            item.TargetSlotIds.Returns(new []{ _acceptsId });
             
             _equipmentSlot.EquipItem(item);
             _equipmentSlot.UnequipItem();
@@ -89,12 +99,18 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             IEquippableItem item1 = Substitute.For<IEquippableItem>();
             IEquippableItem item2 = Substitute.For<IEquippableItem>();
-            item1.SlotTypeId.Returns(_acceptsId);
-            item2.SlotTypeId.Returns(_acceptsId);
-            
+            item2.TargetSlotIds.Returns(new []{ _acceptsId });
+            item1.TargetSlotIds.Returns(new []{ _acceptsId });
+
             _equipmentSlot.EquipItem(item1);
             var old = _equipmentSlot.EquipItem(item2);
             Assert.AreEqual(item1, old, "Should've returned item1");
+        }
+
+        [Test]
+        public void Cant_Equip_Item_In_Disabled_Slot()
+        {
+            Assert.IsTrue(false);
         }
         #endregion
     }
