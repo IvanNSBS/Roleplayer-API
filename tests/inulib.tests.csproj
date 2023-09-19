@@ -12,4 +12,8 @@
     <PackageReference Include="NSubstitute" Version="5.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\src\inulib.csproj" />
+  </ItemGroup>
+
 </Project>
