@@ -4,7 +4,6 @@ using System.Linq;
 using INUlib.Gameplay.Debugging.Console.Data;
 using INUlib.Gameplay.Debugging.Console.View.Console;
 using INUlib.Gameplay.Debugging.Settings;
-using UnityEngine;
 
 namespace INUlib.Gameplay.Debugging.Console
 {

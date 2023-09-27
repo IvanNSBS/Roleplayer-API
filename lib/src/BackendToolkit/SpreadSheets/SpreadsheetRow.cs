@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using System.Collections.Generic;
 
 namespace INUlib.BackendToolkit.SpreadSheets
@@ -8,7 +7,7 @@ namespace INUlib.BackendToolkit.SpreadSheets
     public class SpreadsheetRow
     {
         #region Fields
-        [SerializeField] private string[] m_columns;
+        private string[] m_columns;
         #endregion Fields
         
         #region Properties
