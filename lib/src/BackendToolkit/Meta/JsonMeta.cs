@@ -12,9 +12,11 @@ namespace INUlib.BackendToolkit.Meta
         
         
         #region Methods
+        protected abstract string ReadResourceFile(string filePath);
+
         public virtual bool Load()
         {
-            var fileText = Resources.Load<TextAsset>(FilePath).text;
+            var fileText = ReadResourceFile(FilePath);
             if (String.IsNullOrEmpty(fileText)) return false;
             
             Data = JsonConvert.DeserializeObject<T>(fileText);
@@ -25,7 +27,7 @@ namespace INUlib.BackendToolkit.Meta
 
         public virtual bool Load(JsonSerializerSettings serializeSettings)
         {
-            var fileText = Resources.Load<TextAsset>(FilePath).text;
+            var fileText = ReadResourceFile(FilePath);
             if (String.IsNullOrEmpty(fileText)) return false;
             
             Data = JsonConvert.DeserializeObject<T>(fileText, serializeSettings);

@@ -1,37 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Collections.Generic;
 using INUlib.Gameplay.Debugging.Console.Data;
-using INUlib.Gameplay.Debugging.Console.View.Debugger;
 
 namespace INUlib.Gameplay.Debugging.Console.Commands.BuiltinCommands
 {
     public class ConsoleHelperCommandsContainer : CommandsContainer
     {
         private CheatConsole m_console;
-        private DebuggerView m_debuggerView;
         
-        public ConsoleHelperCommandsContainer(CheatConsole console, DebuggerView debuggerView)
+        public ConsoleHelperCommandsContainer(CheatConsole console)
         {
             m_console = console;
-            m_debuggerView = debuggerView;
-        }
-        
-        [ConsoleCommand("close", "Close the Debugger view")]
-        public void CloseConsole()
-        {
-            m_debuggerView.CloseDebugger();
-        }
-        
-        [ConsoleCommand("clearConsole", "Clears every message logged to Debugger Console")]
-        public void ClearConsole()
-        {
-            m_console.ClearConsole();
-        }
-        
-        [ConsoleCommand("clearLogger", "Clears every message logged to Debugger Logger View. Log file will not be cleared")]
-        public void ClearLogger()
-        {
-            m_debuggerView.LoggerView.ClearLog();
         }
 
         [ConsoleCommand("help", "Prints every command alias registered to the Console")]

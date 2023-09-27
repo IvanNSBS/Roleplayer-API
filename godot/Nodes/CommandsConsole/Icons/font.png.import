@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cxxt4th4kstaa"
-path="res://.godot/imported/Resize Icon.png-4c7568c34b4556a5e5c574760095ea26.ctex"
+uid="uid://d14fwt7gk5j0e"
+path="res://.godot/imported/font.png-6e7894491bc40ca2a28e745a41e67470.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/inulib/lib/src/Gameplay/Debugging/Resources/Icons/Resize Icon.png"
-dest_files=["res://.godot/imported/Resize Icon.png-4c7568c34b4556a5e5c574760095ea26.ctex"]
+source_file="res://addons/inulib/godot/Nodes/CommandsConsole/Icons/font.png"
+dest_files=["res://.godot/imported/font.png-6e7894491bc40ca2a28e745a41e67470.ctex"]
 
 [params]
 

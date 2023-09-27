@@ -77,18 +77,19 @@ namespace INUlib.BackendToolkit.Persistence
         /// <param name="jObject">Json Object</param>
         /// <param name="settings">Project persistence settings</param>
         /// <returns></returns>
-        public bool SaveToDisk(JObject jObject, PersistenceSettings settings)
+        public bool SaveToDisk(JObject jObject, string saveFileFolder, string saveFileName)
         {
             if (jObject == null)
                 return false;
 
-            if (!Directory.Exists(settings.FileFolder))
-                Directory.CreateDirectory(settings.FileFolder);
+            if (!Directory.Exists(saveFileFolder))
+                Directory.CreateDirectory(saveFileFolder);
 
             string jsonString = jObject.ToString(Formatting.Indented);
             string encryptionResult = EncryptJsonString(jsonString);
 
-            File.WriteAllText(settings.FilePath, encryptionResult);
+            string filePath = Path.Join(saveFileFolder, saveFileName);
+            File.WriteAllText(filePath, encryptionResult);
             return true;
         }
 
@@ -97,12 +98,12 @@ namespace INUlib.BackendToolkit.Persistence
         /// </summary>
         /// <param name="settings">Project persistence settings</param>
         /// <returns>The save file as JObject json</returns>
-        public JObject ReadFromDisk(PersistenceSettings settings)
+        public JObject ReadFromDisk(string saveFilePath)
         {
-            if (!File.Exists(settings.FilePath))
+            if (!File.Exists(saveFilePath))
                 return null;
 
-            string fileAsString = File.ReadAllText(settings.FilePath);
+            string fileAsString = File.ReadAllText(saveFilePath);
             return DecryptJsonString(fileAsString);
         }
         #endregion Save File Read & Write Methods

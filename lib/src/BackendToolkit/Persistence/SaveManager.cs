@@ -3,7 +3,6 @@
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
-using INUlib.BackendToolkit.Persistence.Data;
 using INUlib.BackendToolkit.Persistence.Interfaces;
 using INUlib.Core;
 
@@ -35,14 +34,9 @@ namespace INUlib.BackendToolkit.Persistence
         /// </summary>
         private JsonEncryption m_jsonEncrypter;
         private Dictionary<string, DataStore> m_dataStoreHash;
-        private PrefabManager m_prefabManager; 
         private PersistenceSettings m_settings;
         #endregion Fields
         
-        #region Properties
-        public PrefabManager PrefabManager => m_prefabManager;
-        #endregion Properties
-
 
         #region Constuctor
         private SaveManager()
@@ -200,7 +194,6 @@ namespace INUlib.BackendToolkit.Persistence
             m_jsonEncrypter = new JsonEncryption();
             m_dataStoreHash = new Dictionary<string, DataStore>();
             m_settings = PersistenceSettings.GetPersistenceSettings();
-            m_prefabManager = new PrefabManager(m_settings);
         }
         
         private void SetupRegisteredStores()

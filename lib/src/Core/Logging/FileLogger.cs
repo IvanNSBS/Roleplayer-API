@@ -4,20 +4,20 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using INUlib.Gameplay.Debugging.Loggers.Interfaces;
-using INUlib.Gameplay.Debugging.Settings;
-using UnityEngine;
+using INUlib.Core;
 
 namespace INUlib.Gameplay.Debugging.Loggers
 {
     /// <summary>
     /// LogPolicy that writes logs to a file
     /// </summary>
-    class FilePolicy : LogPolicy
+    class FileLogger
     {
         #region Fields
-
-        private DebugSettings m_settings;
+        private readonly string _fileExtension;
+        private readonly string _fileFolder;
+        private readonly string _fileName;
+        private readonly uint _maxLogFiles;
         private readonly FileStream m_fileStream;
         private readonly List<string> m_logEntries;
         #endregion Fields
@@ -27,29 +27,33 @@ namespace INUlib.Gameplay.Debugging.Loggers
         /// Constructor for FilePolicy
         /// </summary>
         /// <param name="settings">Configuration file for log a policy</param>
-        public FilePolicy(DebugSettings settings) : base(settings)
+        public FileLogger(string fileFolder, string fileName, string fileExtension, uint maxLogFiles)
         {
-            m_settings = settings;
-            m_logEntries = new List<string>();
-            int lastFileIndex = GetLastFileIndex(settings.FolderPath);
-
-            string fileName = $"{settings.LogFileName}_{lastFileIndex}{settings.FileExtension}";
+            _fileExtension = fileExtension;
+            _fileFolder = fileFolder;
+            _fileName = fileName;
+            _maxLogFiles = maxLogFiles;
             
-            var completePath = Path.Combine(settings.FolderPath, fileName);
+            m_logEntries = new List<string>();
+            int lastFileIndex = GetLastFileIndex(fileFolder);
 
-            if (settings.MaxNumberOfLogFiles > 0)
+            string completeFileName = $"{fileName}_{lastFileIndex}{fileExtension}";
+            
+            var completePath = Path.Combine(fileFolder, completeFileName);
+
+            if (maxLogFiles > 0)
             {
-                if (!Directory.Exists(settings.FolderPath))
+                if (!Directory.Exists(fileFolder))
                 {
-                    Directory.CreateDirectory(settings.FolderPath);
+                    Directory.CreateDirectory(fileFolder);
                 }
                 else
                 {
-                    List<string> files = Directory.GetFiles(settings.FolderPath).ToList();
-                    if (files.Count > 0 && files.Count >= settings.MaxNumberOfLogFiles)
+                    List<string> files = Directory.GetFiles(fileFolder).ToList();
+                    if (files.Count > 0 && files.Count >= maxLogFiles)
                     {
                         files.Sort();
-                        int deleteCount = Mathf.Max(files.Count - settings.MaxNumberOfLogFiles + 1, 0);
+                        int deleteCount = Math.Max(files.Count - (int)maxLogFiles + 1, 0);
                         for(int i = 0; i < deleteCount; i++)
                             File.Delete(files[i]);
                     }
@@ -61,7 +65,7 @@ namespace INUlib.Gameplay.Debugging.Loggers
         #endregion Constructors
 
         #region Destructor
-        ~FilePolicy()
+        ~FileLogger()
         {
             m_fileStream.Close();
         }
@@ -75,7 +79,7 @@ namespace INUlib.Gameplay.Debugging.Loggers
         /// <param name="value"></param>
         private void AddLogEntry(string value)
         {
-            if (m_settings.MaxNumberOfLogFiles > 0)
+            if (_maxLogFiles > 0)
             {
                 byte[] info = new UTF8Encoding(true).GetBytes(value);
                 m_fileStream.Write(info, 0, info.Length);
@@ -107,7 +111,7 @@ namespace INUlib.Gameplay.Debugging.Loggers
         
         
         #region LogPolicy Methods
-        public override string Log(LogLevels level, string logEntry)
+        public string Log(LogLevel level, string logEntry)
         {
             var now = DateTime.Now;
             string hour = now.Hour.ToString("00");
