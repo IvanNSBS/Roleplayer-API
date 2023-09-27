@@ -1,7 +1,5 @@
 ﻿using NUnit.Framework;
 using INUlib.RPG.AbilitiesSystem;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace Tests.Runtime.RPG
 {

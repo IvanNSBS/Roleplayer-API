@@ -1,7 +1,6 @@
-using INUlib.Gameplay.AI.BehaviourTrees;
 using NSubstitute;
 using NUnit.Framework;
-using System.Collections.Generic;
+using INUlib.Gameplay.AI.BehaviourTrees;
 
 namespace Tests.Runtime.Gameplay.AI
 {
@@ -13,7 +12,7 @@ namespace Tests.Runtime.Gameplay.AI
             public int started = 0;
             public int finished = 0;
 
-            protected override NodeState Evaluate() => NodeState.Success;
+            protected override NodeState Evaluate(float deltaTime) => NodeState.Success;
             protected override void OnStart() => started++;
             protected override void OnFinish() => finished++;
             public override IReadOnlyList<BTNode> GetChildren() => null;
@@ -68,7 +67,7 @@ namespace Tests.Runtime.Gameplay.AI
 
             for(int i = 0; i < 6; i++)
             {
-                tree.Update();
+                tree.Update(0);
                 if(i < 5)
                     Assert.IsTrue(tree.TreeState == NodeState.Running);
             }

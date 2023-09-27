@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using INUlib.RPG.InventorySystem;
 using INUlib.RPG.ItemSystem;
-using Utils.Math;
+using INUlib.Core.Math;
 
 namespace Tests.Runtime.RPG.InventoySystem
 {

@@ -2,7 +2,6 @@ using System;
 using INUlib.RPG.RPGAttributes;
 using NSubstitute;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Tests.Runtime.RPG.Attributes
 {

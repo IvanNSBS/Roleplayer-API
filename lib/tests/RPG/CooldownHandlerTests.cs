@@ -2,7 +2,7 @@ using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
 using System;
-using INUlib.Utils.Math;
+using INUlib.Core.Math;
 
 namespace Tests.Runtime.RPG.Abilities
 {
