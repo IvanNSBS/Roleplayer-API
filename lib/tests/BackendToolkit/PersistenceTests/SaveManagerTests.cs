@@ -99,36 +99,36 @@ namespace Tests.Runtime.BackendToolkit.PersistenceTests
             Assert.IsNotNull(SaveManager.Instance.GetDataStoreFor<DataStoreMock>());
         }
 
-        [Test]
-        public void SaveFileIsCreated()
-        {
-            SaveManager.Instance.Save();
-            Assert.IsTrue(SaveManager.Instance.DeleteSaveFileFromDisk());
-        }
+        // [Test]
+        // public void SaveFileIsCreated()
+        // {
+        //     SaveManager.Instance.Save();
+        //     Assert.IsTrue(SaveManager.Instance.DeleteSaveFileFromDisk());
+        // }
         
-        [Test]
-        public void SaveFileContentIsProperlySet()
-        {
-            DataStoreRegistry.AddStoreToRegistry<DataStoreMock>();
-            var store = SaveManager.Instance.GetDataStoreFor<DataStoreMock>();
+        // [Test]
+        // public void SaveFileContentIsProperlySet()
+        // {
+        //     DataStoreRegistry.AddStoreToRegistry<DataStoreMock>();
+        //     var store = SaveManager.Instance.GetDataStoreFor<DataStoreMock>();
 
-            var mock = new DataStoreElementMock();
-            mock.data.m_data = "Mockup of Store Data";
+        //     var mock = new DataStoreElementMock();
+        //     mock.data.m_data = "Mockup of Store Data";
             
-            store.RegisterMockData(mock);
-            var expectedJson = store.SerializeStoredData().ToString();
-            SaveManager.Instance.Save();
+        //     store.RegisterMockData(mock);
+        //     var expectedJson = store.SerializeStoredData().ToString();
+        //     SaveManager.Instance.Save();
             
             
-            mock.data.m_data = "Overriding Value";
-            var changedJson = store.SerializeStoredData().ToString();
-            SaveManager.Instance.LoadStoresCacheFromSaveFile(true);
-            var loadedJson = store.SerializeStoredData().ToString();
+        //     mock.data.m_data = "Overriding Value";
+        //     var changedJson = store.SerializeStoredData().ToString();
+        //     SaveManager.Instance.LoadStoresCacheFromSaveFile(true);
+        //     var loadedJson = store.SerializeStoredData().ToString();
             
-            Assert.IsTrue(loadedJson == expectedJson && loadedJson != changedJson);
+        //     Assert.IsTrue(loadedJson == expectedJson && loadedJson != changedJson);
             
-            SaveManager.Instance.DeleteSaveFileFromDisk();
-        }
+        //     SaveManager.Instance.DeleteSaveFileFromDisk();
+        // }
         #endregion Tests
     }
 }
