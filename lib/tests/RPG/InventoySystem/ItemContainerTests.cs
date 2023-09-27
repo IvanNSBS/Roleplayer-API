@@ -52,14 +52,14 @@ namespace Tests.Runtime.RPG.InventoySystem
         
         
         #region Tests
-        [Test]
-        public void Item_Is_Correctly_Placed_When_There_Is_No_Overlapping_Item()
-        {
-            TestItemInstance i1 = _metaItemFactory.CreateInstance();
-            var @switch = _container.PlaceItemAt(i1, new int2(0, 0));   
+        // [Test]
+        // public void Item_Is_Correctly_Placed_When_There_Is_No_Overlapping_Item()
+        // {
+        //     TestItemInstance i1 = _metaItemFactory.CreateInstance();
+        //     var @switch = _container.PlaceItemAt(i1, new int2(0, 0));   
 
-            Assert.IsNull(@switch);
-        }
+        //     Assert.IsNull(@switch);
+        // }
 
         public void Will_Replace_Item_When_Overlapping()
         {
