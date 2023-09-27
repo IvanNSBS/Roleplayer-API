@@ -1,5 +1,0 @@
-D:\Godot\RPG API Port\inulib\.godot\mono\temp\obj\Debug\inulib.csproj.AssemblyReference.cache
-D:\Godot\RPG API Port\inulib\.godot\mono\temp\obj\Debug\inulib.GeneratedMSBuildEditorConfig.editorconfig
-D:\Godot\RPG API Port\inulib\.godot\mono\temp\obj\Debug\inulib.AssemblyInfoInputs.cache
-D:\Godot\RPG API Port\inulib\.godot\mono\temp\obj\Debug\inulib.AssemblyInfo.cs
-D:\Godot\RPG API Port\inulib\.godot\mono\temp\obj\Debug\inulib.csproj.CoreCompileInputs.cache
