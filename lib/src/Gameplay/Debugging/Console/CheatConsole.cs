@@ -2,33 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using INUlib.Gameplay.Debugging.Console.Data;
-using INUlib.Gameplay.Debugging.Console.View.Console;
-using INUlib.Gameplay.Debugging.Settings;
+using System;
 
 namespace INUlib.Gameplay.Debugging.Console
 {
     public class CheatConsole
     {
         #region Fields
-        private DebugSettings m_debugSettings;
+        private uint _logBufferSize;
         private Queue<string> m_consoleLogEntries;
         private Dictionary<string, List<ConsoleCommand>> m_consoleCommands;
         private CommandRegistry m_commandRegistry;
-        private IConsoleView m_consoleView;
         #endregion Fields
         
         #region Properties
         public Dictionary<string, List<ConsoleCommand>> ConsoleCommands => m_consoleCommands;
-        public IConsoleView View => m_consoleView;
         #endregion Properties
         
-        
-        #region Constructor
-        public CheatConsole(DebugSettings debugSettings, IConsoleView consoleView)
-        {
-            m_consoleView = consoleView;
-            m_debugSettings = debugSettings;
 
+        #region Events
+        public Action<string, ConsoleEntryType> onEntryAddedToLog = delegate { };
+        public Action onEntrySubmited = delegate { };
+        public Action onConsoleCleared = delegate { };
+        #endregion    
+
+
+        #region Constructor
+        public CheatConsole(uint logBufferSize)
+        {
+            _logBufferSize = logBufferSize;
             m_consoleLogEntries = new Queue<string>();
             m_consoleCommands = new Dictionary<string, List<ConsoleCommand>>();
             m_commandRegistry = new CommandRegistry(this);
@@ -41,14 +43,12 @@ namespace INUlib.Gameplay.Debugging.Console
         #region Methods
         public void AddEntryToLog(string logEntry, ConsoleEntryType entryType)
         {
-            m_consoleView.ConsoleEntryAdded(logEntry, entryType);
-            
             m_consoleLogEntries.Enqueue(logEntry);
 
-            if (m_consoleLogEntries.Count > m_debugSettings.LogBufferSize)
+            if (m_consoleLogEntries.Count > _logBufferSize)
             {
                 m_consoleLogEntries.Dequeue();
-                m_consoleView.ConsoleQueueExceeded();
+                onEntryAddedToLog?.Invoke(logEntry, entryType);
             }
         }
         
@@ -60,7 +60,7 @@ namespace INUlib.Gameplay.Debugging.Console
         {
             if (commandString == "")
             {
-                m_consoleView.OnEntrySubmitted();
+                onEntrySubmited?.Invoke();
                 return;
             }
             
@@ -81,13 +81,13 @@ namespace INUlib.Gameplay.Debugging.Console
             else
                 AddEntryToLog("No command matches the given signature", ConsoleEntryType.Error);
 
-            m_consoleView.OnEntrySubmitted();
+            onEntrySubmited?.Invoke();
         }
 
         public void ClearConsole()
         {
             m_consoleLogEntries.Clear();
-            m_consoleView.ConsoleCleared();
+            onConsoleCleared?.Invoke();
         }
         #endregion Methods
         
