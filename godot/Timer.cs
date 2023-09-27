@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace INUlib.Utils
 {
     public class Timer

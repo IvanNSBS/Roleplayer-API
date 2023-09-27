@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using INUlib.Utils.Math;
+using INUlib.Core.Math;
 using System.Collections.Generic;
 
 namespace INUlib.RPG.AbilitiesSystem

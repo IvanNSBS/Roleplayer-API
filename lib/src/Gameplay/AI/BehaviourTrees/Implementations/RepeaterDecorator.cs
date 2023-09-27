@@ -23,14 +23,14 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        protected override NodeState Evaluate()
+        protected override NodeState Evaluate(float deltaTime)
         {
             if(_child == null) {
                 _repeatCount++;
                 return HasFinishedRepeating() ? NodeState.Success : NodeState.Running; 
             }
 
-            if(_child.Update() == NodeState.Running)
+            if(_child.Update(deltaTime) == NodeState.Running)
                 return NodeState.Running;
 
             _repeatCount++;

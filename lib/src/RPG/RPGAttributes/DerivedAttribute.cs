@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using INUlib.Utils.Math;
+using INUlib.Core.Math;
 
 namespace INUlib.RPG.RPGAttributes
 {

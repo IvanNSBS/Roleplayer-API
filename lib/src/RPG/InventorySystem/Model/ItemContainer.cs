@@ -1,4 +1,4 @@
-﻿using Utils.Math;
+﻿using INUlib.Core.Math;
 using System.Linq;
 using INUlib.Gameplay.Grids;
 using System.Collections.Generic;

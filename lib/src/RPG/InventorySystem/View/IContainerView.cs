@@ -1,6 +1,5 @@
-﻿using INUlib.RPG.InventorySystem;
+﻿using INUlib.Core.Math;
 using INUlib.RPG.ItemSystem;
-using Utils.Math;
 
 namespace RPG.InventorySystem.View
 {

@@ -40,7 +40,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// or have failed/succeeded
         /// </summary>
         /// <returns>The current node state</returns>
-        public NodeState Update()
+        public NodeState Update(float deltaTime)
         {
             if(!_started)
             {
@@ -48,7 +48,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
                 OnStart();
             }
 
-            _state = Evaluate();
+            _state = Evaluate(deltaTime);
 
             if(_state != NodeState.Running)
             {
@@ -93,8 +93,9 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// Evaluates the Node state, returning whether it's running or has completed with
         /// a failure or success
         /// </summary>
+        /// <param name="deltaTime">how much time elapsed since the last frame</param>
         /// <returns>The current node state</returns>
-        protected abstract NodeState Evaluate();
+        protected abstract NodeState Evaluate(float deltaTime);
         #endregion
     }
 }

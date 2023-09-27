@@ -59,13 +59,13 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
         /// if the tree hasn't been started
         /// </summary>
         /// <returns>The new tree state</returns>
-        public NodeState Update() {
+        public NodeState Update(float deltaTime) {
             if(!_started) {
                 _treeState = NodeState.Failure;
                 return NodeState.Failure;
             }
 
-            _treeState = _root.Update();
+            _treeState = _root.Update(deltaTime);
             return _treeState;
         }
 

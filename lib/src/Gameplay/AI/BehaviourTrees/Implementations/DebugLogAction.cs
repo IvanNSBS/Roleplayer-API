@@ -20,7 +20,7 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        protected override NodeState Evaluate() {
+        protected override NodeState Evaluate(float deltaTime) {
             Logger.Log(_logMsg);
             return NodeState.Success;
         }

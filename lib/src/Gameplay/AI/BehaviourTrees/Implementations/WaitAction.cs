@@ -1,5 +1,4 @@
 using System;
-using INUlib.Utils;
 
 namespace INUlib.Gameplay.AI.BehaviourTrees
 {
@@ -10,24 +9,23 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
     public class WaitAction : ActionNode
     {
         #region Fields
-        private Timer _timer;
+        private float _currentTime;
         private float _waitTime;
         #endregion
 
 
         #region Properties
-        public virtual float ElapsedTime => _timer.ElapsedTime();
+        public virtual float ElapsedTime => _currentTime;
         #endregion
 
 
         #region Constructors
-        public WaitAction(){
-            _timer = new Timer();
+        public WaitAction() {
             _waitTime = 0;
         } 
 
         public WaitAction(float waitTime) { 
-            _timer = new Timer();
+            _currentTime = 0;
             _waitTime = waitTime;
         }
         #endregion
@@ -35,9 +33,13 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
         #region Methods
         public void SetWaitTime(float waitTime) => _waitTime = waitTime;
-        protected override NodeState Evaluate() => ElapsedTime >= _waitTime ? NodeState.Success : NodeState.Running;
-        protected override void OnStart() => _timer.Restart();
-        protected override void OnFinish() => _timer.Restart();
+        protected override NodeState Evaluate(float deltaTime)
+        {
+            _currentTime += deltaTime;
+            return ElapsedTime >= _waitTime ? NodeState.Success : NodeState.Running;
+        } 
+        protected override void OnStart() => _currentTime = 0;
+        protected override void OnFinish() => _currentTime = 0;
         #endregion
     }
 }

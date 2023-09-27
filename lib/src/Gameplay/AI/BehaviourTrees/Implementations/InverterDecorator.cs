@@ -16,12 +16,12 @@ namespace INUlib.Gameplay.AI.BehaviourTrees
 
 
         #region Methods
-        protected override NodeState Evaluate()
+        protected override NodeState Evaluate(float deltaTime)
         {
             if(_child == null) 
                 return NodeState.Success; 
 
-            switch(_child.Update())
+            switch(_child.Update(deltaTime))
             {
                 case NodeState.Running:
                     return NodeState.Running;

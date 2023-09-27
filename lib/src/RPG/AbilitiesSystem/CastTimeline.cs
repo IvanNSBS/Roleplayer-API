@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using INUlib.Utils.Math;
+using INUlib.Core.Math;
 using Newtonsoft.Json;
 
 namespace INUlib.RPG.AbilitiesSystem
