@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using INUlib.BackendToolkit.Persistence.Interfaces;
 using INUlib.Core;
+using System.ComponentModel;
 
 namespace INUlib.BackendToolkit.Persistence
 {
@@ -32,9 +33,9 @@ namespace INUlib.BackendToolkit.Persistence
         /// <summary>
         /// Encryption Policy
         /// </summary>
-        private JsonEncryption m_jsonEncrypter;
-        private Dictionary<string, DataStore> m_dataStoreHash;
-        private PersistenceSettings m_settings;
+        private JsonEncryption _jsonEncrypter;
+        private Dictionary<string, DataStore> _dataStoreHash;
+        private PersistenceSettings _settings;
         #endregion Fields
         
 
@@ -43,7 +44,6 @@ namespace INUlib.BackendToolkit.Persistence
         {
             InitializeVariables();
             SetupRegisteredStores();
-
             DataStoreRegistry.OnStoreRegistered += OnStoreRegistered;
         }
 
@@ -55,6 +55,8 @@ namespace INUlib.BackendToolkit.Persistence
         
 
         #region Save Game Events
+        public void SetSettings(PersistenceSettings settings) => _settings = settings;
+
         /// <summary>
         /// Serializes every registered data store and store to disk
         /// based on the encryption method an other persistence settings
@@ -63,12 +65,12 @@ namespace INUlib.BackendToolkit.Persistence
         {
             JObject saveFileResult = new JObject();
             
-            m_jsonEncrypter.EncryptionMode = m_settings.m_encryptionMode;
+            _jsonEncrypter.EncryptionMode = _settings.m_encryptionMode;
 
-            foreach (var dataStore in m_dataStoreHash)
+            foreach (var dataStore in _dataStoreHash)
                 saveFileResult.Add(DataStoreRegistry.TypeToString(dataStore.Value.GetType()), dataStore.Value.SerializeStoredData());
             
-            m_jsonEncrypter.SaveToDisk(saveFileResult, m_settings);
+            _jsonEncrypter.SaveToDisk(saveFileResult, _settings.FileFolder, _settings.FileName);
         }
 
         /// <summary>
@@ -78,14 +80,14 @@ namespace INUlib.BackendToolkit.Persistence
         /// <returns>True if save was loaded. False Otherwise</returns>
         public bool LoadStoresCacheFromSaveFile(bool deserializeAfter = false)
         {
-            m_jsonEncrypter.EncryptionMode = m_settings.m_encryptionMode;
-            JObject saveFileObject = m_jsonEncrypter.ReadFromDisk(m_settings);
+            _jsonEncrypter.EncryptionMode = _settings.m_encryptionMode;
+            JObject saveFileObject = _jsonEncrypter.ReadFromDisk(_settings.FilePath);
 
             if (saveFileObject == null)
                 return false;
             
             foreach (var dataStore in saveFileObject)
-                m_dataStoreHash[dataStore.Key].SetCache(dataStore.Value as JObject);
+                _dataStoreHash[dataStore.Key].SetCache(dataStore.Value as JObject);
             
             if(deserializeAfter)
                 LoadStoresFromCache();
@@ -103,17 +105,17 @@ namespace INUlib.BackendToolkit.Persistence
         {
             string key = DataStoreRegistry.TypeToString(typeof(T));
             
-            m_jsonEncrypter.EncryptionMode = m_settings.m_encryptionMode;
-            JObject saveFileObject = m_jsonEncrypter.ReadFromDisk(m_settings);
+            _jsonEncrypter.EncryptionMode = _settings.m_encryptionMode;
+            JObject saveFileObject = _jsonEncrypter.ReadFromDisk(_settings.FilePath);
 
             if (saveFileObject == null)
                 return false;
 
             if (saveFileObject.ContainsKey(key))
-                m_dataStoreHash[key].SetCache(saveFileObject[key] as JObject);
+                _dataStoreHash[key].SetCache(saveFileObject[key] as JObject);
 
             if (deserializeAfter)
-                m_dataStoreHash[key].DeserializeStoredObjectsFromCache();
+                _dataStoreHash[key].DeserializeStoredObjectsFromCache();
             
             return true;
         }
@@ -124,7 +126,7 @@ namespace INUlib.BackendToolkit.Persistence
         /// <param name="excludeThose">Array of Stores that shouldn't be loaded</param>
         public void LoadStoresFromCache(params Type[] excludeThose)
         {
-            foreach (var hash in m_dataStoreHash)
+            foreach (var hash in _dataStoreHash)
             {
                 if (Array.FindIndex(excludeThose, t => hash.Value.GetType() == t) != -1) 
                     continue;
@@ -147,12 +149,12 @@ namespace INUlib.BackendToolkit.Persistence
             if (!considerSubTypes)
             {
                 string key = DataStoreRegistry.TypeToString(typeof(T));
-                if (m_dataStoreHash.ContainsKey(key))
-                    return (T) m_dataStoreHash[key];
+                if (_dataStoreHash.ContainsKey(key))
+                    return (T) _dataStoreHash[key];
             }
             else
             {
-                foreach (var dataStore in m_dataStoreHash)
+                foreach (var dataStore in _dataStoreHash)
                 {
                     if (dataStore.Value.GetType().IsSubclassOf(typeof(T)) || typeof(T) == dataStore.Value.GetType())
                         return (T) dataStore.Value;
@@ -163,9 +165,9 @@ namespace INUlib.BackendToolkit.Persistence
 
         public bool DeleteSaveFileFromDisk()
         {
-            if (File.Exists(m_settings.FilePath))
+            if (File.Exists(_settings.FilePath))
             {
-                File.Delete(m_settings.FilePath);
+                File.Delete(_settings.FilePath);
                 return true;
             }
 
@@ -180,8 +182,8 @@ namespace INUlib.BackendToolkit.Persistence
         {
             if (s_instance != null)
             {
-                if(s_instance.m_dataStoreHash != null)
-                    s_instance.m_dataStoreHash = new Dictionary<string, DataStore>();
+                if(s_instance._dataStoreHash != null)
+                    s_instance._dataStoreHash = new Dictionary<string, DataStore>();
             }
         }
 
@@ -191,9 +193,9 @@ namespace INUlib.BackendToolkit.Persistence
         #region Utility Methods
         private void InitializeVariables()
         {
-            m_jsonEncrypter = new JsonEncryption();
-            m_dataStoreHash = new Dictionary<string, DataStore>();
-            m_settings = PersistenceSettings.GetPersistenceSettings();
+            _jsonEncrypter = new JsonEncryption();
+            _dataStoreHash = new Dictionary<string, DataStore>();
+            _settings = new PersistenceSettings();
         }
         
         private void SetupRegisteredStores()
@@ -209,11 +211,11 @@ namespace INUlib.BackendToolkit.Persistence
         private void RegisterType(Type type)
         {
             string key = DataStoreRegistry.TypeToString(type);
-            if (!m_dataStoreHash.ContainsKey(key))
+            if (!_dataStoreHash.ContainsKey(key))
             {
                 object[] args = { this };
                 var packageObject = (DataStore)Activator.CreateInstance(type, args);
-                m_dataStoreHash.Add(key, packageObject);
+                _dataStoreHash.Add(key, packageObject);
             }
             else
             {
