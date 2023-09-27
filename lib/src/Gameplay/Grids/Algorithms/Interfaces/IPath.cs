@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using INUlib.Gameplay.DataStructures.Heap.Interfaces;
+﻿using INUlib.Gameplay.DataStructures.Heap.Interfaces;
+using INUlib.Core.Math;
 
 namespace INUlib.Gameplay.Grids.Algorithms.Interfaces
 {
@@ -11,6 +11,6 @@ namespace INUlib.Gameplay.Grids.Algorithms.Interfaces
         int GCost { get; set; }
         int HCost { get; set; }
         IPath Parent { get; set; }
-        Vector3 WorldPos { get; }
+        float3 WorldPos { get; }
     }
 }
