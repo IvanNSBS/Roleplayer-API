@@ -1,6 +1,5 @@
 #if TOOLS
 using Godot;
-using System;
 
 namespace INUlib
 {
@@ -10,11 +9,14 @@ namespace INUlib
 		public override void _EnterTree()
 		{
 			// Initialization of the plugin goes here.
+			// string consolePath = "res://addons/inulib/godot/Gameplay/ConsoleCommands/ConsoleView.cs";
+			// var script = GD.Load<Script>(consolePath);
+			// AddCustomType("Console Commands", "CheatConsole", script, null);
 		}
 
 		public override void _ExitTree()
 		{
-			// Clean-up of the plugin goes here.
+			// RemoveCustomType("Console Commands");
 		}
 	}
 }

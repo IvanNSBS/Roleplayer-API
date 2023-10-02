@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using INUlib.Gameplay.Debugging.Console.Data;
 using System;
+using INUlib.Core;
 
 namespace INUlib.Gameplay.Debugging.Console
 {
@@ -22,7 +23,6 @@ namespace INUlib.Gameplay.Debugging.Console
 
         #region Events
         public Action<string, ConsoleEntryType> onEntryAddedToLog = delegate { };
-        public Action onEntrySubmited = delegate { };
         public Action onConsoleCleared = delegate { };
         #endregion    
 
@@ -34,22 +34,23 @@ namespace INUlib.Gameplay.Debugging.Console
             m_consoleLogEntries = new Queue<string>();
             m_consoleCommands = new Dictionary<string, List<ConsoleCommand>>();
             m_commandRegistry = new CommandRegistry(this);
-            
-            m_commandRegistry.InitializeConsoleCommands();
         }
         #endregion Constructor
         
         
         #region Methods
+        /// <summary>
+        /// Initializes the console, automatically registering every command
+        /// that has no dependencies
+        /// </summary>
+        public void Init() => m_commandRegistry.InitializeConsoleCommands();
+
         public void AddEntryToLog(string logEntry, ConsoleEntryType entryType)
         {
+            onEntryAddedToLog?.Invoke(logEntry, entryType);
             m_consoleLogEntries.Enqueue(logEntry);
-
             if (m_consoleLogEntries.Count > _logBufferSize)
-            {
                 m_consoleLogEntries.Dequeue();
-                onEntryAddedToLog?.Invoke(logEntry, entryType);
-            }
         }
         
         /// <summary>
@@ -60,7 +61,6 @@ namespace INUlib.Gameplay.Debugging.Console
         {
             if (commandString == "")
             {
-                onEntrySubmited?.Invoke();
                 return;
             }
             
@@ -79,9 +79,9 @@ namespace INUlib.Gameplay.Debugging.Console
                     AddEntryToLog(invokeMessage.Description, invokeMessage.EntryType);
             }
             else
+            {
                 AddEntryToLog("No command matches the given signature", ConsoleEntryType.Error);
-
-            onEntrySubmited?.Invoke();
+            }
         }
 
         public void ClearConsole()
@@ -101,11 +101,11 @@ namespace INUlib.Gameplay.Debugging.Console
             foreach (var command in m_consoleCommands[commandId])
             {
                 var parameters = command.CommandMethod.GetParameters();
-                if(args.Count() != parameters.Count())
+                if(args.Length != parameters.Length)
                     continue;
 
                 bool success = true;
-                for(int i = 0; i < parameters.Count(); i++)
+                for(int i = 0; i < parameters.Length; i++)
                 {
                     CommandHandler.ParseArgument(args[i], parameters[i], out bool successfull);
                     success &= successfull;

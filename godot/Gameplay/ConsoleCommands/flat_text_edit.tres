@@ -1,0 +1,9 @@
+[gd_resource type="StyleBoxFlat" format=3 uid="uid://njy01heafs2y"]
+
+[resource]
+content_margin_left = 10.0
+bg_color = Color(0.117647, 0.152941, 0.180392, 0.784314)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3

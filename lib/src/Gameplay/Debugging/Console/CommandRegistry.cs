@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using INUlib.Gameplay.Debugging.Console.Commands;
 using INUlib.Gameplay.Debugging.Console.Data;
+using INUlib.Core;
 
 namespace INUlib.Gameplay.Debugging.Console
 {
@@ -93,6 +94,8 @@ namespace INUlib.Gameplay.Debugging.Console
             stopWatch.Start();
             
             var type = typeof(CommandsContainer);
+            Logger.Log(String.Join(",", AppDomain.CurrentDomain.GetAssemblies().Select(x => x.FullName)));
+
             Type[] commandTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p) && !p.IsAbstract).ToArray();

@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace INUlib.Gameplay.Debugging.Console.Commands.BuiltinCommands
 {
-    public class TimeScaleCommandsContainer : CommandsContainer
+    public class TimeScaleCommands : CommandsContainer
     {
 
         [ConsoleCommand("timescale", "Sets the TimeScale to the given value")]
