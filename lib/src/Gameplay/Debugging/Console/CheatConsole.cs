@@ -4,6 +4,7 @@ using System.Linq;
 using INUlib.Gameplay.Debugging.Console.Data;
 using System;
 using INUlib.Core;
+using INUlib.Gameplay.Debugging.Console.Commands.BuiltinCommands;
 
 namespace INUlib.Gameplay.Debugging.Console
 {
@@ -43,7 +44,11 @@ namespace INUlib.Gameplay.Debugging.Console
         /// Initializes the console, automatically registering every command
         /// that has no dependencies
         /// </summary>
-        public void Init() => m_commandRegistry.InitializeConsoleCommands();
+        public void Init() 
+        {
+            m_commandRegistry.InitializeConsoleCommands();
+            CommandRegistry.RegisterContainer(new ConsoleHelperCommands(this));
+        } 
 
         public void AddEntryToLog(string logEntry, ConsoleEntryType entryType)
         {

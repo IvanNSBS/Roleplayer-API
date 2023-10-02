@@ -4,11 +4,11 @@ using INUlib.Gameplay.Debugging.Console.Data;
 
 namespace INUlib.Gameplay.Debugging.Console.Commands.BuiltinCommands
 {
-    public class ConsoleHelperCommandsContainer : CommandsContainer
+    public class ConsoleHelperCommands : CommandsContainer
     {
         private CheatConsole _console;
         
-        public ConsoleHelperCommandsContainer(CheatConsole console)
+        public ConsoleHelperCommands(CheatConsole console)
         {
             _console = console;
         }
