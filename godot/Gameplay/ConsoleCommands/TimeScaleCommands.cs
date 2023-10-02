@@ -1,7 +1,7 @@
-﻿using Godot;
-using System.Globalization;
+﻿using System.Globalization;
+using INUlib.Gameplay.Debugging.Console;
 
-namespace INUlib.Gameplay.Debugging.Console.Commands.BuiltinCommands
+namespace Godot.INUlib.Gameplay.Commands
 {
     public class TimeScaleCommands : CommandsContainer
     {

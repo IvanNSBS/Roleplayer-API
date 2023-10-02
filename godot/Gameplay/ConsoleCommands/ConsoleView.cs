@@ -61,7 +61,6 @@ namespace Godot.INUlib.Gameplay
 
         private void OnLogEntryAdded(string entry, ConsoleEntryType type)
         {
-            Logger.Log("Entry added!");
             Color col = GetColorFromEntryType(type);
             string hex = col.ToHtml();
             _logsText.Text += $"[color=#{hex}]{entry}[/color]\n";
@@ -78,7 +77,6 @@ namespace Godot.INUlib.Gameplay
         private void HandleEntry(string entry)
         {
             _input.Text = "";
-            Logger.Log($"input: {entry}");
             _console.HandleLogInputCommand(entry); 
         }
 

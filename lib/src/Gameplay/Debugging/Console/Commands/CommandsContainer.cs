@@ -1,4 +1,4 @@
-﻿namespace INUlib.Gameplay.Debugging.Console.Commands
+﻿namespace INUlib.Gameplay.Debugging.Console
 {
     
     /// <summary>

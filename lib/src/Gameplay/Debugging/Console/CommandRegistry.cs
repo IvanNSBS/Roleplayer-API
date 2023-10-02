@@ -94,7 +94,6 @@ namespace INUlib.Gameplay.Debugging.Console
             stopWatch.Start();
             
             var type = typeof(CommandsContainer);
-            Logger.Log(String.Join(",", AppDomain.CurrentDomain.GetAssemblies().Select(x => x.FullName)));
 
             Type[] commandTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
