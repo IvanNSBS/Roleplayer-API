@@ -5,9 +5,11 @@ namespace INUlib.Core
 {
     public partial class Logger
     {
-        partial void Debug(string msg) => GD.Print(msg);
-        partial void Warning(string msg) => GD.PushWarning(msg);
-        partial void Error(string msg) => GD.PushError(msg);
+        partial void InfoLog(string msg) => GD.Print(msg);
+        partial void DebugLog(string msg) => GD.Print(msg);
+        partial void WarningLog(string msg) => GD.PushWarning(msg);
+        partial void ErrorLog(string msg) => GD.PushError(msg);
+        partial void FatalLog(string msg) =>  GD.PushError(msg);
     }
 }
 #endif

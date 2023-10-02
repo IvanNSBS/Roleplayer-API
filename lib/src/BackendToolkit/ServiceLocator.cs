@@ -27,7 +27,7 @@ namespace INUlib.BackendToolkit
             string key = t.Name;
             if (!m_services.ContainsKey(key))
             {
-                Logger.LogError($"{key} not registered with {GetType().Name}");
+                Logger.Error($"{key} not registered with {GetType().Name}");
                 return null;
             }
 
@@ -39,7 +39,7 @@ namespace INUlib.BackendToolkit
             string key = typeof(T).Name;
             if (!m_services.ContainsKey(key))
             {
-                Logger.LogError($"{key} not registered with {GetType().Name}");
+                Logger.Error($"{key} not registered with {GetType().Name}");
                 return null;
             }
 
@@ -51,7 +51,7 @@ namespace INUlib.BackendToolkit
             string key = typeof(T1).Name;
             if (m_services.ContainsKey(key))
             {
-                Logger.LogError($"Service <{key}> has been registered already.");
+                Logger.Error($"Service <{key}> has been registered already.");
                 return false;
             }
 
@@ -64,7 +64,7 @@ namespace INUlib.BackendToolkit
             string key = typeof(T).Name;
             if (!m_services.ContainsKey(key))
             {
-                Logger.LogError($"Service of type {key} hasn't been registered.");
+                Logger.Error($"Service of type {key} hasn't been registered.");
                 return false;
             }
 

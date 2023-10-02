@@ -14,11 +14,15 @@ namespace Godot.INUlib.Gameplay
         [Export] private Button _closeBtn; 
         [Export] private LineEdit _input;
         [Export] private Control _consoleContainer;
-        [Export] private RichTextLabel _logsText;
+        [Export] private TabBar _tabs;
+        [Export] private RichTextLabel _loggerLogsText;
+        [Export] private RichTextLabel _consoleLogsText;
         #endregion
 
         #region Fields
         private CheatConsole _console;
+        private int consoleTab = 1;
+        private int logsTab = 2;
         #endregion
 
 
@@ -26,14 +30,16 @@ namespace Godot.INUlib.Gameplay
         public override void _Ready()
         {
             _input.Text = "";
-            _logsText.Text = "";
+            _loggerLogsText.Text = "";
             if(_sendBtn != null) _sendBtn.Pressed += OnClickSend;
             if(_closeBtn != null) _closeBtn.Pressed += OnClickClose;
             if(_clearBtn != null) _clearBtn.Pressed += OnClickClear;
             if(_input != null) _input.TextSubmitted += OnInputTextSubmited;
+            if(_tabs != null) _tabs.TabChanged += OnTabsChanged;
 
+            Logger.onLogReceived += OnLogEntryAdded;
             _console = new CheatConsole(256);
-            _console.onEntryAddedToLog += OnLogEntryAdded;
+            _console.onEntryAddedToLog += OnConsoleEntryAdded;
             _console.onConsoleCleared += ClearLogText;
 
             _console.Init();
@@ -59,11 +65,24 @@ namespace Godot.INUlib.Gameplay
             HandleEntry(command);
         }
 
-        private void OnLogEntryAdded(string entry, ConsoleEntryType type)
+        private void OnConsoleEntryAdded(string entry, ConsoleEntryType type)
         {
             Color col = GetColorFromEntryType(type);
             string hex = col.ToHtml();
-            _logsText.Text += $"[color=#{hex}]{entry}[/color]\n";
+            _consoleLogsText.Text += $"[color=#{hex}]{entry}[/color]\n";
+        }
+
+        private void OnTabsChanged(long tabIdx)
+        {
+            _loggerLogsText.Visible = tabIdx == 2;
+            _consoleLogsText.Visible = tabIdx == 0;
+        }
+
+        private void OnLogEntryAdded(string msg, LogLevel lvl, string formatted)
+        {
+            Color col = GetColorFromLogLevel(lvl);
+            string hex = col.ToHtml();
+            _loggerLogsText.Text += $"[color=#{hex}]{formatted}[/color]\n";
         }
         #endregion
 
@@ -71,7 +90,7 @@ namespace Godot.INUlib.Gameplay
         #region Helper Methods
         private void ClearLogText()
         {
-            _logsText.Text = "";
+            _consoleLogsText.Text = "";
         }
 
         private void HandleEntry(string entry)
@@ -98,6 +117,27 @@ namespace Godot.INUlib.Gameplay
 
                 default:
                 return Colors.LightBlue;
+            }
+        }
+
+        private Color GetColorFromLogLevel(LogLevel type)
+        {
+            switch(type)
+            {
+                case LogLevel.ALL:
+                case LogLevel.DEBUG:
+                case LogLevel.INFO:
+                return Colors.AntiqueWhite;
+
+                case LogLevel.ERROR:
+                case LogLevel.FATAL:
+                return Colors.OrangeRed;
+
+                case LogLevel.WARNING:
+                return Colors.OrangeRed;
+
+                default:
+                return Colors.AntiqueWhite;
             }
         }
         #endregion

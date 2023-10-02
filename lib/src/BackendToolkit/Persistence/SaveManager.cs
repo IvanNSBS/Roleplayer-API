@@ -202,7 +202,7 @@ namespace INUlib.BackendToolkit.Persistence
         {
             var registeredStores = DataStoreRegistry.GetRegisteredStores();
             if (registeredStores.Count == 0)
-                Logger.LogWarning("There are no registered data stores in Save Manager. Nothing will be saved");
+                Logger.Warning("There are no registered data stores in Save Manager. Nothing will be saved");
 
             foreach (var dataStore in registeredStores)
                 RegisterType(dataStore.Value);
@@ -219,7 +219,7 @@ namespace INUlib.BackendToolkit.Persistence
             }
             else
             {
-                Logger.LogWarning("There Are Duplicate Stores on Settings!!");
+                Logger.Warning("There Are Duplicate Stores on Settings!!");
             }
         }
         

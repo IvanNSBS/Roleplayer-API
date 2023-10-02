@@ -90,12 +90,12 @@ namespace INUlib.BackendToolkit.SpreadSheets
                         field.SetValue(result, Convert.ChangeType(entries[finalName], field.FieldType));
                     }
                     catch (Exception e) {
-                        Logger.LogError(e.ToString());
+                        Logger.Error(e.ToString());
                         return null;
                     }
                 }
                 else if(isImportantField) {
-                    Logger.LogError(
+                    Logger.Error(
                         $"CSV Field <{finalName}> is marked as important"+ 
                         "and wasn't found in CSV or couldn't be parsed"
                     );

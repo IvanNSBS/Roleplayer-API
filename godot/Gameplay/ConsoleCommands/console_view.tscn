@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://addons/inulib/godot/Gameplay/ConsoleCommands/ConsoleView.cs" id="1_rwv3i"]
 [ext_resource type="Texture2D" uid="uid://cluf3ae2bac8p" path="res://addons/inulib/godot/Gameplay/ConsoleCommands/Icons/move.png" id="2_2bucr"]
 
-[node name="Commands Console" type="Control" node_paths=PackedStringArray("_sendBtn", "_clearBtn", "_closeBtn", "_input", "_consoleContainer", "_logsText")]
+[node name="Commands Console" type="Control" node_paths=PackedStringArray("_sendBtn", "_clearBtn", "_closeBtn", "_input", "_consoleContainer", "_tabs", "_loggerLogsText", "_consoleLogsText")]
 custom_minimum_size = Vector2(600, 350)
 layout_mode = 3
 anchors_preset = 2
@@ -19,7 +19,9 @@ _clearBtn = NodePath("Container/VBoxContainer/Inputs Container/Clear Btn")
 _closeBtn = NodePath("Container/VBoxContainer/Inputs Container/Close Btn")
 _input = NodePath("Container/VBoxContainer/Inputs Container/Command Input")
 _consoleContainer = NodePath("Container")
-_logsText = NodePath("Container/VBoxContainer/Logs Body/Margin/Log Text")
+_tabs = NodePath("Container/VBoxContainer/Tabs/TabBar")
+_loggerLogsText = NodePath("Container/VBoxContainer/Logs Body/Margin/Logger Logs")
+_consoleLogsText = NodePath("Container/VBoxContainer/Logs Body/Margin/Console Logs")
 
 [node name="Container" type="Control" parent="."]
 layout_mode = 1
@@ -89,7 +91,16 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_ob6uu")
 
-[node name="Log Text" type="RichTextLabel" parent="Container/VBoxContainer/Logs Body/Margin"]
+[node name="Console Logs" type="RichTextLabel" parent="Container/VBoxContainer/Logs Body/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("1_ob6uu")
+bbcode_enabled = true
+scroll_following = true
+
+[node name="Logger Logs" type="RichTextLabel" parent="Container/VBoxContainer/Logs Body/Margin"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3

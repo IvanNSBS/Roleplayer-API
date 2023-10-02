@@ -35,11 +35,11 @@ namespace INUlib.BackendToolkit.Meta
                 if(!valid)
                 {
                     if(debug)
-                        Logger.Log($"Field <{field.Name}> is not a MetaFile");
+                        Logger.Debug($"Field <{field.Name}> is not a MetaFile");
                     continue;
                 }
                 if(debug)
-                    Logger.Log($"Instantiating Field <{field.Name}> with type <{field.FieldType}>");
+                    Logger.Debug($"Instantiating Field <{field.Name}> with type <{field.FieldType}>");
                 
                 var instance = Activator.CreateInstance(field.FieldType) as IBaseMetaFile;
                 instance.Load();
@@ -52,11 +52,11 @@ namespace INUlib.BackendToolkit.Meta
                 if(!valid)
                 {
                     if(debug)
-                        Logger.Log($"Property <{prop.Name}> is not a MetaFile");
+                        Logger.Debug($"Property <{prop.Name}> is not a MetaFile");
                     continue;
                 }
                 if(debug)
-                    Logger.Log($"Instantiating Property <{prop.Name}> with type <{prop.PropertyType}>");
+                    Logger.Debug($"Instantiating Property <{prop.Name}> with type <{prop.PropertyType}>");
                 
                 var instance = Activator.CreateInstance(prop.PropertyType) as IBaseMetaFile;
                 instance.Load();
