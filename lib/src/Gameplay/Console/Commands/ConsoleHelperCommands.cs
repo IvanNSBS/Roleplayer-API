@@ -37,5 +37,11 @@ namespace INUlib.Gameplay.Debugging.Console.Commands.BuiltinCommands
 
             return new ConsoleEntry(result + string.Join("\n", signatures), ConsoleEntryType.ConsoleMessage);
         }
+
+        [ConsoleCommand("clear", "Clear the console")]
+        public void ClearConsole()
+        {
+            _console.ClearConsole();
+        }
     }
 }

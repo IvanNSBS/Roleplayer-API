@@ -48,6 +48,8 @@ namespace INUlib.Gameplay.Debugging.Console
         {
             m_commandRegistry.InitializeConsoleCommands();
             CommandRegistry.RegisterContainer(new ConsoleHelperCommands(this));
+            AddEntryToLog("Type help to see all available commands", ConsoleEntryType.ConsoleMessage);
+            AddEntryToLog("Type help cmd to see usages of a command", ConsoleEntryType.ConsoleMessage);
         } 
 
         public void AddEntryToLog(string logEntry, ConsoleEntryType entryType)
