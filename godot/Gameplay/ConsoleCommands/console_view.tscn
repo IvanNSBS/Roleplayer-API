@@ -103,10 +103,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_ob6uu")
 bbcode_enabled = true
-text = "[color=#faebd7ff]Found 2 commands without dependencies and automatically added them in 00.09 seconds.[/color]
-[color=#faebd7ff]Registered 3 commands for container ConsoleHelperCommands.[/color]
-[color=#faebd7ff]Type help to see all available commands[/color]
-[color=#faebd7ff]Type help cmd to see usages of a command[/color]
+text = "[color=#faebd7ff]Found 2 commands without dependencies and automatically added them in 00.01 seconds.[/color]
 "
 scroll_following = true
 
