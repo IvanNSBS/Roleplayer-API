@@ -14,8 +14,8 @@ namespace INUlib
 			var script = GD.Load<Script>(consolePath);
 			var texture = GD.Load<Texture2D>(iconPath);
 
-			GD.Print("Commands console is added!");
 			AddCustomType("Console Commands", "Control", script, null);
+			GD.Print("INUlib plugin was initialized");
 		}
 
 		public override void _ExitTree()

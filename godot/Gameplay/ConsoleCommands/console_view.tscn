@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://b3hbtowv0bhvo"]
+[gd_scene load_steps=5 format=3 uid="uid://b3hbtowv0bhvo"]
 
 [ext_resource type="Theme" uid="uid://ncel84jhy1qi" path="res://addons/inulib/godot/Gameplay/ConsoleCommands/console_commands_theme.tres" id="1_ob6uu"]
 [ext_resource type="Script" path="res://addons/inulib/godot/Gameplay/ConsoleCommands/ConsoleView.cs" id="1_rwv3i"]
 [ext_resource type="Texture2D" uid="uid://cluf3ae2bac8p" path="res://addons/inulib/godot/Gameplay/ConsoleCommands/Icons/move.png" id="2_2bucr"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0yo4u"]
 
 [node name="Commands Console" type="Control" node_paths=PackedStringArray("_sendBtn", "_clearBtn", "_closeBtn", "_input", "_consoleContainer", "_tabs", "_loggerLogsText", "_consoleLogsText")]
 custom_minimum_size = Vector2(600, 350)
@@ -39,6 +41,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 alignment = 1
 
 [node name="Tabs" type="HBoxContainer" parent="Container/VBoxContainer"]
@@ -112,6 +115,11 @@ size_flags_vertical = 3
 theme = ExtResource("1_ob6uu")
 bbcode_enabled = true
 scroll_following = true
+
+[node name="HSeparator" type="HSeparator" parent="Container/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+theme_override_styles/separator = SubResource("StyleBoxEmpty_0yo4u")
 
 [node name="Inputs Container" type="HBoxContainer" parent="Container/VBoxContainer"]
 layout_mode = 2
