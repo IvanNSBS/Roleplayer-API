@@ -97,6 +97,11 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_ob6uu")
 bbcode_enabled = true
+text = "[color=#faebd7ff]Found 2 commands without dependencies and automatically added them in 00.09 seconds.[/color]
+[color=#faebd7ff]Registered 3 commands for container ConsoleHelperCommands.[/color]
+[color=#faebd7ff]Type help to see all available commands[/color]
+[color=#faebd7ff]Type help cmd to see usages of a command[/color]
+"
 scroll_following = true
 
 [node name="Logger Logs" type="RichTextLabel" parent="Container/VBoxContainer/Logs Body/Margin"]
@@ -122,6 +127,7 @@ placeholder_text = "Enter Command..."
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 theme = ExtResource("1_ob6uu")
+disabled = true
 text = "Send"
 
 [node name="Clear Btn" type="Button" parent="Container/VBoxContainer/Inputs Container"]
