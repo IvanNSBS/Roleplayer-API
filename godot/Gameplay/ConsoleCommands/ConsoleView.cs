@@ -1,4 +1,3 @@
-#if TOOLS
 using INUlib.Core;
 using INUlib.Gameplay.Debugging.Console;
 using INUlib.Gameplay.Debugging.Console.Data;
@@ -32,7 +31,7 @@ namespace Godot.INUlib.Gameplay
             _input.Text = "";
             _loggerLogsText.Text = "";
             _consoleLogsText.Text = "";
-            
+
             if(_sendBtn != null) _sendBtn.Pressed += OnClickSend;
             if(_closeBtn != null) _closeBtn.Pressed += OnClickClose;
             if(_clearBtn != null) _clearBtn.Pressed += OnClickClear;
@@ -145,4 +144,3 @@ namespace Godot.INUlib.Gameplay
         #endregion
     }
 }
-#endif
