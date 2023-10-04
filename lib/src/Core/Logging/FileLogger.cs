@@ -4,71 +4,83 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using INUlib.Core;
 
-namespace INUlib.Gameplay.Debugging.Loggers
+namespace INUlib.Core
 {
     /// <summary>
     /// LogPolicy that writes logs to a file
     /// </summary>
-    class FileLogger
+    public class FileLogger
     {
         #region Fields
         private readonly string _fileExtension;
-        private readonly string _fileFolder;
+        private readonly string _fileSubfolder;
         private readonly string _fileName;
         private readonly uint _maxLogFiles;
         private readonly FileStream m_fileStream;
         private readonly List<string> m_logEntries;
         #endregion Fields
         
-        #region Constructors
+        #region Properties
+        private string AppDataPath => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        public string LogFolderPath => Path.Join(AppDataPath, _fileSubfolder);
+        #endregion
+
+        #region Log Methods
         /// <summary>
         /// Constructor for FilePolicy
         /// </summary>
-        /// <param name="settings">Configuration file for log a policy</param>
-        public FileLogger(string fileFolder, string fileName, string fileExtension, uint maxLogFiles)
+        public FileLogger(string subFolderName, string fileName, string fileExtension, uint maxLogFiles)
         {
             _fileExtension = fileExtension;
-            _fileFolder = fileFolder;
+            _fileSubfolder = subFolderName;
             _fileName = fileName;
             _maxLogFiles = maxLogFiles;
             
             m_logEntries = new List<string>();
-            int lastFileIndex = GetLastFileIndex(fileFolder);
+            int lastFileIndex = GetLastFileIndex(LogFolderPath);
 
             string completeFileName = $"{fileName}_{lastFileIndex}{fileExtension}";
             
-            var completePath = Path.Combine(fileFolder, completeFileName);
+            var completePath = Path.Combine(LogFolderPath, completeFileName);
 
-            if (maxLogFiles > 0)
+            if (maxLogFiles <= 0)
+                return;
+
+            if (!Directory.Exists(LogFolderPath))
             {
-                if (!Directory.Exists(fileFolder))
-                {
-                    Directory.CreateDirectory(fileFolder);
-                }
-                else
-                {
-                    List<string> files = Directory.GetFiles(fileFolder).ToList();
-                    if (files.Count > 0 && files.Count >= maxLogFiles)
-                    {
-                        files.Sort();
-                        int deleteCount = Math.Max(files.Count - (int)maxLogFiles + 1, 0);
-                        for(int i = 0; i < deleteCount; i++)
-                            File.Delete(files[i]);
-                    }
-                }
-                
-                m_fileStream = File.Create(completePath);
+                Directory.CreateDirectory(LogFolderPath);
             }
-        }
-        #endregion Constructors
+            else
+            {
+                List<string> files = Directory.GetFiles(LogFolderPath).ToList();
+                if (files.Count > 0 && files.Count >= maxLogFiles)
+                {
+                    files.Sort();
+                    int deleteCount = System.Math.Max(files.Count - (int)maxLogFiles + 1, 0);
+                    for(int i = 0; i < deleteCount; i++)
+                        File.Delete(files[i]);
+                }
+            }
 
-        #region Destructor
+            Logger.onLogReceived += Log;
+            m_fileStream = File.Create(completePath);
+        }
+        
         ~FileLogger()
         {
+            m_fileStream.Flush();
             m_fileStream.Close();
+            Logger.onLogReceived -= Log;
         }
+
+        private void Log(string logEntry, LogLevel level, string formattedLogEntry)
+        {
+            string formattedMsg = $"{formattedLogEntry}\n";
+            AddLogEntry(formattedMsg);
+        }
+
+        public void Flush() => m_fileStream.Flush();
         #endregion Destructor
         
         
@@ -79,12 +91,11 @@ namespace INUlib.Gameplay.Debugging.Loggers
         /// <param name="value"></param>
         private void AddLogEntry(string value)
         {
-            if (_maxLogFiles > 0)
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(value);
-                m_fileStream.Write(info, 0, info.Length);
-            }
-            m_logEntries.Add(value);
+            if (_maxLogFiles <= 0)
+                return;
+
+            byte[] info = new UTF8Encoding(true).GetBytes(value);
+            m_fileStream.Write(info, 0, info.Length);
         }
 
         private int GetLastFileIndex(string folderPath)
@@ -108,21 +119,5 @@ namespace INUlib.Gameplay.Debugging.Loggers
             return lastIndex + 1;
         }
         #endregion Utility Methods
-        
-        
-        #region LogPolicy Methods
-        public string Log(LogLevel level, string logEntry)
-        {
-            var now = DateTime.Now;
-            string hour = now.Hour.ToString("00");
-            string minute = now.Minute.ToString("00");
-            string second = now.Second.ToString("00");
-            string formattedMsg = $"[{hour}:{minute}:{second}] {level}: {logEntry}\n";
-
-            AddLogEntry(formattedMsg);
-            
-            return formattedMsg;
-        }
-        #endregion LogPolicy Methods
     }
 }

@@ -103,7 +103,10 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_ob6uu")
 bbcode_enabled = true
-text = "[color=#faebd7ff]Found 2 commands without dependencies and automatically added them in 00.01 seconds.[/color]
+text = "[color=#faebd7ff]Found 2 commands without dependencies and automatically added them in 00.10 seconds.[/color]
+[color=#faebd7ff]Registered 3 commands for container ConsoleHelperCommands.[/color]
+[color=#faebd7ff]Type help to see all available commands[/color]
+[color=#faebd7ff]Type help cmd to see usages of a command[/color]
 "
 scroll_following = true
 
@@ -114,6 +117,11 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_ob6uu")
 bbcode_enabled = true
+text = "[color=#ff4500ff][21:37:34] WARNING: asdhuasdiuhasdhasiu[/color]
+[color=#ff4500ff][21:37:34] WARNING: asdhuasdiuhasdhasiu[/color]
+[color=#ff4500ff][21:37:34] WARNING: asdhuasdiuhasdhasiu[/color]
+[color=#ff4500ff][21:37:34] WARNING: asdhuasdiuhasdhasiu[/color]
+"
 scroll_following = true
 
 [node name="HSeparator" type="HSeparator" parent="Container/VBoxContainer"]
