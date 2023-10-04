@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup>
+        <BaseOutputPath>$(ProjectDir)\.out\bin</BaseOutputPath>
+        <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.out\obj\</BaseIntermediateOutputPath>
+    </PropertyGroup>
+</Project>
