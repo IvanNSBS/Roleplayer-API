@@ -63,8 +63,11 @@ namespace Tests.Runtime.RPG
         [Test]
         public void Casthandler_Properly_Setup_Timeline()
         {
-            Assert.AreNotEqual(TimelineState.Pending, _handler.Timeline.state);
-            Assert.AreEqual(0f, _handler.Timeline.TotalElapsedTime, "Elapsed Time was not correct");
+            Assert.Multiple(() =>
+            {
+                Assert.That(_handler.Timeline.state, Is.Not.EqualTo(TimelineState.Pending));
+                Assert.That(_handler.Timeline.TotalElapsedTime, Is.EqualTo(0f), "Elapsed Time was not correct");
+            });
         }
 
         [Test]
@@ -76,7 +79,7 @@ namespace Tests.Runtime.RPG
         public void CastHandler_Properly_Updates_Timeline(float deltaTime)
         {
             _handler.Update(deltaTime);
-            Assert.AreEqual(deltaTime, _handler.Timeline.TotalElapsedTime);
+            Assert.That(_handler.Timeline.TotalElapsedTime, Is.EqualTo(deltaTime));
         }
         
         [Test]
@@ -88,14 +91,14 @@ namespace Tests.Runtime.RPG
         public void CastHandler_Properly_Updates_AbilityObject(float deltaTime)
         {
             _handler.Update(deltaTime);
-            Assert.AreEqual(1, _abilityUpdatesCalled);
+            Assert.That(_abilityUpdatesCalled, Is.EqualTo(1));
         }
         
         [Test]
         public void CastHandler_Properly_Calls_AbilityObject_DrawGizmos()
         {
             _handler.DrawGizmos();
-            Assert.AreEqual(1, _abilityDrawGizmosCalled);
+            Assert.That(_abilityDrawGizmosCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -109,7 +112,7 @@ namespace Tests.Runtime.RPG
             
             _handler.Update(recoveryTime);
             _handler.Update(recoveryTime);
-            Assert.AreEqual(1, fired, $"Expected timeline to finish and fire 1 time, but it was fired {fired} times");
+            Assert.That(fired, Is.EqualTo(1), $"Expected timeline to finish and fire 1 time, but it was fired {fired} times");
         }
 
         [Test]
@@ -121,9 +124,11 @@ namespace Tests.Runtime.RPG
             _castingState = CastingState.OverChanneling;
             
             _handler.Update(elapsed);
-            
-            Assert.That(_elapsedOverChannel, Is.EqualTo(elapsed).Within(0.0001f), "Elapsed Overchanneling time was not the same as the passed parameter");
-            Assert.AreEqual(overChannellingTime, _maxOverchannel, "Overchannel Duration was not the same as the passed parameter");
+            Assert.Multiple(() =>
+            {
+                Assert.That(_elapsedOverChannel, Is.EqualTo(elapsed).Within(0.0001f), "Elapsed Overchanneling time was not the same as the passed parameter");
+                Assert.That(_maxOverchannel, Is.EqualTo(overChannellingTime), "Overchannel Duration was not the same as the passed parameter");
+            });
         }
         #endregion
     }

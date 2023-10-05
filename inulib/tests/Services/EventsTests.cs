@@ -48,8 +48,8 @@ namespace Tests.Runtime.Services.Events
         public void EventHandler_Can_Be_Accessed_Through_EventId()
         {
             int eventId = _testHandler.EventId;
-            Assert.IsTrue(
-                _manager.HasEventHandlerFor(eventId), 
+            Assert.That(
+                _manager.HasEventHandlerFor(eventId), Is.True, 
                 $"There should've been an event handler for event id: {eventId}"
             );
         }
@@ -59,8 +59,8 @@ namespace Tests.Runtime.Services.Events
         {
             TestEventArgs args = new TestEventArgs(0);
             string argsName = args.GetType().Name;
-            Assert.IsTrue(
-                _manager.HasEventHandlerFor(args), 
+            Assert.That(
+                _manager.HasEventHandlerFor(args), Is.True, 
                 $"There should've been an event handler for EventArgs of type: {argsName}"
             );
         }
@@ -70,8 +70,8 @@ namespace Tests.Runtime.Services.Events
         {
             _manager.RemoveEventHandler(_testHandler);
 
-            Assert.IsFalse(
-                _manager.HasEventHandler(_testHandler), 
+            Assert.That(
+                _manager.HasEventHandler(_testHandler), Is.False, 
                 $"There should NOT have been an event handler for EventId: {_testHandler.GetType().Name}"
             );
         }
@@ -82,8 +82,8 @@ namespace Tests.Runtime.Services.Events
             int eventId = _testHandler.EventId;
             _manager.RemoveEventHandler(eventId);
 
-            Assert.IsFalse(
-                _manager.HasEventHandlerFor(eventId), 
+            Assert.That(
+                _manager.HasEventHandlerFor(eventId), Is.False, 
                 $"There should NOT have been an event handler for EventId: {eventId}"
             );
         }
@@ -96,8 +96,8 @@ namespace Tests.Runtime.Services.Events
 
             _manager.RemoveEventHandler(args);
             
-            Assert.IsFalse(
-                _manager.HasEventHandlerFor(args), 
+            Assert.That(
+                _manager.HasEventHandlerFor(args), Is.False, 
                 $"There should NOT have been an event handler for EventArgs of type: {argsName}"
             );
         }
@@ -111,7 +111,7 @@ namespace Tests.Runtime.Services.Events
             _manager.Subscribe(listener);
             _manager.Invoke(new TestEventArgs(10));
             
-            Assert.AreEqual(10, actual);
+            Assert.That(actual, Is.EqualTo(10));
         }
         
         [Test]
@@ -125,7 +125,7 @@ namespace Tests.Runtime.Services.Events
             _manager.Subscribe(l2);
             _manager.Invoke(new TestEventArgs(10));
             
-            Assert.AreEqual(20, actual);
+            Assert.That(actual, Is.EqualTo(20));
         }
         
         [Test]
@@ -138,7 +138,7 @@ namespace Tests.Runtime.Services.Events
             _manager.Unsubscribe(listener);
             _manager.Invoke(new TestEventArgs(10));
             
-            Assert.AreEqual(0, actual);
+            Assert.That(actual, Is.EqualTo(0));
         }
         
         [Test]
@@ -154,7 +154,7 @@ namespace Tests.Runtime.Services.Events
             _manager.Unsubscribe(l2);
             _manager.Invoke(new TestEventArgs(10));
             
-            Assert.AreEqual(0, actual);
+            Assert.That(actual, Is.EqualTo(0));
         }
 
         [Test]
@@ -173,21 +173,21 @@ namespace Tests.Runtime.Services.Events
             _manager = new GameEventsManager(false);
             bool invoked = _manager.Invoke(0, 10);
             
-            Assert.IsFalse(invoked);
+            Assert.That(invoked, Is.False);
         }
 
         [Test]
         public void Event_Wont_Fire_If_The_Wrong_Params_Were_Used()
         {
             bool invoked = _manager.Invoke(0, "10");
-            Assert.IsFalse(invoked);
+            Assert.That(invoked, Is.False);
         }
 
         [Test]
         public void Event_Wont_Fire_If_EventArgs_Was_Null()
         {
             bool invoked = _manager.Invoke<TestEventArgs>(null);
-            Assert.IsFalse(invoked);
+            Assert.That(invoked, Is.False);
         }
         #endregion Tests
     }

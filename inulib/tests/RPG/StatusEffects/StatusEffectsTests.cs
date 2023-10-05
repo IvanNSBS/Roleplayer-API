@@ -1,4 +1,3 @@
-using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using INUlib.RPG.StatusEffectSystem;
@@ -61,8 +60,11 @@ namespace Tests.Runtime.RPG.StatusEffects
         public void Effect_Is_Correctly_Applied()
         {
             _manager.ApplyEffect(_mockEffect);
-            Assert.IsTrue(_applied);
-            Assert.IsTrue(_manager.ActiveEffects.Contains(_mockEffect));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_applied, Is.True);
+                Assert.That(_manager.ActiveEffects, Does.Contain(_mockEffect));
+            });
         }
 
         [Test]
@@ -70,9 +72,11 @@ namespace Tests.Runtime.RPG.StatusEffects
         {
             _manager.ApplyEffect(_mockEffect);
             _manager.ApplyEffect(_mockBase);
-
-            Assert.IsFalse(_reapplied);
-            Assert.IsTrue(_manager.ActiveEffects.Contains(_mockEffect) && _manager.ActiveEffects.Contains(_mockBase));
+            Assert.Multiple(() =>
+            {
+                Assert.That(_reapplied, Is.False);
+                Assert.That(_manager.ActiveEffects.Contains(_mockEffect) && _manager.ActiveEffects.Contains(_mockBase), Is.True);
+            });
         }
 
         [Test]
@@ -81,7 +85,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockEffect);
             _manager.ApplyEffect(_mockEffect);
 
-            Assert.IsTrue(_reapplied);
+            Assert.That(_reapplied, Is.True);
         }
 
         [Test]
@@ -89,9 +93,11 @@ namespace Tests.Runtime.RPG.StatusEffects
         {
             _manager.ApplyEffect(_mockEffect);
             bool result = _manager.DispelEffect(_mockEffect);
-
-            Assert.IsTrue(result);
-            Assert.IsTrue(_dispelled);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.True);
+                Assert.That(_dispelled, Is.True);
+            });
         }
 
         [Test]
@@ -99,12 +105,16 @@ namespace Tests.Runtime.RPG.StatusEffects
         {
             _manager.ApplyEffect(_mockEffect);
             bool result = _manager.DispelEffect(_mockEffect);
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.True);
+                Assert.That(_dispelled, Is.True);
+            });
 
-            Assert.IsTrue(result);
-            Assert.IsTrue(_dispelled);
             _applied = false;
             _manager.ApplyEffect(_mockEffect);
-            Assert.IsTrue(_applied);
+            
+            Assert.That(_applied, Is.True);
         }
 
         [Test]
@@ -112,9 +122,12 @@ namespace Tests.Runtime.RPG.StatusEffects
         {
             bool result = _manager.DispelEffect(_mockEffect);
             
-            Assert.IsFalse(result);
-            Assert.IsFalse(_dispelled);
-        } 
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.False);
+                Assert.That(_dispelled, Is.False);
+            });
+        }
 
         [Test]
         [TestCase(0f)]
@@ -127,7 +140,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockEffect);
             _manager.Update(deltaTime);
 
-            Assert.AreEqual(deltaTime, _elapsedTime);
+            Assert.That(_elapsedTime, Is.EqualTo(deltaTime));
         }
 
         [Test]
@@ -136,7 +149,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockEffect);
             _manager.Update(_targetDuration);
 
-            Assert.IsTrue(_completed);
+            Assert.That(_completed, Is.True);
         }
 
         [Test]
@@ -145,7 +158,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockEffect);
             _manager.Update(_targetDuration);
 
-            Assert.IsFalse(_manager.ActiveEffects.Contains(_mockEffect));
+            Assert.That(_manager.ActiveEffects, Does.Not.Contain(_mockEffect));
         }
 
         [Test]
@@ -153,14 +166,14 @@ namespace Tests.Runtime.RPG.StatusEffects
         {
             _manager.ApplyEffect(_mockBase);
 
-            Assert.IsTrue(_mockBase.IsActive);
+            Assert.That(_mockBase.IsActive, Is.True);
         }
 
         [Test]
         public void Base_Status_Effect_Is_Not_Updated_If_Not_Applied()
         {
             _mockBase.Update(_targetDuration);
-            Assert.AreEqual(0f, _mockBase.ActiveTime);
+            Assert.That(_mockBase.ActiveTime, Is.EqualTo(0f));
         }
 
         [Test]
@@ -173,14 +186,14 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockBase);
             _manager.Update(deltaTime);
 
-            Assert.AreEqual(deltaTime, _mockBase.ActiveTime);
+            Assert.That(_mockBase.ActiveTime, Is.EqualTo(deltaTime));
         }
 
         [Test]
         public void Base_Status_Effect_Correctly_Finishes()
         {
             _manager.ApplyEffect(_mockBase);
-            Assert.IsTrue(_mockBase.Update(_targetDuration));
+            Assert.That(_mockBase.Update(_targetDuration), Is.True);
         }
 
         [Test]
@@ -188,10 +201,13 @@ namespace Tests.Runtime.RPG.StatusEffects
         {
             _manager.ApplyEffect(_mockBase); 
             _manager.Update(_targetDuration*0.8f);
-            _manager.ApplyEffect(_mockBase); 
-
-            Assert.IsTrue(_mockBase.reaplied);
-            Assert.AreEqual(0f, _mockBase.ActiveTime);
+            _manager.ApplyEffect(_mockBase);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_mockBase.reaplied, Is.True);
+                Assert.That(_mockBase.ActiveTime, Is.EqualTo(0f));
+            });
         }
 
         [Test]
@@ -200,7 +216,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _mockBase.Complete();
             _manager.ApplyEffect(_mockBase);
 
-            Assert.IsTrue(_mockBase.Update(0.0f));
+            Assert.That(_mockBase.Update(0.0f), Is.True);
         }
 
         [Test]
@@ -210,9 +226,9 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockBase);
             _manager.Update(150f);
 
-            Assert.IsFalse(_mockBase.Update(0.0f));
+            Assert.That(_mockBase.Update(0.0f), Is.False);
             _mockBase.Complete();
-            Assert.IsTrue(_mockBase.Update(0.0f));
+            Assert.That(_mockBase.Update(0.0f), Is.True);
         }
 
         [Test]
@@ -220,9 +236,12 @@ namespace Tests.Runtime.RPG.StatusEffects
         {
             _manager.ApplyEffect(_mockEffect);
             bool containsKey = _manager.AddedEffectStats.ContainsKey(_mockEffect.GetType());
-        
-            Assert.IsTrue(containsKey);
-            Assert.AreEqual(1, _manager.AddedEffectStats[_mockEffect.GetType()].TimesApplied);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(containsKey, Is.True);
+                Assert.That(_manager.AddedEffectStats[_mockEffect.GetType()].TimesApplied, Is.EqualTo(1));
+            });
         }
 
         [Test]
@@ -232,7 +251,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockEffect);
             _manager.Update(_targetDuration * 2f);
 
-            Assert.AreEqual(elapsedTime, _manager.GetEffectApplyStats(_mockEffect).InactiveTime);
+            Assert.That(_manager.GetEffectApplyStats(_mockEffect).InactiveTime, Is.EqualTo(elapsedTime));
         }
 
         [Test]
@@ -241,7 +260,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockBase);
             _manager.Update(_targetDuration * 0.5f);
 
-            Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockBase).InactiveTime);
+            Assert.That(_manager.GetEffectApplyStats(_mockBase).InactiveTime, Is.EqualTo(0));
         }
 
         [Test]
@@ -252,7 +271,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.Update(_targetDuration * 2f);
             _manager.ApplyEffect(_mockEffect);
 
-            Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockEffect).InactiveTime);
+            Assert.That(_manager.GetEffectApplyStats(_mockEffect).InactiveTime, Is.EqualTo(0));
         }
 
         [Test]
@@ -265,7 +284,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             for(int i = 0; i < timesApplied; i++)
                 _manager.ApplyEffect(_mockEffect);
 
-            Assert.AreEqual(timesApplied, _manager.GetEffectApplyStats(_mockEffect).TimesApplied);
+            Assert.That(_manager.GetEffectApplyStats(_mockEffect).TimesApplied, Is.EqualTo(timesApplied));
         }
         
         [Test]
@@ -280,7 +299,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockEffect);
             _manager.Update(elapsedTime);
 
-            Assert.AreEqual(elapsedTime, _manager.GetEffectApplyStats(_mockEffect).SecondsSinceFirstApply);
+            Assert.That(_manager.GetEffectApplyStats(_mockEffect).SecondsSinceFirstApply, Is.EqualTo(elapsedTime));
         }
 
         [Test]
@@ -295,7 +314,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockEffect);
             _manager.Update(elapsedTime);
 
-            Assert.AreEqual(elapsedTime, _manager.GetEffectApplyStats(_mockEffect).SecondsSinceLastApply);
+            Assert.That(_manager.GetEffectApplyStats(_mockEffect).SecondsSinceLastApply, Is.EqualTo(elapsedTime));
         }
 
         [Test]
@@ -305,7 +324,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.Update(5f);
             _manager.ApplyEffect(_mockEffect);
 
-            Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockEffect).SecondsSinceLastApply);
+            Assert.That(_manager.GetEffectApplyStats(_mockEffect).SecondsSinceLastApply, Is.EqualTo(0));
         }
 
         [Test]
@@ -315,7 +334,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.Update(_targetDuration);
             _manager.Update(StatusEffectController<IStatusEffect>.DEFAULT_EFFECT_STATS_RESET_TIME);
 
-            Assert.AreEqual(0, _manager.GetEffectApplyStats(_mockBase).TimesApplied);
+            Assert.That(_manager.GetEffectApplyStats(_mockBase).TimesApplied, Is.EqualTo(0));
         }
 
         [Test]
@@ -326,7 +345,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.Update(_targetDuration);
             _manager.Update(StatusEffectController<IStatusEffect>.DEFAULT_EFFECT_STATS_RESET_TIME);
         
-            Assert.AreEqual(1, _manager.GetEffectApplyStats(_mockBase).TimesApplied);
+            Assert.That(_manager.GetEffectApplyStats(_mockBase).TimesApplied, Is.EqualTo(1));
         }
 
         [Test]
@@ -336,7 +355,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.onStatusEffectAdded += x => added = true;
             _manager.ApplyEffect(_mockBase);
 
-            Assert.IsTrue(added);
+            Assert.That(added, Is.True);
         }
 
         [Test]
@@ -347,7 +366,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockBase);
             _manager.ApplyEffect(_mockBase);
 
-            Assert.IsTrue(added);
+            Assert.That(added, Is.True);
         }
 
         [Test]
@@ -360,7 +379,7 @@ namespace Tests.Runtime.RPG.StatusEffects
             _mockBase.Complete();
             _manager.Update(0.01f);
 
-            Assert.IsTrue(removed);
+            Assert.That(removed, Is.True);
         }
 
         [Test]
@@ -377,9 +396,12 @@ namespace Tests.Runtime.RPG.StatusEffects
             _manager.ApplyEffect(_mockBase);
             _manager.DispelEffect(_mockBase);
             _manager.Update(0.01f);
-
-            Assert.IsTrue(removed);
-            Assert.AreEqual(0, index);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(removed, Is.True);
+                Assert.That(index, Is.EqualTo(0));
+            });
         }
         #endregion
     }

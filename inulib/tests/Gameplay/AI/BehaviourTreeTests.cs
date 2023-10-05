@@ -69,11 +69,14 @@ namespace Tests.Runtime.Gameplay.AI
             {
                 tree.Update(0);
                 if(i < 5)
-                    Assert.IsTrue(tree.TreeState == NodeState.Running);
+                    Assert.That(tree.TreeState, Is.EqualTo(NodeState.Running));
             }
 
-            Assert.IsTrue(node.started == 6);
-            Assert.IsTrue(tree.TreeState == NodeState.Success);
+            Assert.Multiple(() =>
+            {
+                Assert.That(node.started, Is.EqualTo(6));
+                Assert.That(tree.TreeState, Is.EqualTo(NodeState.Success));
+            });
         }
 
         [Test]
@@ -116,14 +119,14 @@ namespace Tests.Runtime.Gameplay.AI
                 }
             }
 
-            Assert.IsTrue(allShareSameBB);
+            Assert.That(allShareSameBB, Is.True);
         }
 
         [Test]
         public void Behaviour_Tree_Properly_Executes_DFS_Algorithm_From_Left_To_Right()
         {
             MockBehaviourTreeDFS dfsTest = new MockBehaviourTreeDFS();
-            Assert.IsTrue(dfsTest.result == 2);
+            Assert.That(dfsTest.result == 2, Is.True);
         }
         #endregion
     }

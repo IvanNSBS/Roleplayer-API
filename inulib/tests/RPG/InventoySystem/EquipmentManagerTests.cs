@@ -83,7 +83,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             IItemInstance itemInstance = Substitute.For<IItemInstance>();
             PlacementState equipState = _manager.CanItemBeEquippedAt(itemInstance, equipSlotId);
-            Assert.AreEqual(PlacementState.CannotPlace, equipState);
+            Assert.That(equipState, Is.EqualTo(PlacementState.CannotPlace));
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             TestEquippable itemInstance = new TestEquippable(itemSlot);
             PlacementState equipState = _manager.CanItemBeEquippedAt(itemInstance, itemSlot);
-            Assert.AreEqual(expected, equipState);
+            Assert.That(equipState, Is.EqualTo(expected));
         }
         
         [Test]
@@ -103,7 +103,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             IItemInstance itemInstance = Substitute.For<IItemInstance>();
             bool wasEquipped = _manager.AutoEquipItem(itemInstance);
-            Assert.IsFalse(wasEquipped); 
+            Assert.That(wasEquipped, Is.False); 
         }
         
         [Test]
@@ -111,7 +111,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             TestEquippable itemInstance = new TestEquippable(10);
             bool wasEquipped = _manager.AutoEquipItem(itemInstance);
-            Assert.IsFalse(wasEquipped);
+            Assert.That(wasEquipped, Is.False);
         }
         
         [Test]
@@ -127,7 +127,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             TestEquippable equipped = _manager.EquipItem(itemInstance, equipInSlot);
 
             bool equippedIsItemInstance = itemInstance == equipped;
-            Assert.AreEqual(expected, equippedIsItemInstance, errorMsg);
+            Assert.That(equippedIsItemInstance, Is.EqualTo(expected), errorMsg);
         }
         
         [Test]
@@ -137,7 +137,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.EquipItem(itemInstance, _helmetSlot);
             var unequipped = _manager.UnequipItem(itemInstance);
 
-            Assert.IsTrue(unequipped);
+            Assert.That(unequipped, Is.True);
         }
         
         [Test]
@@ -146,7 +146,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             TestEquippable itemInstance = new TestEquippable(_helmetSlot);
             var unequipped = _manager.UnequipItem(itemInstance);
 
-            Assert.IsFalse(unequipped);
+            Assert.That(unequipped, Is.False);
         }
         
         [Test]
@@ -155,7 +155,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             IItemInstance itemInstance = Substitute.For<IItemInstance>();
             var unequipped = _manager.UnequipItem(itemInstance);
 
-            Assert.IsFalse(unequipped);
+            Assert.That(unequipped, Is.False);
         }
         
         [Test]
@@ -165,14 +165,14 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.EquipItem(itemInstance, _helmetSlot);
             TestEquippable unequipped = _manager.UnequipItemFrom(_helmetSlot);
             
-            Assert.AreSame(itemInstance, unequipped);
+            Assert.That(unequipped, Is.SameAs(itemInstance));
         }
         
         [Test]
         public void UnequipItemFrom_Does_Nothing_If_There_Is_No_Item_In_Slot()
         {
             var unequipped = _manager.UnequipItemFrom(_helmetSlot);
-            Assert.IsNull(unequipped);
+            Assert.That(unequipped, Is.Null);
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             TestEquippable itemInstance = new TestEquippable(_helmetSlot);
             bool wasEquipped = _manager.AutoEquipItem(itemInstance);
-            Assert.IsTrue(wasEquipped);
+            Assert.That(wasEquipped, Is.True);
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             TestEquippable itemInstance2 = new TestEquippable(_helmetSlot);
             _manager.AutoEquipItem(itemInstance1);
             bool wasEquipped = _manager.AutoEquipItem(itemInstance2);
-            Assert.IsFalse(wasEquipped);
+            Assert.That(wasEquipped, Is.False);
         }
 
         [Test]
@@ -201,7 +201,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.EquipItem(itemInstance1, _helmetSlot);
             
             TestEquippable result = _manager.EquipItem(itemInstance2, _helmetSlot);
-            Assert.AreEqual(itemInstance1, result);
+            Assert.That(result, Is.EqualTo(itemInstance1));
         }
 
         [Test]
@@ -212,7 +212,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.EquipItem(itemInstance1, _helmetSlot);
             
             TestEquippable result = _manager.EquipItem(itemInstance2, _armorSlot);
-            Assert.AreEqual(itemInstance1, result);
+            Assert.That(result, Is.EqualTo(itemInstance1));
         }
 
         [Test]
@@ -223,7 +223,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         public void HasSlot_by_Slot_Id_Function_Works_Properly(int slotId, bool expected)
         {
             bool hasSlot = _manager.HasSlot(slotId);
-            Assert.AreEqual(expected, hasSlot);
+            Assert.That(hasSlot, Is.EqualTo(expected));
         }
         
         [Test]
@@ -235,7 +235,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             TestEquippable itemInstance = new TestEquippable(slotId);
             bool hasSlot = _manager.HasSlotForItem(itemInstance);
-            Assert.AreEqual(expected, hasSlot);
+            Assert.That(hasSlot, Is.EqualTo(expected));
         }
         
         [Test]
@@ -243,7 +243,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             IItemInstance itemInstance = Substitute.For<IItemInstance>();
             bool hasSlot = _manager.HasSlotForItem(itemInstance);
-            Assert.IsFalse(hasSlot);
+            Assert.That(hasSlot, Is.False);
         }
 
         [Test]
@@ -252,7 +252,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             TestEquippable itemInstance = new TestEquippable(_helmetSlot);
             _manager.AutoEquipItem(itemInstance);
             
-            Assert.AreEqual(1, _userItemEquippedCalled, "Equipment User OnItemEquipped should've been called exactly one time");
+            Assert.That(_userItemEquippedCalled, Is.EqualTo(1), "Equipment User OnItemEquipped should've been called exactly one time");
         }
         
         [Test]
@@ -261,7 +261,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             TestEquippable itemInstance = new TestEquippable(_helmetSlot);
             _manager.EquipItem(itemInstance, _helmetSlot);
             
-            Assert.AreEqual(1, _userItemEquippedCalled, "Equipment User OnItemEquipped should've been called exactly one time");
+            Assert.That(_userItemEquippedCalled, Is.EqualTo(1), "Equipment User OnItemEquipped should've been called exactly one time");
         }
         
         [Test]
@@ -270,7 +270,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             IItemInstance itemInstance = Substitute.For<IItemInstance>();
             _manager.AutoEquipItem(itemInstance);
             
-            Assert.AreEqual(0, _userItemEquippedCalled, "Equipment User OnItemEquipped should NOT have been called");
+            Assert.That(_userItemEquippedCalled, Is.EqualTo(0), "Equipment User OnItemEquipped should NOT have been called");
         }
         
         [Test]
@@ -279,7 +279,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             TestEquippable itemInstance = new TestEquippable(_helmetSlot);
             _manager.EquipItem(itemInstance, _armorSlot);
             
-            Assert.AreEqual(0, _userItemEquippedCalled, "Equipment User OnItemEquipped should NOT have been called");
+            Assert.That(_userItemEquippedCalled, Is.EqualTo(0), "Equipment User OnItemEquipped should NOT have been called");
         }
         
         [Test]
@@ -289,7 +289,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.AutoEquipItem(itemInstance);
             _manager.UnequipItem(itemInstance);
             
-            Assert.AreEqual(1, _userItemUnequippedCalled, "Equipment User OnItemEquipped should've been called exactly one time");
+            Assert.That(_userItemUnequippedCalled, Is.EqualTo(1), "Equipment User OnItemEquipped should've been called exactly one time");
         }
         
         [Test]
@@ -300,7 +300,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.AutoEquipItem(equipped);
             _manager.UnequipItem(notEquipped);
             
-            Assert.AreEqual(0, _userItemUnequippedCalled, "Equipment User OnItemEquipped should NOT have been called");
+            Assert.That(_userItemUnequippedCalled, Is.EqualTo(0), "Equipment User OnItemEquipped should NOT have been called");
         }
         
         [Test]
@@ -309,7 +309,7 @@ namespace Tests.Runtime.RPG.InventoySystem
         public void OnItemUnequipped_From_IEquipmentUser_Is_Not_Called_If_Item_Was_Not_Unequipped_With_UnequipItemFrom(int slotId)
         {
             _manager.UnequipItemFrom(slotId);
-            Assert.AreEqual(0, _userItemUnequippedCalled, "Equipment User OnItemEquipped should NOT have been called");
+            Assert.That(_userItemUnequippedCalled, Is.EqualTo(0), "Equipment User OnItemEquipped should NOT have been called");
         }
 
         [Test]
@@ -321,7 +321,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.EquipItem(item, _armorSlot);
             var equipped = _manager.AutoEquipItem(deactivate);
             
-            Assert.IsFalse(equipped, "Item should not have been equipped");
+            Assert.That(equipped, Is.False, "Item should not have been equipped");
         }
         
         [Test]
@@ -335,7 +335,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.EquipItem(weapon, _weaponSlot);
             
             var equipped = _manager.EquipItem(deactivate, _helmetSlot);
-            Assert.IsNull(equipped, "Item should not have been equipped");
+            Assert.That(equipped, Is.Null, "Item should not have been equipped");
         }
 
         [Test]
@@ -349,7 +349,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.EquipItem(helmet, _helmetSlot);
             
             var equipped = _manager.EquipItem(deactivate, _helmetSlot);
-            Assert.IsNull(equipped);
+            Assert.That(equipped, Is.Null);
         }
 
         [Test]
@@ -361,7 +361,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.EquipItem(item, _armorSlot);
             var equipped = _manager.EquipItem(deactivate, _helmetSlot);
             
-            Assert.AreEqual(item, equipped, "Return should have been the same as the deactivated item slot");
+            Assert.That(equipped, Is.EqualTo(item), "Return should have been the same as the deactivated item slot");
         }
 
         [Test]
@@ -370,40 +370,52 @@ namespace Tests.Runtime.RPG.InventoySystem
             TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _helmetSlot });
             bool equipped = _manager.AutoEquipItem(deactivate);
             
-            Assert.IsTrue(equipped, "Item should have been equipped");
-            Assert.IsTrue(_manager.IsSlotActive(_helmetSlot), "Equipped item slot should be active");
+            Assert.Multiple(() =>
+            {
+                Assert.That(equipped, Is.True, "Item should have been equipped");
+                Assert.That(_manager.IsSlotActive(_helmetSlot), Is.True, "Equipped item slot should be active");
+            });
         }
-        
+
         [Test]
         public void Equip_Item_With_DeactivateSlots_With_Same_Value_As_EquipSlotId_Has_No_Effect()
         {
             TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _helmetSlot });
             var equipped = _manager.EquipItem(deactivate, _helmetSlot);
             
-            Assert.AreEqual(deactivate, equipped, "Item should have been equipped");
-            Assert.IsTrue(_manager.IsSlotActive(_helmetSlot), "Equipped item slot should be active");
+            Assert.Multiple(() =>
+            {
+                Assert.That(equipped, Is.EqualTo(deactivate), "Item should have been equipped");
+                Assert.That(_manager.IsSlotActive(_helmetSlot), Is.True, "Equipped item slot should be active");
+            });
         }
-        
+
         [Test]
         public void AutoEquipping_Item_With_DeactivateSlots_Will_Properly_Deactivate_Them()
         {
             TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot, _weaponSlot });
             _manager.AutoEquipItem(deactivate);
-
-            Assert.IsFalse(_manager.IsSlotActive(_armorSlot), "Armor slot example should be deactivated");
-            Assert.IsFalse(_manager.IsSlotActive(_weaponSlot), "Weapon slot example should be deactivated");
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_manager.IsSlotActive(_armorSlot), Is.False, "Armor slot example should be deactivated");
+                Assert.That(_manager.IsSlotActive(_weaponSlot), Is.False, "Weapon slot example should be deactivated");
+            });
         }
-        
+
         [Test]
         public void Equipping_Item_With_DeactivateSlots_Will_Properly_Deactivate_Them()
         {
             TestEquippable deactivate = new TestEquippable(_helmetSlot, new []{ _armorSlot, _weaponSlot });
             _manager.EquipItem(deactivate, _helmetSlot);
             
-            Assert.IsFalse(_manager.IsSlotActive(_armorSlot), "Armor slot example should be deactivated");
-            Assert.IsFalse(_manager.IsSlotActive(_weaponSlot), "Weapon slot example should be deactivated");
+            Assert.Multiple(() =>
+            {
+                Assert.That(_manager.IsSlotActive(_armorSlot), Is.False, "Armor slot example should be deactivated");
+                Assert.That(_manager.IsSlotActive(_weaponSlot), Is.False, "Weapon slot example should be deactivated");
+            });
         }
-        
+
         [Test]
         public void Unequipping_Item_With_DeactivateSlots_Will_Properly_Reactivate_Them()
         {
@@ -411,10 +423,13 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.AutoEquipItem(deactivate);
             _manager.UnequipItem(deactivate);
             
-            Assert.IsTrue(_manager.IsSlotActive(_armorSlot), "Armor slot example should be activate");
-            Assert.IsTrue(_manager.IsSlotActive(_weaponSlot), "Weapon slot example should be activate");           
+            Assert.Multiple(() =>
+            {
+                Assert.That(_manager.IsSlotActive(_armorSlot), Is.True, "Armor slot example should be activate");
+                Assert.That(_manager.IsSlotActive(_weaponSlot), Is.True, "Weapon slot example should be activate");
+            });
         }
-        
+
         [Test]
         public void Unequip_Item_From_With_DeactivateSlots_Will_Properly_Reactivate_Them()
         {
@@ -422,8 +437,11 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.AutoEquipItem(deactivate);
             _manager.UnequipItemFrom(_helmetSlot);
             
-            Assert.IsTrue(_manager.IsSlotActive(_armorSlot), "Armor slot example should be activate");
-            Assert.IsTrue(_manager.IsSlotActive(_weaponSlot), "Weapon slot example should be activate");           
+            Assert.Multiple(() =>
+            {
+                Assert.That(_manager.IsSlotActive(_armorSlot), Is.True, "Armor slot example should be activate");
+                Assert.That(_manager.IsSlotActive(_weaponSlot), Is.True, "Weapon slot example should be activate");
+            });
         }
 
         [Test]
@@ -437,7 +455,7 @@ namespace Tests.Runtime.RPG.InventoySystem
             _manager.AutoEquipItem(helmet);
 
             bool equipped = _manager.AutoEquipItem(auto);
-            Assert.IsTrue(equipped, "Item should have been automatically equipped");
+            Assert.That(equipped, Is.True, "Item should have been automatically equipped");
         }
 
         [Test]
@@ -445,13 +463,13 @@ namespace Tests.Runtime.RPG.InventoySystem
         {
             TestEquippable equip = new TestEquippable(new []{ _helmetSlot, _armorSlot, _weaponSlot });
 
-            Assert.AreEqual(equip, _manager.EquipItem(equip, _helmetSlot));
+            Assert.That(_manager.EquipItem(equip, _helmetSlot), Is.EqualTo(equip));
             _manager.UnequipItem(equip);
             
-            Assert.AreEqual(equip, _manager.EquipItem(equip, _armorSlot));
+            Assert.That(_manager.EquipItem(equip, _armorSlot), Is.EqualTo(equip));
             _manager.UnequipItem(equip);
             
-            Assert.AreEqual(equip, _manager.EquipItem(equip, _weaponSlot));
+            Assert.That(_manager.EquipItem(equip, _weaponSlot), Is.EqualTo(equip));
         }
         #endregion
     }

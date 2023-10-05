@@ -92,7 +92,7 @@ namespace Tests.Serialization.PersistenceTests
         public void DataStoreGetsProperlyRegistered()
         {
             DataStoreRegistry.AddStoreToRegistry<DataStoreMock>();
-            Assert.IsNotNull(SaveManager.Instance.GetDataStoreFor<DataStoreMock>());
+            Assert.That(SaveManager.Instance.GetDataStoreFor<DataStoreMock>(), Is.Not.Null);
         }
 
         // [Test]

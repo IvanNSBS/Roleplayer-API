@@ -48,7 +48,7 @@ namespace Tests.Runtime.RPG.Attributes
             IAttribute example = Substitute.For<IAttribute>();
             _mockAttr.Link(example);
 
-            Assert.AreEqual(1, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo(1));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace Tests.Runtime.RPG.Attributes
                 others[i] = Substitute.For<IAttribute>();
 
             _mockAttr.Link(example, others);
-            Assert.AreEqual(parents, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo(parents));
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Tests.Runtime.RPG.Attributes
             _mockAttr.Link(example);
             _mockAttr.Unlink();
 
-            Assert.AreEqual(0, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo(0));
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace Tests.Runtime.RPG.Attributes
 
             _mockAttr.Link(example, others);
             _mockAttr.Unlink();
-            Assert.AreEqual(0, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo(0));
         }
         #endregion
     }

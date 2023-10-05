@@ -1,6 +1,7 @@
 using INUlib.Gameplay.AI.BehaviourTrees;
 using NSubstitute;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace Tests.Runtime.Gameplay.AI
 {
@@ -40,11 +41,14 @@ namespace Tests.Runtime.Gameplay.AI
             MockBTNode node = new MockBTNode();
 
             node.Update(0);
-            Assert.IsTrue(node.State == NodeState.Success);
+            Assert.That(node.State == NodeState.Success, Is.True);
 
             node.Update(0);
-            Assert.IsTrue(node.State == NodeState.Success);
-            Assert.IsTrue(node.finished == 2 && node.started == 2);
+            Assert.Multiple(() =>
+            {
+                Assert.That(node.State, Is.EqualTo(NodeState.Success));
+                Assert.That(node.finished == 2 && node.started == 2, Is.True);
+            });
         }
 
         [Test]
@@ -55,7 +59,7 @@ namespace Tests.Runtime.Gameplay.AI
             CompositeNode composite = Substitute.ForPartsOf<CompositeNode>();
             composite.AddChild(mock);
 
-            Assert.IsTrue(mock.Parent == composite);
+            Assert.That(mock.Parent, Is.EqualTo(composite));
         }
 
         [Test]
@@ -64,7 +68,7 @@ namespace Tests.Runtime.Gameplay.AI
             BTNode mock = Substitute.For<BTNode>();
             DecoratorNode decorator = Substitute.ForPartsOf<DecoratorNode>(mock);
 
-            Assert.IsTrue(mock.Parent == decorator);
+            Assert.That(mock.Parent, Is.EqualTo(decorator));
         }
 
         [Test]
@@ -74,7 +78,7 @@ namespace Tests.Runtime.Gameplay.AI
             DecoratorNode decorator = Substitute.ForPartsOf<DecoratorNode>();
             decorator.SetChild(mock);
 
-            Assert.IsTrue(decorator.GetChildren().Contains(mock));
+            Assert.That(decorator.GetChildren(), Does.Contain(mock));
         }
 
         [Test]
@@ -84,14 +88,14 @@ namespace Tests.Runtime.Gameplay.AI
             CompositeNode composite = Substitute.ForPartsOf<CompositeNode>();
             composite.AddChild(mock);
 
-            Assert.IsTrue(composite.GetChildren().Contains(mock));
+            Assert.That(composite.GetChildren(), Does.Contain(mock));
         }
 
         [Test]
         public void Action_Node_Has_No_Children()
         {
             ActionNode action = Substitute.ForPartsOf<ActionNode>();
-            Assert.IsNull(action.GetChildren());
+            Assert.That(action.GetChildren(), Is.Null);
         }
         #endregion
 
@@ -101,7 +105,7 @@ namespace Tests.Runtime.Gameplay.AI
         public void Sequence_Succeeds_If_It_Has_No_Children()
         {
             SequenceNode seq = new SequenceNode();
-            Assert.IsTrue(seq.Update(0) == NodeState.Success);
+            Assert.That(seq.Update(0), Is.EqualTo(NodeState.Success));
         }
 
         [Test]
@@ -123,9 +127,9 @@ namespace Tests.Runtime.Gameplay.AI
             for(int i = 0; i <= failsAtIdx; i++)
             {
                 if(i == failsAtIdx)
-                    Assert.IsTrue(seq.Update(0) == NodeState.Failure);
+                    Assert.That(seq.Update(0), Is.EqualTo(NodeState.Failure));
                 else
-                    Assert.IsTrue(seq.Update(0) == NodeState.Running);
+                    Assert.That(seq.Update(0), Is.EqualTo(NodeState.Running));
             }
         }
 
@@ -148,16 +152,16 @@ namespace Tests.Runtime.Gameplay.AI
 
             if(childsCount == 0)
             {
-                Assert.IsTrue(seq.Update(0) == NodeState.Success);
+                Assert.That(seq.Update(0), Is.EqualTo(NodeState.Success));
             }
             else
             {
                 for(int i = 0; i < childsCount; i++)
                 {
                     if(i == childsCount - 1)
-                        Assert.IsTrue(seq.Update(0) == NodeState.Success);
+                        Assert.That(seq.Update(0), Is.EqualTo(NodeState.Success));
                     else
-                        Assert.IsTrue(seq.Update(0) == NodeState.Running);
+                        Assert.That(seq.Update(0), Is.EqualTo(NodeState.Running));
                 }
             }
         }
@@ -171,7 +175,7 @@ namespace Tests.Runtime.Gameplay.AI
             SequenceNode seq = new SequenceNode();
             seq.AddChild(mock);
             
-            Assert.IsTrue(seq.Update(0) == NodeState.Running);
+            Assert.That(seq.Update(0), Is.EqualTo(NodeState.Running));
         }
 
         [Test]
@@ -196,7 +200,7 @@ namespace Tests.Runtime.Gameplay.AI
                     var expected = i == finishIdx ? finishState : NodeState.Running;
 
                     var update = seq.Update(0);
-                    Assert.IsTrue(update == expected);
+                    Assert.That(update, Is.EqualTo(expected));
                 }
             }
         }
@@ -208,7 +212,7 @@ namespace Tests.Runtime.Gameplay.AI
         public void Selector_Succeeds_If_It_Has_No_Children()
         {
             SelectorNode seq = new SelectorNode();
-            Assert.IsTrue(seq.Update(0) == NodeState.Success);
+            Assert.That(seq.Update(0), Is.EqualTo(NodeState.Success));
         }
 
         [Test]
@@ -230,9 +234,9 @@ namespace Tests.Runtime.Gameplay.AI
             for(int i = 0; i < childsCount; i++)
             {
                 if(i == childsCount - 1)
-                    Assert.IsTrue(seq.Update(0) == NodeState.Failure);
+                    Assert.That(seq.Update(0), Is.EqualTo(NodeState.Failure));
                 else
-                    Assert.IsTrue(seq.Update(0) == NodeState.Running);
+                    Assert.That(seq.Update(0), Is.EqualTo(NodeState.Running));
             }
         }
 
@@ -256,9 +260,9 @@ namespace Tests.Runtime.Gameplay.AI
             for(int i = 0; i <= successAt; i++)
             {
                 if(i == successAt)
-                    Assert.IsTrue(seq.Update(0) == NodeState.Success);
+                    Assert.That(seq.Update(0), Is.EqualTo(NodeState.Success));
                 else
-                    Assert.IsTrue(seq.Update(0) == NodeState.Running);
+                    Assert.That(seq.Update(0), Is.EqualTo(NodeState.Running));
             }
         }
 
@@ -271,7 +275,7 @@ namespace Tests.Runtime.Gameplay.AI
             SelectorNode seq = new SelectorNode();
             seq.AddChild(mock);
             
-            Assert.IsTrue(seq.Update(0) == NodeState.Running);
+            Assert.That(seq.Update(0), Is.EqualTo(NodeState.Running));
         }
 
         [Test]
@@ -295,7 +299,7 @@ namespace Tests.Runtime.Gameplay.AI
                 for(int i = 0; i <= finishIdx; i++)
                 {
                     var expected = i == finishIdx ? finishState : NodeState.Running;
-                    Assert.IsTrue(seq.Update(0) == expected);
+                    Assert.That(seq.Update(0), Is.EqualTo(expected));
                 }
             }
         }
@@ -315,8 +319,10 @@ namespace Tests.Runtime.Gameplay.AI
             mock.Update(0).Returns(expected);
 
             RepeaterDecorator repeater = new RepeaterDecorator(repeatAmnt, mock);
-            for(int i = 0; i < repeatAmnt; i++)
-                Assert.IsTrue(repeater.Update(0) == (i == repeatAmnt - 1 ? expected : NodeState.Running));
+            for(int i = 0; i < repeatAmnt; i++) {
+                NodeState actualExpected = i == repeatAmnt - 1 ? expected : NodeState.Running;
+                Assert.That(repeater.Update(0), Is.EqualTo(actualExpected));
+            }
         }
 
         [Test]
@@ -329,8 +335,10 @@ namespace Tests.Runtime.Gameplay.AI
         {
             RepeaterDecorator repeater = new RepeaterDecorator(repeatAmnt);
             
-            for(int i = 0; i < repeatAmnt; i++)
-                Assert.IsTrue(repeater.Update(0) == (i == repeatAmnt - 1 ? NodeState.Success : NodeState.Running));
+            for(int i = 0; i < repeatAmnt; i++) {
+                NodeState expected = i == repeatAmnt - 1 ? NodeState.Success : NodeState.Running;
+                Assert.That(repeater.Update(0), Is.EqualTo(expected));
+            }
         }
         #endregion
 
@@ -345,7 +353,7 @@ namespace Tests.Runtime.Gameplay.AI
             var mockWait = Substitute.ForPartsOf<WaitAction>(wait);
             mockWait.ElapsedTime.Returns(elapsed);
 
-            Assert.IsTrue(mockWait.Update(0) == expected);
+            Assert.That(mockWait.Update(0), Is.EqualTo(expected));
         }
         #endregion
 
@@ -361,7 +369,7 @@ namespace Tests.Runtime.Gameplay.AI
             mockNode.Update(0).Returns(state);
 
             InverterDecorator inverter = new InverterDecorator(mockNode);
-            Assert.IsTrue(inverter.Update(0) == expected);
+            Assert.That(inverter.Update(0), Is.EqualTo(expected));
         }
         #endregion
     }

@@ -18,7 +18,7 @@ namespace Tests.Runtime.Services.IoCTests
             object instance = container.Resolve<IFoo>();
 
             // Instance should be of the registered type 
-            Assert.IsInstanceOf(typeof(Foo), instance);
+            Assert.That(instance, Is.InstanceOf(typeof(Foo)));
         }
 
         [Test]
@@ -33,11 +33,14 @@ namespace Tests.Runtime.Services.IoCTests
             IBaz instance = container.Resolve<IBaz>();
 
             // Test that the correct types were created
-            Assert.IsInstanceOf(typeof(Baz), instance);
+            Assert.That(instance, Is.InstanceOf(typeof(Baz)));
 
             var baz = instance as Baz;
-            Assert.IsInstanceOf(typeof(Bar), baz.Bar);
-            Assert.IsInstanceOf(typeof(Foo), baz.Foo);
+            Assert.Multiple(() =>
+            {
+                Assert.That(baz.Bar, Is.InstanceOf(typeof(Bar)));
+                Assert.That(baz.Foo, Is.InstanceOf(typeof(Foo)));
+            });
         }
 
         [Test]
@@ -49,7 +52,7 @@ namespace Tests.Runtime.Services.IoCTests
             object instance = container.Resolve<IFoo>();
 
             // Instance should be of the registered type 
-            Assert.IsInstanceOf(typeof(Foo), instance);
+            Assert.That(instance, Is.InstanceOf(typeof(Foo)));
         }
 
         [Test]
@@ -63,11 +66,14 @@ namespace Tests.Runtime.Services.IoCTests
             IBaz instance = container.Resolve<IBaz>();
 
             // Test that the correct types were created
-            Assert.IsInstanceOf(typeof(Baz), instance);
+            Assert.That(instance, Is.InstanceOf(typeof(Baz)));
 
             var baz = instance as Baz;
-            Assert.IsInstanceOf(typeof(Bar), baz.Bar);
-            Assert.IsInstanceOf(typeof(Foo), baz.Foo);
+            Assert.Multiple(() =>
+            {
+                Assert.That(baz.Bar, Is.InstanceOf(typeof(Bar)));
+                Assert.That(baz.Foo, Is.InstanceOf(typeof(Foo)));
+            });
         }
 
         [Test]
@@ -80,7 +86,7 @@ namespace Tests.Runtime.Services.IoCTests
             object instance2 = container.Resolve<IFoo>();
 
             // Instances should be different between calls to Resolve
-            Assert.AreNotEqual(instance1, instance2);
+            Assert.That(instance2, Is.Not.EqualTo(instance1));
         }
 
         [Test]
@@ -93,7 +99,7 @@ namespace Tests.Runtime.Services.IoCTests
             object instance2 = container.Resolve<IFoo>();
 
             // Instances should be identic between calls to Resolve
-            Assert.AreEqual(instance1, instance2);
+            Assert.That(instance2, Is.EqualTo(instance1));
         }
 
         [Test]
@@ -106,7 +112,7 @@ namespace Tests.Runtime.Services.IoCTests
             object instance2 = container.Resolve<IFoo>();
 
             // Instances should be same as the container is itself a scope
-            Assert.AreEqual(instance1, instance2);
+            Assert.That(instance2, Is.EqualTo(instance1));
 
             using (var scope = container.CreateScope())
             {
@@ -114,10 +120,10 @@ namespace Tests.Runtime.Services.IoCTests
                 object instance4 = scope.Resolve<IFoo>();
 
                 // Instances should be equal inside a scope
-                Assert.AreEqual(instance3, instance4);
+                Assert.That(instance4, Is.EqualTo(instance3));
 
                 // Instances should not be equal between scopes
-                Assert.AreNotEqual(instance1, instance3);
+                Assert.That(instance3, Is.Not.EqualTo(instance1));
             }
         }
 
@@ -136,18 +142,23 @@ namespace Tests.Runtime.Services.IoCTests
                 Baz instance2 = scope.Resolve<IBaz>() as Baz;
 
                 // Ensure resolutions worked as expected
-                Assert.AreNotEqual(instance1, instance2);
+                Assert.That(instance2, Is.Not.EqualTo(instance1));
 
-                // Singleton should be same
-                Assert.AreEqual(instance1.Bar, instance2.Bar);
-                Assert.AreEqual((instance1.Bar as Bar).Foo, (instance2.Bar as Bar).Foo);
+                Assert.Multiple(() =>
+                {
+                    // Singleton should be same
+                    Assert.That(instance2.Bar, Is.EqualTo(instance1.Bar));
+                    Assert.That((instance2.Bar as Bar).Foo, Is.EqualTo((instance1.Bar as Bar).Foo));
+                    // Scoped types should be the same
+                    Assert.That(instance2.Foo, Is.EqualTo(instance1.Foo));
+                });
 
-                // Scoped types should be the same
-                Assert.AreEqual(instance1.Foo, instance2.Foo);
-
-                // Singleton should not hold scoped object
-                Assert.AreNotEqual(instance1.Foo, (instance1.Bar as Bar).Foo);
-                Assert.AreNotEqual(instance2.Foo, (instance2.Bar as Bar).Foo);
+                Assert.Multiple(() =>
+                {
+                    // Singleton should not hold scoped object
+                    Assert.That((instance1.Bar as Bar).Foo, Is.Not.EqualTo(instance1.Foo));
+                    Assert.That((instance2.Bar as Bar).Foo, Is.Not.EqualTo(instance2.Foo));
+                });
             }
         }
 
@@ -166,7 +177,7 @@ namespace Tests.Runtime.Services.IoCTests
                 var instance2 = container.Resolve<IBar>();
 
                 // Singleton should resolve to the same instance
-                Assert.AreEqual((instance1 as Bar).Foo, (instance2 as Bar).Foo);
+                Assert.That((instance2 as Bar).Foo, Is.EqualTo((instance1 as Bar).Foo));
             }
         }
 
@@ -183,15 +194,18 @@ namespace Tests.Runtime.Services.IoCTests
             Baz instance2 = container.Resolve<IBaz>() as Baz;
 
             // Ensure resolutions worked as expected
-            Assert.AreNotEqual(instance1, instance2);
+            Assert.That(instance2, Is.Not.EqualTo(instance1));
 
             // Singleton should be same
-            Assert.AreEqual(instance1.Bar, instance2.Bar);
+            Assert.That(instance2.Bar, Is.EqualTo(instance1.Bar));
 
-            // Scoped types should not be different outside a scope
-            Assert.AreEqual(instance1.Foo, instance2.Foo);
-            Assert.AreEqual(instance1.Foo, (instance1.Bar as Bar).Foo);
-            Assert.AreEqual(instance2.Foo, (instance2.Bar as Bar).Foo);
+            Assert.Multiple(() =>
+            {
+                // Scoped types should not be different outside a scope
+                Assert.That(instance2.Foo, Is.EqualTo(instance1.Foo));
+                Assert.That((instance1.Bar as Bar).Foo, Is.EqualTo(instance1.Foo));
+                Assert.That((instance2.Bar as Bar).Foo, Is.EqualTo(instance2.Foo));
+            });
         }
 
         [Test]
@@ -206,11 +220,11 @@ namespace Tests.Runtime.Services.IoCTests
             IBaz instance = container.Resolve<IBaz>();
 
             // Test that the correct types were created
-            Assert.IsInstanceOf(typeof(Baz), instance);
+            Assert.That(instance, Is.InstanceOf(typeof(Baz)));
 
             var baz = instance as Baz;
-            Assert.IsInstanceOf(typeof(Bar), baz.Bar);
-            Assert.IsInstanceOf(typeof(Foo), baz.Foo);
+            Assert.That(baz.Bar, Is.InstanceOf(typeof(Bar)));
+            Assert.That(baz.Foo, Is.InstanceOf(typeof(Foo)));
         }
 
         [Test]
@@ -226,7 +240,7 @@ namespace Tests.Runtime.Services.IoCTests
                 spy = scope.Resolve<SpyDisposable>();
             }
 
-            Assert.IsTrue(spy.Disposed);
+            Assert.That(spy.Disposed, Is.True);
         }
 
         [Test]
@@ -239,7 +253,7 @@ namespace Tests.Runtime.Services.IoCTests
                 spy = container.Resolve<SpyDisposable>();
             }
 
-            Assert.IsTrue(spy.Disposed);
+            Assert.That(spy.Disposed, Is.True);
         }
 
         [Test]
@@ -251,7 +265,7 @@ namespace Tests.Runtime.Services.IoCTests
             var container2 = new DiContainer();
             container2.Register<IFoo>(typeof(Foo)).AsSingleton();
 
-            Assert.AreNotEqual(container1.Resolve<IFoo>(), container2.Resolve<IFoo>());
+            Assert.That(container2.Resolve<IFoo>(), Is.Not.EqualTo(container1.Resolve<IFoo>()));
         }
 
         [Test]
@@ -261,7 +275,7 @@ namespace Tests.Runtime.Services.IoCTests
             {
                 object value = container.GetService(typeof(Foo));
 
-                Assert.IsNull(value);
+                Assert.That(value, Is.Null);
             }
         }
 

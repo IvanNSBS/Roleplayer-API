@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using NSubstitute;
 using INUlib.RPG.AbilitiesSystem;
-using System;
 using INUlib.Core.Math;
 
 namespace Tests.Runtime.RPG.Abilities
@@ -65,7 +64,7 @@ namespace Tests.Runtime.RPG.Abilities
             float clampedCdr = 1 - INUMath.Clamp(gcd + ccd, 0, maxCdr);
             float expected = _abilityMaxCd * clampedCdr;
 
-            Assert.AreEqual(expected, value);
+            Assert.That(value, Is.EqualTo(expected));
         }
 
         [Test]
@@ -92,7 +91,7 @@ namespace Tests.Runtime.RPG.Abilities
             float clampedCdr = 1 - INUMath.Clamp(testFunc(gcd, ccd), 0, maxCdr);
             float expected = _abilityMaxCd * clampedCdr;
 
-            Assert.AreEqual(expected, value);
+            Assert.That(value, Is.EqualTo(expected));
         }
         
         [Test]
@@ -119,7 +118,7 @@ namespace Tests.Runtime.RPG.Abilities
 
             float maxCd = _abilityMaxCd * (1 - _handler.GlobalCDR);
             float expected = INUMath.Clamp(maxCd - dec, 0, _abilityMaxCd);
-            Assert.AreEqual(expected, info.currentCooldown);
+            Assert.That(info.currentCooldown, Is.EqualTo(expected));
         }
 
         [Test]
@@ -133,7 +132,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.PutOnCastPrevention(slotIdx, cd);
             float curr = _handler.GetCooldownInfo(slotIdx).remainingCastPreventionTime;
 
-            Assert.AreEqual(cd, curr);
+            Assert.That(curr, Is.EqualTo(cd));
         }
 
         [Test]
@@ -145,7 +144,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Correctly_Returns_If_Ability_Is_On_Secondary_Cd(uint slotIdx)
         {
             _handler.PutOnCastPrevention(slotIdx, 10);
-            Assert.IsTrue(_handler.IsAbilityOnCastPrevention(slotIdx));
+            Assert.That(_handler.IsAbilityOnCastPrevention(slotIdx), Is.True);
         }
         
         [Test]
@@ -157,7 +156,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Does_Not_Go_On_Secondary_CD_When_Using_Values_Close_And_Below_0(uint slotIdx)
         {
             _handler.PutOnCastPrevention(slotIdx, 0);
-            Assert.IsFalse(_handler.IsAbilityOnCastPrevention(slotIdx));
+            Assert.That(_handler.IsAbilityOnCastPrevention(slotIdx), Is.False);
         }
         
         [TestCase(0u)]
@@ -171,7 +170,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.Update(1f);
 
             float curr = _handler.GetCooldownInfo(slotIdx).remainingCastPreventionTime;
-            Assert.AreEqual(9f, curr);
+            Assert.That(curr, Is.EqualTo(9f));
         }
 
         [Test]
@@ -187,7 +186,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.Update(0.5f, _abilities[slotIdx]);
             CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
 
-            Assert.AreEqual(info.maxCooldown, info.currentCooldown);
+            Assert.That(info.currentCooldown, Is.EqualTo(info.maxCooldown));
         }
 
         [Test]
@@ -210,7 +209,7 @@ namespace Tests.Runtime.RPG.Abilities
             for(uint i = 0; i < _slotCount; i++)
             {
                 CooldownInfo info = _handler.GetCooldownInfo(i);
-                Assert.AreEqual(expected, info.currentCooldown);                
+                Assert.That(info.currentCooldown, Is.EqualTo(expected));                
             }
         }
 
@@ -246,7 +245,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.PutOnCooldown(slot);
             CooldownInfo cdInfo = _handler.GetCooldownInfo(slot);
 
-            Assert.AreEqual(cdInfo.maxCooldown, cdInfo.currentCooldown);
+            Assert.That(cdInfo.currentCooldown, Is.EqualTo(cdInfo.maxCooldown));
         }
 
         [Test]
@@ -259,7 +258,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             var ability = _abilities[slot];
 
-            Assert.IsTrue(_handler.PutOnCooldown(ability));
+            Assert.That(_handler.PutOnCooldown(ability), Is.True);
         }
 
         [Test]
@@ -267,7 +266,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             CooldownInfo info = _handler.GetCooldownInfo(100);
         
-            Assert.IsNull(info);
+            Assert.That(info, Is.Null);
         }
 
         [Test]
@@ -276,19 +275,19 @@ namespace Tests.Runtime.RPG.Abilities
             var ability = _abilities[0];
             CooldownInfo info = _handler.GetCooldownInfo(ability);
             
-            Assert.NotNull(info);
+            Assert.That(info, Is.Not.Null);
         }
 
         [Test]
         public void CooldownHandler_Returns_False_For_Reset_Cooldown_On_Invalid_Slot()
         {
-            Assert.IsFalse(_handler.PutOnCooldown(1000));
+            Assert.That(_handler.PutOnCooldown(1000), Is.False);
         }
 
         [Test]
         public void CooldownHandler_Returns_False_When_Checking_If_Invalid_Slot_Is_On_Cooldown()
         {
-            Assert.IsFalse(_handler.IsAbilityOnCd(1000));
+            Assert.That(_handler.IsAbilityOnCd(1000), Is.False);
         }
 
         [Test]
@@ -300,7 +299,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Properly_Returns_MaxCdr(float maxCdr)
         {
             _handler.MaxCdrValue = maxCdr;
-            Assert.AreEqual(INUMath.Clamp01(maxCdr), _handler.MaxCdrValue);
+            Assert.That(_handler.MaxCdrValue, Is.EqualTo(INUMath.Clamp01(maxCdr)));
         }
 
         [Test]
@@ -309,7 +308,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.AddCategoryCdr(0, 0.5f);
             _handler.MaxCdrValue = 0.3f;
 
-            Assert.AreEqual(0.3f, _handler.GetCategoryCdr(0));
+            Assert.That(_handler.GetCategoryCdr(0), Is.EqualTo(0.3f));
         }
 
         [Test]
@@ -322,7 +321,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.SetCategoryCdr(0, cdr);
             float expected = INUMath.Clamp(cdr, 0, _handler.MaxCdrValue);
 
-            Assert.AreEqual(expected, _handler.GetCategoryCdr(0));
+            Assert.That(_handler.GetCategoryCdr(0), Is.EqualTo(expected));
         }
 
         [Test]
@@ -332,7 +331,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _handler.AddCategoryCdr(0, cdr);
 
-            Assert.AreEqual(INUMath.Clamp(cdr, 0, _handler.MaxCdrValue), _handler.GetCategoryCdr(0));
+            Assert.That(_handler.GetCategoryCdr(0), Is.EqualTo(INUMath.Clamp(cdr, 0, _handler.MaxCdrValue)));
         }
 
         [Test]
@@ -341,7 +340,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.AddCategoryCdr(0, 0.2f);
             _handler.AddCategoryCdr(0, 0.2f);
         
-            Assert.AreEqual(_handler.GetCategoryCdr(0), 0.4f);
+            Assert.That(_handler.GetCategoryCdr(0), Is.EqualTo(0.4f));
         }
 
         [Test]
@@ -350,9 +349,12 @@ namespace Tests.Runtime.RPG.Abilities
             IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             bool result = _handler.PutOnCooldown(null);
             bool result2 = _handler.PutOnCooldown(ab);
-
-            Assert.IsFalse(result);
-            Assert.IsFalse(result2);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.False);
+                Assert.That(result2, Is.False);
+            });
         }
 
         [Test]
@@ -361,7 +363,7 @@ namespace Tests.Runtime.RPG.Abilities
             IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             bool result = _handler.IncreaseCooldown(10, 1);
 
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -370,7 +372,7 @@ namespace Tests.Runtime.RPG.Abilities
             IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             bool result = _handler.DecreaseCooldown(10, 1);
 
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -379,14 +381,14 @@ namespace Tests.Runtime.RPG.Abilities
             IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             bool result = _handler.ClampCooldown(10, 1);
 
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
         public void CooldownHandler_Properly_Returns_Cooldown_Info_For_Ability_Reference()
         {
             var abilityRef = _abilities[0];
-            Assert.IsNotNull(_handler.GetCooldownInfo(abilityRef));
+            Assert.That(_handler.GetCooldownInfo(abilityRef), Is.Not.Null);
         }
 
         [Test]
@@ -395,9 +397,12 @@ namespace Tests.Runtime.RPG.Abilities
             IAbility<ICasterInfo> ab = Substitute.For<IAbility<ICasterInfo>>();
             CooldownInfo info1 = _handler.GetCooldownInfo(null);
             CooldownInfo info2 = _handler.GetCooldownInfo(ab);
-
-            Assert.IsNull(info1);
-            Assert.IsNull(info2);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(info1, Is.Null);
+                Assert.That(info2, Is.Null);
+            });
         }
 
         [Test]
@@ -409,7 +414,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void CooldownHandler_Properly_Returns_If_Ability_Is_On_Cooldown(uint slot)
         {
             _handler.PutOnCooldown(slot);
-            Assert.IsTrue(_handler.IsAbilityOnCd(slot));
+            Assert.That(_handler.IsAbilityOnCd(slot), Is.True);
         }
 
         [Test]
@@ -421,11 +426,11 @@ namespace Tests.Runtime.RPG.Abilities
         public void Ability_Wont_Go_To_Cooldown_If_It_Has_Cooldown_Set_To_Zero(uint slot)
         {
             _abilities[slot].Cooldown.Returns(0);
-            Assert.AreEqual(0, _handler.GetCooldownInfo(slot).maxCooldown);
+            Assert.That(_handler.GetCooldownInfo(slot).maxCooldown, Is.EqualTo(0));
 
             _handler.PutOnCooldown(slot);
             bool onCooldown = _handler.IsAbilityOnCd(slot);
-            Assert.IsFalse(onCooldown, "Expected ability to not be on cooldown but it was");
+            Assert.That(onCooldown, Is.False, "Expected ability to not be on cooldown but it was");
         }
         
         [Test]
@@ -440,12 +445,12 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.ConsumeCharges(slot, 1);
             var cdInfo = _handler.GetCooldownInfo(slot);
             
-            Assert.AreEqual(_abilityCharges-1 , cdInfo.availableCharges);
+            Assert.That(cdInfo.availableCharges, Is.EqualTo(_abilityCharges - 1));
             
             _handler.Update(_abilityMaxCd);
             cdInfo = _handler.GetCooldownInfo(slot);
             
-            Assert.AreEqual(_abilityCharges, cdInfo.availableCharges);
+            Assert.That(cdInfo.availableCharges, Is.EqualTo(_abilityCharges));
         }
 
         [Test]
@@ -472,7 +477,7 @@ namespace Tests.Runtime.RPG.Abilities
             CooldownInfo info = _handler.GetCooldownInfo(slotIdx);
 
             float expected = _abilityMaxCd;
-            Assert.AreEqual(expected, info.currentCooldown);
+            Assert.That(info.currentCooldown, Is.EqualTo(expected));
         }
         
         
@@ -485,7 +490,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void Increase_Cooldown_Wont_Do_Anything_If_Ability_Is_Not_On_Cooldown(uint slot)
         {
             bool output = _handler.IncreaseCooldown(slot, 5);
-            Assert.IsFalse(output);
+            Assert.That(output, Is.False);
         }
 
         [Test]
@@ -504,7 +509,7 @@ namespace Tests.Runtime.RPG.Abilities
             int available = cdInfo.availableCharges;
             int expected = INUMath.Clamp(add, 0, maxCharges);
             
-            Assert.AreEqual(expected, available);
+            Assert.That(available, Is.EqualTo(expected));
         }
 
         [Test]
@@ -525,7 +530,7 @@ namespace Tests.Runtime.RPG.Abilities
             var cdInfo = _handler.GetCooldownInfo(slot);
             int available = cdInfo.availableCharges;
             
-            Assert.AreEqual(3, available);
+            Assert.That(available, Is.EqualTo(3));
         }
         
         [Test]
@@ -549,7 +554,7 @@ namespace Tests.Runtime.RPG.Abilities
             int available = cdInfo.availableCharges;
             int expected = INUMath.Clamp(100 - remove, 0, maxCharges);
             
-            Assert.AreEqual(expected, available);
+            Assert.That(available, Is.EqualTo(expected));
         }
 
         [Test]
@@ -561,7 +566,7 @@ namespace Tests.Runtime.RPG.Abilities
         public void AddExtraAbilityCharges_Function_Correctly_Adds_Extra_Charges(uint slot, int amount)
         {
             _handler.AddExtraAbilityCharges(slot, amount);
-            Assert.AreEqual(amount, _handler.GetCooldownInfo(slot).extraCharges);
+            Assert.That(_handler.GetCooldownInfo(slot).extraCharges, Is.EqualTo(amount));
         }
 
         [Test]
@@ -574,7 +579,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _handler.AddExtraAbilityCharges(slot, 100);
             _handler.RemoveAllAbilityExtraCharges(slot);
-            Assert.AreEqual(0, _handler.GetCooldownInfo(slot).extraCharges);
+            Assert.That(_handler.GetCooldownInfo(slot).extraCharges, Is.EqualTo(0));
         }
         
         [Test]
@@ -592,7 +597,7 @@ namespace Tests.Runtime.RPG.Abilities
             if (expected < 0)
                 expected = 0;
             
-            Assert.AreEqual(expected, _handler.GetCooldownInfo(slot).extraCharges);
+            Assert.That(_handler.GetCooldownInfo(slot).extraCharges, Is.EqualTo(expected));
         }
 
         [Test]
@@ -606,7 +611,7 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.SetAbilityMaxCharges(slot, size, false);
             var cdInfo = _handler.GetCooldownInfo(slot);
             
-            Assert.AreEqual(size, cdInfo.maxCharges, $"Expected max charges: {size} but got {cdInfo.maxCharges}");
+            Assert.That(cdInfo.maxCharges, Is.EqualTo(size), $"Expected max charges: {size} but got {cdInfo.maxCharges}");
         }
         
         [Test]
@@ -620,10 +625,13 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.SetAbilityMaxCharges(slot, 0, false);
             var cdInfo = _handler.GetCooldownInfo(slot);
             
-            Assert.AreEqual(0, cdInfo.maxCharges, $"Expected max charges: 0 but got {cdInfo.maxCharges}");
-            Assert.AreEqual(0, cdInfo.availableCharges, $"Expected available charges: 0 but got {cdInfo.availableCharges}");
+            Assert.Multiple(() =>
+            {
+                Assert.That(cdInfo.maxCharges, Is.EqualTo(0), $"Expected max charges: 0 but got {cdInfo.maxCharges}");
+                Assert.That(cdInfo.availableCharges, Is.EqualTo(0), $"Expected available charges: 0 but got {cdInfo.availableCharges}");
+            });
         }
-        
+
         [Test]
         [TestCase(0u, 6)]
         [TestCase(1u, 5)]
@@ -637,10 +645,13 @@ namespace Tests.Runtime.RPG.Abilities
             var cdInfo = _handler.GetCooldownInfo(slot);
             int expected = 10 - removeSize < 0 ? 0 : 10 - removeSize;
             
-            Assert.AreEqual(expected, cdInfo.maxCharges, $"Expected max charges: {expected} but got {cdInfo.maxCharges}");
-            Assert.AreEqual(expected, cdInfo.availableCharges, $"Expected available charges: {expected} but got {cdInfo.availableCharges}");
+            Assert.Multiple(() =>
+            {
+                Assert.That(cdInfo.maxCharges, Is.EqualTo(expected), $"Expected max charges: {expected} but got {cdInfo.maxCharges}");
+                Assert.That(cdInfo.availableCharges, Is.EqualTo(expected), $"Expected available charges: {expected} but got {cdInfo.availableCharges}");
+            });
         }
-        
+
         [Test]
         [TestCase(0u, 4)]
         [TestCase(1u, 2)]
@@ -651,7 +662,7 @@ namespace Tests.Runtime.RPG.Abilities
         {
             _handler.SetAbilityMaxCharges(slot, size, true);
             var cdInfo = _handler.GetCooldownInfo(slot);
-            Assert.AreEqual(cdInfo.maxCharges, cdInfo.availableCharges);
+            Assert.That(cdInfo.availableCharges, Is.EqualTo(cdInfo.maxCharges));
         }
 
         [Test]
@@ -665,9 +676,12 @@ namespace Tests.Runtime.RPG.Abilities
             _handler.AddExtraAbilityCharges(slot, 1);
             _handler.ConsumeCharges(slot, 1);
             var cdInfo = _handler.GetCooldownInfo(slot);
-
-            Assert.AreEqual(0, cdInfo.extraCharges);
-            Assert.AreEqual(1, cdInfo.availableCharges);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(cdInfo.extraCharges, Is.EqualTo(0));
+                Assert.That(cdInfo.availableCharges, Is.EqualTo(1));
+            });
         }
         #endregion
     }

@@ -44,14 +44,19 @@ namespace Tests.Runtime.RPG.Attributes
         public void RPG_Attribute_Empty_Constructor_Correctly_Initializes_Attribute(AttributeType type)
         {
             RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(type);
+            Assert.Multiple(() =>
+            {
+                Assert.That(attr.maxValue, Is.EqualTo(-1));
+                Assert.That(attr.minValue, Is.EqualTo(0));
+                Assert.That(attr.defaultValue, Is.EqualTo(0));
+                Assert.That(attr.ValueAsFloat(), Is.EqualTo(0));
+            });
             
-            Assert.AreEqual(-1, attr.maxValue);
-            Assert.AreEqual(0, attr.minValue);
-            Assert.AreEqual(0, attr.defaultValue);
-            Assert.AreEqual(0, attr.ValueAsFloat());
-
-            Assert.NotNull(attr.FlatMods);
-            Assert.NotNull(attr.PercentMods);
+            Assert.Multiple(() =>
+            {
+                Assert.That(attr.FlatMods, Is.Not.Null);
+                Assert.That(attr.PercentMods, Is.Not.Null);
+            });
         }
 
         [Test]
@@ -69,23 +74,31 @@ namespace Tests.Runtime.RPG.Attributes
             
             if(type == AttributeType.Integer)
             {
-                int expected = (int)dfVal < (int)minVal ? (int)minVal : (int)dfVal; 
-                Assert.AreEqual((int)minVal, attr.minValue);
-                Assert.AreEqual(expected, attr.defaultValue);
-                Assert.AreEqual(expected, attr.ValueAsFloat());
+                int expected = (int)dfVal < (int)minVal ? (int)minVal : (int)dfVal;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(attr.minValue, Is.EqualTo((int)minVal));
+                    Assert.That(attr.defaultValue, Is.EqualTo(expected));
+                    Assert.That(attr.ValueAsFloat(), Is.EqualTo(expected));
+                });
             }
             else
             {
-                float expected = dfVal < minVal ? minVal : dfVal; 
-                Assert.AreEqual(minVal, attr.minValue);
-                Assert.AreEqual(expected, attr.defaultValue);
-                Assert.AreEqual(expected, attr.ValueAsFloat());
+                float expected = dfVal < minVal ? minVal : dfVal;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(attr.minValue, Is.EqualTo(minVal));
+                    Assert.That(attr.defaultValue, Is.EqualTo(expected));
+                    Assert.That(attr.ValueAsFloat(), Is.EqualTo(expected));
+                });
             }
-            
-            Assert.AreEqual(-1, attr.maxValue);
 
-            Assert.NotNull(attr.FlatMods);
-            Assert.NotNull(attr.PercentMods);
+            Assert.Multiple(() =>
+            {
+                Assert.That(attr.maxValue, Is.EqualTo(-1));
+                Assert.That(attr.FlatMods, Is.Not.Null);
+                Assert.That(attr.PercentMods, Is.Not.Null);
+            });
         }
 
         [Test]
@@ -103,23 +116,32 @@ namespace Tests.Runtime.RPG.Attributes
             
             if(type == AttributeType.Integer)
             {
-                int expected = (int)dfVal < (int)minVal ? (int)minVal : (int)dfVal; 
-                Assert.AreEqual(expected, attr.defaultValue);
-                Assert.AreEqual(expected, attr.ValueAsFloat());
-                Assert.AreEqual((int)minVal, attr.minValue);
-                Assert.AreEqual((int)maxVal, attr.maxValue);
+                int expected = (int)dfVal < (int)minVal ? (int)minVal : (int)dfVal;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(attr.defaultValue, Is.EqualTo(expected));
+                    Assert.That(attr.ValueAsFloat(), Is.EqualTo(expected));
+                    Assert.That(attr.minValue, Is.EqualTo((int)minVal));
+                    Assert.That(attr.maxValue, Is.EqualTo((int)maxVal));
+                });
             }
             else
             {
-                float expected = dfVal < minVal ? minVal : dfVal; 
-                Assert.AreEqual(expected, attr.defaultValue);
-                Assert.AreEqual(expected, attr.ValueAsFloat());
-                Assert.AreEqual(minVal, attr.minValue);
-                Assert.AreEqual(maxVal, attr.maxValue);
+                float expected = dfVal < minVal ? minVal : dfVal;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(attr.defaultValue, Is.EqualTo(expected));
+                    Assert.That(attr.ValueAsFloat(), Is.EqualTo(expected));
+                    Assert.That(attr.minValue, Is.EqualTo(minVal));
+                    Assert.That(attr.maxValue, Is.EqualTo(maxVal));
+                });
             }
 
-            Assert.NotNull(attr.FlatMods);
-            Assert.NotNull(attr.PercentMods);
+            Assert.Multiple(() =>
+            {
+                Assert.That(attr.FlatMods, Is.Not.Null);
+                Assert.That(attr.PercentMods, Is.Not.Null);
+            });
         }
 
         [Test]
@@ -133,11 +155,13 @@ namespace Tests.Runtime.RPG.Attributes
             IAttributeMod mod = attr.AddFlatModifier(flatMod);
 
             int modVal = (int)flatMod;
-            Assert.AreEqual(modVal, mod.ValueAsInt());
-            Assert.AreEqual(modVal, mod.ValueAsFloat());
+            Assert.Multiple(() =>
+            {
+                Assert.That(mod.ValueAsInt(), Is.EqualTo(modVal));
+                Assert.That(mod.ValueAsFloat(), Is.EqualTo(modVal));
+            });
         }
 
-        
         [Test]
         [TestCase(10, 1.5f, 15)]
         [TestCase(5, 2f, 10)]
@@ -147,9 +171,11 @@ namespace Tests.Runtime.RPG.Attributes
         {
             RPGAttribute attr = Substitute.ForPartsOf<RPGAttribute>(AttributeType.Integer, dfValue, _minValue);
             IAttributeMod mod = attr.AddPercentModifier(pctMod);
-
-            Assert.AreEqual(expected, mod.ValueAsInt());
-            Assert.AreEqual(expected, mod.ValueAsFloat());
+            Assert.Multiple(() =>
+            {
+                Assert.That(mod.ValueAsInt(), Is.EqualTo(expected));
+                Assert.That(mod.ValueAsFloat(), Is.EqualTo(expected));
+            });
         }
 
         [Test]
@@ -163,11 +189,13 @@ namespace Tests.Runtime.RPG.Attributes
             IAttributeMod mod = attr.AddFlatModifier(flatMod);
             
             float modVal = flatMod;
-            Assert.AreEqual((int)modVal, mod.ValueAsInt());
-            Assert.AreEqual(modVal, mod.ValueAsFloat());
+            Assert.Multiple(() =>
+            {
+                Assert.That(mod.ValueAsInt(), Is.EqualTo((int)modVal));
+                Assert.That(mod.ValueAsFloat(), Is.EqualTo(modVal));
+            });
         }
 
-        
         [Test]
         [TestCase(10, 1.5f)]
         [TestCase(5, 2f)]
@@ -179,8 +207,11 @@ namespace Tests.Runtime.RPG.Attributes
             IAttributeMod mod = attr.AddPercentModifier(pctMod);
             
             float expected = dfValue * pctMod;
-            Assert.AreEqual((int)expected, mod.ValueAsInt());
-            Assert.AreEqual(expected, mod.ValueAsFloat());
+            Assert.Multiple(() =>
+            {
+                Assert.That(mod.ValueAsInt(), Is.EqualTo((int)expected));
+                Assert.That(mod.ValueAsFloat(), Is.EqualTo(expected));
+            });
         }
         #endregion
 
@@ -191,9 +222,11 @@ namespace Tests.Runtime.RPG.Attributes
         {
             IAttributeMod mod = _mockAttr.AddFlatModifier(5);
             bool removed = _mockAttr.RemoveFlatModifier(mod);
-            
-            Assert.IsTrue(removed);
-            Assert.IsTrue(_changed);
+            Assert.Multiple(() =>
+            {
+                Assert.That(removed, Is.True);
+                Assert.That(_changed, Is.True);
+            });
         }
 
         [Test]
@@ -201,9 +234,12 @@ namespace Tests.Runtime.RPG.Attributes
         {
             IAttributeMod mod = _mockAttr.AddPercentModifier(1);
             bool removed = _mockAttr.RemovePercentModifier(mod);
-
-            Assert.IsTrue(removed);
-            Assert.IsTrue(_changed);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(removed, Is.True);
+                Assert.That(_changed, Is.True);
+            });
         }
 
         [Test]
@@ -211,9 +247,11 @@ namespace Tests.Runtime.RPG.Attributes
         {
             IAttributeMod mod = Substitute.For<IAttributeMod>();
             bool removed = _mockAttr.RemoveFlatModifier(mod);
-
-            Assert.IsFalse(removed);
-            Assert.IsFalse(_changed);
+            Assert.Multiple(() =>
+            {
+                Assert.That(removed, Is.False);
+                Assert.That(_changed, Is.False);
+            });
         }
 
         [Test]
@@ -221,9 +259,11 @@ namespace Tests.Runtime.RPG.Attributes
         {
             IAttributeMod mod = Substitute.For<IAttributeMod>();
             bool removed = _mockAttr.RemovePercentModifier(mod);
-
-            Assert.IsFalse(removed);
-            Assert.IsFalse(_changed);
+            Assert.Multiple(() =>
+            {
+                Assert.That(removed, Is.False);
+                Assert.That(_changed, Is.False);
+            });
         }
 
         [Test]
@@ -241,7 +281,7 @@ namespace Tests.Runtime.RPG.Attributes
                 expected += (i + 1);
             }
 
-            Assert.AreEqual(expected, _mockAttr.ModsValue);
+            Assert.That(_mockAttr.ModsValue, Is.EqualTo(expected));
         }
 
         [Test]
@@ -263,7 +303,7 @@ namespace Tests.Runtime.RPG.Attributes
                 expected += mod.ValueAsFloat();
             }
 
-            Assert.AreEqual(expected, _mockAttr.ModsValue);
+            Assert.That(_mockAttr.ModsValue, Is.EqualTo(expected));
         }
 
         [Test]
@@ -273,8 +313,11 @@ namespace Tests.Runtime.RPG.Attributes
             float totalMods = _mockAttr.ModsValue;
             bool removed = _mockAttr.RemoveFlatModifier(mod);
             
-            Assert.AreEqual(mod.ValueAsFloat(), totalMods);
-            Assert.AreEqual(0f, _mockAttr.ModsValue);
+            Assert.Multiple(() =>
+            {
+                Assert.That(totalMods, Is.EqualTo(mod.ValueAsFloat()));
+                Assert.That(_mockAttr.ModsValue, Is.EqualTo(0f));
+            });
         }
 
         [Test]
@@ -284,8 +327,11 @@ namespace Tests.Runtime.RPG.Attributes
             float totalMods = _mockAttr.ModsValue;
             bool removed = _mockAttr.RemovePercentModifier(mod);
             
-            Assert.AreEqual(_dfValue, totalMods);
-            Assert.AreEqual(0f, _mockAttr.ModsValue);
+            Assert.Multiple(() =>
+            {
+                Assert.That(totalMods, Is.EqualTo(_dfValue));
+                Assert.That(_mockAttr.ModsValue, Is.EqualTo(0f));
+            });
         }
         #endregion
     }

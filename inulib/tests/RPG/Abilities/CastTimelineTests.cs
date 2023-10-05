@@ -27,10 +27,13 @@ namespace Tests.Runtime.RPG
             _castTimeline.TimelineStarted += () => fired++;
             _castTimeline.Start();
             
-            Assert.AreEqual(1, fired);
-            Assert.AreEqual(TimelineState.Running, _castTimeline.state);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fired, Is.EqualTo(1));
+                Assert.That(_castTimeline.state, Is.EqualTo(TimelineState.Running));
+            });
         }
-        
+
         [Test]
         public void Timeline_Properly_Updates_When_Running()
         {
@@ -39,7 +42,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Start();
             _castTimeline.Update(1f);
             
-            Assert.AreEqual(1f, _castTimeline.TotalElapsedTime);
+            Assert.That(_castTimeline.TotalElapsedTime, Is.EqualTo(1f));
         }
         
         [Test]
@@ -52,8 +55,11 @@ namespace Tests.Runtime.RPG
             _castTimeline.Start();
             _castTimeline.Pause();
             
-            Assert.AreEqual(1, fired);
-            Assert.AreEqual(TimelineState.Paused, _castTimeline.state);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fired, Is.EqualTo(1));
+                Assert.That(_castTimeline.state, Is.EqualTo(TimelineState.Paused));
+            });
         }
 
         [Test]
@@ -65,10 +71,13 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(1f);
             _castTimeline.Reset();
             
-            Assert.AreEqual(_castTimeline.TotalElapsedTime, 0f);
-            Assert.AreEqual(TimelineState.Pending, _castTimeline.state);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_castTimeline.TotalElapsedTime, Is.EqualTo(0f));
+                Assert.That(_castTimeline.state, Is.EqualTo(TimelineState.Pending));
+            });
         }
-        
+
         [Test]
         public void Timeline_Wont_Update_If_Paused()
         {
@@ -77,7 +86,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Start();
             _castTimeline.Pause();
             _castTimeline.Update(1f);
-            Assert.AreEqual(0f, _castTimeline.TotalElapsedTime);
+            Assert.That(_castTimeline.TotalElapsedTime, Is.EqualTo(0f));
         }
         
         [Test]
@@ -86,7 +95,7 @@ namespace Tests.Runtime.RPG
             TimelineData data = new TimelineData(1, 1, 1, 1, 0, AbilityCastType.FireAndForget);
             _castTimeline = new CastTimeline(data);
             _castTimeline.Update(1f);
-            Assert.AreEqual(0f, _castTimeline.TotalElapsedTime);
+            Assert.That(_castTimeline.TotalElapsedTime, Is.EqualTo(0f));
         }
         
         [Test]
@@ -98,7 +107,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(1f);
             _castTimeline.Reset();
             _castTimeline.Update(1f);
-            Assert.AreEqual(0f, _castTimeline.TotalElapsedTime);
+            Assert.That(_castTimeline.TotalElapsedTime, Is.EqualTo(0f));
         }
 
         [Test]
@@ -117,7 +126,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(channelingTime);
             _castTimeline.Update(channelingTime * 0.01f);
             
-            Assert.AreEqual(1, calls);
+            Assert.That(calls, Is.EqualTo(1));
         }
         
         [Test]
@@ -137,7 +146,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(overChannellingTime);
             _castTimeline.Update(overChannellingTime * 0.01f);
             
-            Assert.AreEqual(1, calls);
+            Assert.That(calls, Is.EqualTo(1));
         }
 
         [Test]
@@ -157,7 +166,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(castTime);
             _castTimeline.Update(castTime * 0.01f);
             
-            Assert.AreEqual(1, fired);
+            Assert.That(fired, Is.EqualTo(1));
         }
         
         [Test]
@@ -178,8 +187,11 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(recoveryTime);
             _castTimeline.Update(recoveryTime * 0.01f);
             
-            Assert.AreEqual(1, fired);
-            Assert.AreEqual(TimelineState.Finished, _castTimeline.state);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fired, Is.EqualTo(1));
+                Assert.That(_castTimeline.state, Is.EqualTo(TimelineState.Finished));
+            });
         }
 
         [Test]
@@ -200,11 +212,13 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(recoveryTime);
             _castTimeline.Update(recoveryTime * 0.01f);
             
-            Assert.AreEqual(0, fired);
-            Assert.AreEqual(TimelineState.Running, _castTimeline.state);
+            Assert.Multiple(() =>
+            {
+                Assert.That(fired, Is.EqualTo(0));
+                Assert.That(_castTimeline.state, Is.EqualTo(TimelineState.Running));
+            });
         }
 
-        
         [Test]
         [TestCase(0.4f, 0.5f, 1.32f)]
         [TestCase(1.2f, 1.05f, 0.538f)]
@@ -223,11 +237,14 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(castTime);
             _castTimeline.Update(recoveryTime);
             _castTimeline.Update(recoveryTime * 0.01f);
-
-            Assert.AreEqual(1, fired);
-            Assert.AreEqual(TimelineState.Finished, _castTimeline.state);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(fired, Is.EqualTo(1));
+                Assert.That(_castTimeline.state, Is.EqualTo(TimelineState.Finished));
+            });
         }
-        
+
         [Test]
         [TestCase(0.4f, 0.5f, 1.32f)]
         [TestCase(1.2f, 1.05f, 0.538f)]
@@ -247,11 +264,14 @@ namespace Tests.Runtime.RPG
             _castTimeline.FinishConcentration();
             _castTimeline.Update(recoveryTime);
             _castTimeline.Update(recoveryTime * 0.01f);
-
-            Assert.AreEqual(1, fired);
-            Assert.AreEqual(TimelineState.Finished, _castTimeline.state);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(fired, Is.EqualTo(1));
+                Assert.That(_castTimeline.state, Is.EqualTo(TimelineState.Finished));
+            });
         }
-        
+
         [Test]
         [TestCase(0.4f, 0.7f, 1.32f)]
         [TestCase(1.2f, 1.456f, 0.538f)]
@@ -273,7 +293,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(recoveryTime * 0.01f);
             _castTimeline.Update(999);
 
-            Assert.AreEqual(0, fired);
+            Assert.That(fired, Is.EqualTo(0));
         }
         
         [Test]
@@ -294,11 +314,14 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(channelingTime);
             _castTimeline.Update(castTime);
             _castTimeline.FinishConcentration();
-
-            Assert.AreEqual(1, castFinishedFired, $"Concentration Finished expected to be called once but was called {castFinishedFired}");
-            Assert.AreEqual(1, timelineFinishedFired, $"TimelineFinished expected to be called once but was called {timelineFinishedFired}");
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(castFinishedFired, Is.EqualTo(1), $"Concentration Finished expected to be called once but was called {castFinishedFired}");
+                Assert.That(timelineFinishedFired, Is.EqualTo(1), $"TimelineFinished expected to be called once but was called {timelineFinishedFired}");
+            });
         }
-        
+
         [Test]
         [TestCase(0.4f, 1.32f)]
         [TestCase(1.2f, 0.538f)]
@@ -318,18 +341,20 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(1f);
             
             _castTimeline.FinishConcentration();
-            Assert.AreEqual(1, fired, $"Expected CastFinished_Recovery_Started to be fired but it wasn't");
+            Assert.That(fired, Is.EqualTo(1), $"Expected CastFinished_Recovery_Started to be fired but it wasn't");
             
             _castTimeline.Update(recoveryTime);
             
-            Assert.AreEqual(2, fired, "TimelineFinished callback was not called.");
-            Assert.AreEqual(
-                TimelineState.Finished, 
-                _castTimeline.state, 
-                $"Timeline State was Incorrect: {_castTimeline.state}"
-            );
+            Assert.Multiple(() =>
+            {
+                Assert.That(fired, Is.EqualTo(2), "TimelineFinished callback was not called.");
+                Assert.That(
+                    _castTimeline.state, Is.EqualTo(TimelineState.Finished),
+                    $"Timeline State was Incorrect: {_castTimeline.state}"
+                );
+            });
         }
-        
+
         [Test]
         [TestCase(0.4f, 1.32f)]
         [TestCase(1.2f, 0.538f)]
@@ -353,7 +378,7 @@ namespace Tests.Runtime.RPG
 
             _castTimeline.FinishConcentration();
             
-            Assert.AreEqual(1, fired);
+            Assert.That(fired, Is.EqualTo(1));
         }
         
         [Test]
@@ -379,7 +404,7 @@ namespace Tests.Runtime.RPG
 
             _castTimeline.FinishConcentration();
             
-            Assert.AreEqual(1, fired);
+            Assert.That(fired, Is.EqualTo(1));
         }
 
         [Test]
@@ -422,7 +447,7 @@ namespace Tests.Runtime.RPG
                 _castTimeline.FinishConcentration();
             }
             
-            Assert.AreEqual(expected, _castTimeline.clbkState);
+            Assert.That(_castTimeline.clbkState, Is.EqualTo(expected));
         }
 
         [Test]
@@ -449,7 +474,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(3f - unleashDuringCastTime); 
             _castTimeline.Update(1f); 
             
-            Assert.AreEqual(1, fired, $"Expected Unleash ability to be called once but it was called {fired}");
+            Assert.That(fired, Is.EqualTo(1), $"Expected Unleash ability to be called once but it was called {fired}");
         }
 
         [Test]
@@ -464,7 +489,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(1f); 
             _castTimeline.Update(1.2f);
             
-            Assert.AreEqual(CastingState.Concentrating, _castTimeline.clbkState);
+            Assert.That(_castTimeline.clbkState, Is.EqualTo(CastingState.Concentrating));
         }
 
         [Test]
@@ -477,7 +502,7 @@ namespace Tests.Runtime.RPG
             
             _castTimeline.Update(2f); 
             
-            Assert.AreEqual(CastingState.Casting, _castTimeline.clbkState);
+            Assert.That(_castTimeline.clbkState, Is.EqualTo(CastingState.Casting));
         }
 
         [Test]
@@ -491,7 +516,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(0.1f);
             _castTimeline.SkipOverchanneling(true);
             
-            Assert.AreEqual(CastingState.Casting, _castTimeline.clbkState);
+            Assert.That(_castTimeline.clbkState, Is.EqualTo(CastingState.Casting));
         }
 
         [Test]
@@ -504,10 +529,13 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(0.01f);
             _castTimeline.JumpToStartRecoveryState();
             
-            Assert.AreEqual(CastingState.CastRecovery, _castTimeline.clbkState);
-            Assert.AreEqual(0f, _castTimeline.CurrentStateElapsedTime);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_castTimeline.clbkState, Is.EqualTo(CastingState.CastRecovery));
+                Assert.That(_castTimeline.CurrentStateElapsedTime, Is.EqualTo(0f));
+            });
         }
-        
+
         [Test]
         public void Unleash_Callbacks_Are_Fired_In_Order()
         {
@@ -522,8 +550,8 @@ namespace Tests.Runtime.RPG
             _castTimeline.Update(0);
             
             
-            Assert.AreEqual(
-                10, x, 
+            Assert.That(
+                x, Is.EqualTo(10), 
                 "Expected value is 10. If value was 2 then it fired in the wrong order. If it was 1, no event was fired"
             );
         }
@@ -541,7 +569,7 @@ namespace Tests.Runtime.RPG
 
             float expected = _castTimeline.TotalElapsedTime;
             float currentState = _castTimeline.CurrentStateElapsedTime;
-            Assert.AreEqual(expected,  currentState + channelingTime);
+            Assert.That(currentState + channelingTime, Is.EqualTo(expected));
         }
 
         [Test]
@@ -561,7 +589,7 @@ namespace Tests.Runtime.RPG
             _castTimeline.Start();
             _castTimeline.Update(times * 5);
             
-            Assert.AreEqual(5, x, "Not all events were fired during the single update");
+            Assert.That(x, Is.EqualTo(5), "Not all events were fired during the single update");
         }
         #endregion
     }

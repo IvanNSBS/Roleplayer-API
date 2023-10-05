@@ -152,8 +152,11 @@ namespace Tests.Runtime.RPG.Abilities
         [Test]
         public void Controller_Is_Constructed_Correctly()
         {
-            Assert.IsTrue(_controller.AbilitySlots == 3);
-            Assert.IsTrue(_controller.CasterInfo == _mockFactory);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.AbilitySlots, Is.EqualTo(3));
+                Assert.That(_controller.CasterInfo, Is.EqualTo(_mockFactory));
+            });
         }
 
         [Test]
@@ -166,7 +169,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.SetAbility(slot, testAbility);
             _controller.StartChanneling(slot);
 
-            Assert.IsTrue(testAbility.isEqual);
+            Assert.That(testAbility.isEqual, Is.True);
         }
 
         [Test]
@@ -178,7 +181,7 @@ namespace Tests.Runtime.RPG.Abilities
             var mockAbility = Substitute.For<IAbility<ICasterInfo>>();
             _controller.SetAbility(slot, mockAbility);
 
-            Assert.IsTrue(_controller.GetAbility(slot) == mockAbility);
+            Assert.That(_controller.GetAbility(slot), Is.EqualTo(mockAbility));
         }
 
         [Test]
@@ -193,7 +196,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
 
             TestFactoryAbility ability = (TestFactoryAbility)_controller.GetAbility(slot);
-            Assert.AreEqual(1, ability.casted);
+            Assert.That(ability.casted, Is.EqualTo(1));
         }
 
         [Test]
@@ -214,10 +217,13 @@ namespace Tests.Runtime.RPG.Abilities
             
             _controller.GetCastHandler().AbilityBehaviour.InvokeNotifyDiscard();
             
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on cooldown");
-            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.True, "Ability was not on cooldown");
+                Assert.That(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown, Is.EqualTo(_cd));
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -235,8 +241,11 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_overChannelingTime);
             _controller.Update(ability.UnleashTime);
             
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on cooldown");
-            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.True, "Ability was not on cooldown");
+                Assert.That(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown, Is.EqualTo(_cd));
+            });
         }
 
         [Test]
@@ -249,10 +258,13 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
-            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.True);
+                Assert.That(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown, Is.EqualTo(_cd));
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -265,10 +277,13 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
             
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
-            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.True);
+                Assert.That(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown, Is.EqualTo(_cd));
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -282,9 +297,11 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
             _controller.Update(_castTime);
-            
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot));
-            Assert.AreEqual(_cd, _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.True);
+                Assert.That(_controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown, Is.EqualTo(_cd));
+            });
         }
 
         [Test]
@@ -300,7 +317,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.CooldownsHandler.PutOnCooldown(slot);
             float newCooldown = _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown;
             
-            Assert.AreEqual(expected, newCooldown);
+            Assert.That(newCooldown, Is.EqualTo(expected));
         }
         
         [Test]
@@ -314,7 +331,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.CooldownsHandler.PutOnCooldown(slot, forceResetCooldown:true);
             float newCooldown = _controller.CooldownsHandler.GetCooldownInfo(slot).currentCooldown;
             
-            Assert.AreEqual(_cd, newCooldown);
+            Assert.That(newCooldown, Is.EqualTo(_cd));
         }
 
         [Test]
@@ -337,7 +354,7 @@ namespace Tests.Runtime.RPG.Abilities
             if (expected < 0)
                 expected = 0;
             
-            Assert.AreEqual(expected, currentCooldown);
+            Assert.That(currentCooldown, Is.EqualTo(expected));
         }
 
         [Test]
@@ -353,7 +370,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime*0.5f);
             _controller.StartChanneling(slot2);
 
-            Assert.IsTrue(_controller.GetCastingAbility() == _controller.GetAbility(slot1));
+            Assert.That(_controller.GetCastingAbility(), Is.EqualTo(_controller.GetAbility(slot1)));
         }
 
         [Test]
@@ -367,7 +384,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(0);
             
-            Assert.AreEqual(1, ab.casted);
+            Assert.That(ab.casted, Is.EqualTo(1));
         }
 
         [Test]
@@ -394,11 +411,14 @@ namespace Tests.Runtime.RPG.Abilities
             }
             
             _controller.StartChanneling(slot);
-
-            Assert.IsNull(_controller.GetCastingAbility(), "Casting ability was not null");
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on Cooldown");
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.GetCastingAbility(), Is.Null, "Casting ability was not null");
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.True, "Ability was not on Cooldown");
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -415,11 +435,14 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_recoveryTime);
             
             _controller.StartChanneling(slot);
-
-            Assert.IsNull(_controller.GetCastingAbility(), "Casting ability was not null");
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on Cooldown");
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.GetCastingAbility(), Is.Null, "Casting ability was not null");
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.True, "Ability was not on Cooldown");
+            });
         }
-        
+
         [Test]
         [TestCase(0u, 2)]
         [TestCase(1u, 1)]
@@ -433,10 +456,13 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.CooldownsHandler.PutOnCastPrevention(slot, 10f);
             _controller.StartChanneling(slot);
             
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCastPrevention(slot), "Ability was not on secondary Cd");
-            Assert.IsNull(_controller.GetCastingAbility(), "Casting should've been null");
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCastPrevention(slot), Is.True, "Ability was not on secondary Cd");
+                Assert.That(_controller.GetCastingAbility(), Is.Null, "Casting should've been null");
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -451,9 +477,12 @@ namespace Tests.Runtime.RPG.Abilities
             
             _controller.StartChanneling(slot);
             
-            Assert.IsTrue(_controller.CooldownsHandler.AbilityHasCharges(slot), "Ability didnt have enough charges");
-            Assert.IsTrue(_controller.CooldownsHandler.IsAbilityOnCd(slot), "Ability was not on cooldown");
-            Assert.IsNotNull(_controller.GetCastingAbility(), "Casting should NOT have been null");
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CooldownsHandler.AbilityHasCharges(slot), Is.True, "Ability didnt have enough charges");
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.True, "Ability was not on cooldown");
+                Assert.That(_controller.GetCastingAbility(), Is.Not.Null, "Casting should NOT have been null");
+            });
         }
 
         [Test]
@@ -466,9 +495,12 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime*0.5f);
             _controller.CancelCast();
             _controller.Update(_recoveryTime);
-
-            Assert.IsFalse(_controller.CooldownsHandler.IsAbilityOnCd(slot));
-            Assert.IsNull(_controller.GetCastingAbility());
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CooldownsHandler.IsAbilityOnCd(slot), Is.False);
+                Assert.That(_controller.GetCastingAbility(), Is.Null);
+            });
         }
 
         [Test]
@@ -487,11 +519,14 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.Update(0);
             _controller.Update(_recoveryTime);
-
-            Assert.IsNull(_controller.ActiveAbilities.FirstOrDefault(x => x.AbilityBehaviour == ability.obj));
-            Assert.AreEqual(CastingState.None, _controller.CastingState);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.ActiveAbilities.FirstOrDefault(x => x.AbilityBehaviour == ability.obj), Is.Null);
+                Assert.That(_controller.CastingState, Is.EqualTo(CastingState.None));
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -506,10 +541,14 @@ namespace Tests.Runtime.RPG.Abilities
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
 
             var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
-            Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
-            Assert.AreEqual(CastingState.Concentrating, _controller.CastingState);
+            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.ActiveAbilities, Does.Contain(found));
+                Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Concentrating));
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -525,10 +564,13 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(0);
             
             var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
-            Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
-            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.ActiveAbilities, Does.Contain(found));
+                Assert.That(_controller.CastingState, Is.EqualTo(CastingState.CastRecovery));
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -544,8 +586,11 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             
             var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
-            Assert.IsTrue(_controller.ActiveAbilities.Contains(found));
-            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.ActiveAbilities, Does.Contain(found));
+                Assert.That(_controller.CastingState, Is.EqualTo(CastingState.CastRecovery));
+            });
         }
 
         [Test]
@@ -559,7 +604,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime*0.1f);
         
-            Assert.AreEqual(1, _controller.ActiveAbilities.Count);
+            Assert.That(_controller.ActiveAbilities, Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -578,7 +623,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.Update(ability.RecoveryTime);
             
-            Assert.AreEqual(_controller.CastingState, CastingState.None);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.None));
         }
         
         [Test]
@@ -596,7 +641,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
             
-            Assert.AreEqual(CastingState.None, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.None));
         }
 
         [Test]
@@ -610,7 +655,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_overChannelingTime);
             var ability = (TestFactoryAbility)_controller.GetAbility(slot);
             
-            Assert.AreEqual(_controller.CastingState, CastingState.Casting);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Casting));
         }
 
         [Test]
@@ -631,7 +676,7 @@ namespace Tests.Runtime.RPG.Abilities
             
             ability.obj.InvokeNotifyDiscard();
             
-            Assert.AreEqual(CastingState.None, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.None));
         }
         
         [Test]
@@ -647,7 +692,7 @@ namespace Tests.Runtime.RPG.Abilities
             var found = _controller.ActiveAbilities.First(x => x.AbilityBehaviour == ability.obj);
             
             ability.obj.InvokeNotifyDiscard();
-            Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
+            Assert.That(_controller.ActiveAbilities, Does.Not.Contain(found));
         }
         
         [Test]
@@ -668,7 +713,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.Update(_recoveryTime);
             
-            Assert.IsFalse(_controller.ActiveAbilities.Contains(found));
+            Assert.That(_controller.ActiveAbilities, Does.Not.Contain(found));
         }
 
         [Test]
@@ -700,7 +745,7 @@ namespace Tests.Runtime.RPG.Abilities
                 _controller.Update(_recoveryTime);
             }
             
-            Assert.AreEqual(castTimes, handler.TimesRecastCalled);
+            Assert.That(handler.TimesRecastCalled, Is.EqualTo(castTimes));
         }
 
         [Test]
@@ -712,7 +757,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime*0.1f);
 
-            Assert.IsTrue(_controller.CastingState == CastingState.Channeling);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Channeling));
         }
         
         [Test]
@@ -725,7 +770,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime*0.01f);
 
-            Assert.IsTrue(_controller.CastingState == CastingState.OverChanneling);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.OverChanneling));
         }
 
         [Test]
@@ -738,7 +783,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime*0.1f);
             _controller.ForceInterruptCast();
 
-            Assert.AreEqual(CastingState.None, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.None));
         }
 
         [Test]
@@ -752,7 +797,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_overChannelingTime*0.1f);
             _controller.CancelCast();
             
-            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.CastRecovery));
         }
 
         [Test]
@@ -768,10 +813,13 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime * 0.01f);
             _controller.CancelCast();
             
-            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
-            Assert.IsTrue(((TestFactoryAbility)_controller.GetAbility(slot)).interrupted);
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.CastingState, Is.EqualTo(CastingState.CastRecovery));
+                Assert.That(((TestFactoryAbility)_controller.GetAbility(slot)).interrupted, Is.True);
+            });
         }
-        
+
         [Test]
         [TestCase(0u)]
         [TestCase(1u)]
@@ -782,7 +830,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime*0.1f);
             _controller.CancelCast();
 
-            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.CastRecovery));
         }
         
         [Test]
@@ -798,7 +846,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_castTime);
             _controller.CancelCast();
 
-            Assert.AreEqual(CastingState.CastRecovery, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.CastRecovery));
         }
 
         [Test]
@@ -812,7 +860,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
 
-            Assert.IsTrue(_controller.CastingState == CastingState.Casting);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Casting));
         }
 
         [Test]
@@ -826,7 +874,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
 
-            Assert.AreEqual(CastingState.Casting, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Casting));
         }
         
         [Test]
@@ -840,7 +888,7 @@ namespace Tests.Runtime.RPG.Abilities
             
             bool result = _controller.StartChanneling(0);
 
-            Assert.IsTrue(expected == result);
+            Assert.That(expected, Is.EqualTo(result));
         }
 
         [Test]
@@ -854,10 +902,10 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
 
-            Assert.AreEqual(CastingState.Casting, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Casting));
             _controller.CancelCast();
             
-            Assert.IsTrue(ability.interrupted);
+            Assert.That(ability.interrupted, Is.True);
         }
         
         [Test]
@@ -871,10 +919,10 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime);
             _controller.Update(_overChannelingTime);
 
-            Assert.AreEqual(CastingState.Casting, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Casting));
             _controller.ForceInterruptCast();
             
-            Assert.IsTrue(ability.interrupted);
+            Assert.That(ability.interrupted, Is.True);
         }
         
         [Test]
@@ -890,7 +938,7 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_overChannelingTime);
             _controller.Update(_castTime);
 
-            Assert.AreEqual(CastingState.Concentrating, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Concentrating));
             
             _controller.CancelCast();
             Assert.IsTrue(ability.interrupted);
@@ -906,10 +954,10 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime*0.1f);
             
-            Assert.AreEqual(CastingState.Channeling, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.Channeling));
             
             _controller.CancelCast();
-            Assert.IsTrue(ability.interrupted);
+            Assert.That(ability.interrupted, Is.True);
         }
         
         [Test]
@@ -922,10 +970,10 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.StartChanneling(slot);
             _controller.Update(_channelingTime);
 
-            Assert.AreEqual(CastingState.OverChanneling, _controller.CastingState);
+            Assert.That(_controller.CastingState, Is.EqualTo(CastingState.OverChanneling));
             _controller.CancelCast();
             
-            Assert.IsTrue(ability.interrupted);
+            Assert.That(ability.interrupted, Is.True);
         }
         
         [Test]
@@ -938,9 +986,12 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(_channelingTime);
             _controller.ForceInterruptCast();
             
-            Assert.IsNull(_controller.GetCastingAbility(), "Was still casting something after cancel");
-            Assert.IsNull(_controller.GetCastHandler(), "Cast Handler was not null after cancel");
-            Assert.AreEqual(CastingState.None, _controller.CastingState, "Cast state was not None after cancel");
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.GetCastingAbility(), Is.Null, "Was still casting something after cancel");
+                Assert.That(_controller.GetCastHandler(), Is.Null, "Cast Handler was not null after cancel");
+                Assert.That(_controller.CastingState, Is.EqualTo(CastingState.None), "Cast state was not None after cancel");
+            });
         }
 
         [Test]
@@ -961,15 +1012,15 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(0f);
             _controller.Update(_recoveryTime);
             
-            Assert.IsTrue(
-                _controller.ActiveAbilities.Contains(handler), 
-                "Active Abilities does not contain the previous ability CastHandler"
-            );
-            Assert.AreEqual(CastingState.None, _controller.CastingState);
-            Assert.IsNull(_controller.GetCastingAbility(), "No ability should be cast at this moment");
-            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.ActiveAbilities, Does.Contain(handler), "Active Abilities does not contain the previous ability CastHandler");
+                Assert.That(_controller.CastingState, Is.EqualTo(CastingState.None));
+                Assert.That(_controller.GetCastingAbility(), Is.Null, "No ability should be cast at this moment");
+            });
+
             _controller.StartChanneling(0);
-            Assert.AreEqual(1, handler.TimesRecastCalled);            
+            Assert.That(handler.TimesRecastCalled, Is.EqualTo(1));
         }
 
         [Test]
@@ -990,15 +1041,14 @@ namespace Tests.Runtime.RPG.Abilities
             _controller.Update(0);
             _controller.Update(_recoveryTime);
             
-            Assert.IsTrue(
-                _controller.ActiveAbilities.Contains(handler), 
-                "Active Abilities does not contain the previous ability CastHandler"
-            );
-            Assert.AreEqual(CastingState.None, _controller.CastingState);
-            Assert.IsNull(_controller.GetCastingAbility(), "No ability should be cast at this moment");
-            
+            Assert.Multiple(() =>
+            {
+                Assert.That(_controller.ActiveAbilities, Does.Contain(handler), "Active Abilities does not contain the previous ability CastHandler");
+                Assert.That(_controller.CastingState, Is.EqualTo(CastingState.None));
+                Assert.That(_controller.GetCastingAbility(), Is.Null, "No ability should be cast at this moment");
+            });
             _controller.StartChanneling(1);
-            Assert.AreSame(_controller.GetAbility(1), _controller.GetCastingAbility());
+            Assert.That(_controller.GetCastingAbility(), Is.SameAs(_controller.GetAbility(1)));
         }
         #endregion
     }

@@ -41,28 +41,28 @@ namespace Tests.Runtime.RPG.Attributes
         public void PrimaryAttribute_Raises_Changed_On_Increasing_Float()
         {
             _mockAttr.Increase(5f);
-            Assert.IsTrue(_changed);
+            Assert.That(_changed, Is.True);
         }
 
         [Test]
         public void PrimaryAttribute_Raises_Changed_On_Increasing_Int()
         {
             _mockAttr.Increase(5);
-            Assert.IsTrue(_changed);
+            Assert.That(_changed, Is.True);
         }
 
         [Test]
         public void PrimaryAttribute_Raises_Changed_On_Decreasing_Float()
         {
             _mockAttr.Decrease(5f);
-            Assert.IsTrue(_changed);
+            Assert.That(_changed, Is.True);
         }
 
         [Test]
         public void PrimaryAttribute_Raises_Changed_On_Decreasing_Int()
         {
             _mockAttr.Decrease(5);
-            Assert.IsTrue(_changed);
+            Assert.That(_changed, Is.True);
         }
 
         [Test]
@@ -71,14 +71,14 @@ namespace Tests.Runtime.RPG.Attributes
             _mockAttr.Increase(10);
             _mockAttr.Decrease(100f);
 
-            Assert.AreEqual(_minValue, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo(_minValue));
         }
 
         [Test]
         public void PrimaryAttribute_Clamps_To_Max_Value_When_Increasing()
         {
             _mockAttr.Increase(300f);
-            Assert.AreEqual(_maxValue, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo(_maxValue));
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace Tests.Runtime.RPG.Attributes
         {
             _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue, _minValue);
             _mockAttr.Increase(300f);
-            Assert.AreEqual(300f + _dfValue, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo(300f + _dfValue));
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace Tests.Runtime.RPG.Attributes
             _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Integer, _dfValue, _minValue);
             _mockAttr.Increase(inc);
 
-            Assert.AreEqual((float)expected + _dfValue, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo((float)expected + _dfValue));
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace Tests.Runtime.RPG.Attributes
         {
             _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Integer, startingVal, _minValue);
             _mockAttr.Decrease(dec);
-            Assert.AreEqual((float)expected, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo((float)expected));
         }
 
         [Test]
@@ -125,7 +125,7 @@ namespace Tests.Runtime.RPG.Attributes
             _mockAttr = Substitute.ForPartsOf<PrimaryAttribute>(AttributeType.Float, _dfValue, _minValue);
             _mockAttr.Increase(inc);
 
-            Assert.AreEqual(inc + _dfValue, _mockAttr.CurrentValue);
+            Assert.That(_mockAttr.CurrentValue, Is.EqualTo(inc + _dfValue));
         }
 
         [Test]
@@ -140,7 +140,7 @@ namespace Tests.Runtime.RPG.Attributes
             _mockAttr.Decrease(dec);
 
             // Need to check range instead of value since there's floating point imprecision
-            Assert.IsTrue(InRange(_mockAttr.CurrentValue, expected));
+            Assert.That(InRange(_mockAttr.CurrentValue, expected), Is.True);
         }
 
         [Test]
@@ -151,7 +151,7 @@ namespace Tests.Runtime.RPG.Attributes
             attr.AddFlatModifier(12.5f);
             attr.AddPercentModifier(2);
 
-            Assert.AreEqual(32, attr.ModsValue);
+            Assert.That(attr.ModsValue, Is.EqualTo(32));
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace Tests.Runtime.RPG.Attributes
             attr.AddFlatModifier(12.2f);
             attr.AddPercentModifier(2.5f);
 
-            Assert.AreEqual(35.2f, attr.ModsValue);
+            Assert.That(attr.ModsValue, Is.EqualTo(35.2f));
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace Tests.Runtime.RPG.Attributes
             IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
             _mockAttr.Increase(_dfValue);
 
-            Assert.AreEqual(2*_dfValue*pctIncrease, pctMod.ValueAsFloat());
+            Assert.That(pctMod.ValueAsFloat(), Is.EqualTo(2 *_dfValue*pctIncrease));
         }
 
         [Test]
@@ -188,7 +188,7 @@ namespace Tests.Runtime.RPG.Attributes
             IAttributeMod pctMod = _mockAttr.AddPercentModifier(pctIncrease);
             _mockAttr.Increase((int)_dfValue);
 
-            Assert.AreEqual(2*_dfValue*pctIncrease, pctMod.ValueAsFloat());
+            Assert.That(pctMod.ValueAsFloat(), Is.EqualTo(2 *_dfValue*pctIncrease));
         }
 
         [Test]
@@ -202,7 +202,7 @@ namespace Tests.Runtime.RPG.Attributes
             _mockAttr.Increase(_dfValue);
             _mockAttr.Decrease(_dfValue);
 
-            Assert.AreEqual(_dfValue*pctIncrease, pctMod.ValueAsFloat());
+            Assert.That(pctMod.ValueAsFloat(), Is.EqualTo(_dfValue * pctIncrease));
         }
 
         [Test]
@@ -216,13 +216,13 @@ namespace Tests.Runtime.RPG.Attributes
             _mockAttr.Increase((int)_dfValue);
             _mockAttr.Decrease((int)_dfValue);
 
-            Assert.AreEqual(_dfValue*pctIncrease, pctMod.ValueAsFloat());
+            Assert.That(pctMod.ValueAsFloat(), Is.EqualTo(_dfValue * pctIncrease));
         }
         #endregion
 
 
         #region Helper Methods
-        private bool InRange(float value, float expected) => MathF.Abs(expected - value) < 0.001f;
+        private static bool InRange(float value, float expected) => MathF.Abs(expected - value) < 0.001f;
         #endregion
     }
 }

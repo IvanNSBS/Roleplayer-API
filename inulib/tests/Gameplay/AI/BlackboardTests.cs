@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
-using INUlib.Gameplay.AI.BehaviourTrees;
 using NSubstitute;
 using NUnit.Framework;
+using INUlib.Gameplay.AI.BehaviourTrees;
 
 namespace Tests.Runtime.Gameplay.AI
 {
@@ -22,7 +20,7 @@ namespace Tests.Runtime.Gameplay.AI
             int val = 5;
             _blackboard.SetProperty(val, "val");
 
-            Assert.IsTrue(_blackboard.GetProperty<int>("val") == val);
+            Assert.That(_blackboard.GetProperty<int>("val"), Is.EqualTo(val));
         }
 
         [Test]
@@ -31,7 +29,7 @@ namespace Tests.Runtime.Gameplay.AI
             BTNode node = Substitute.For<BTNode>();
             _blackboard.SetProperty(node, "node");
 
-            Assert.IsTrue(_blackboard.GetProperty<BTNode>("node") == node);
+            Assert.That(_blackboard.GetProperty<BTNode>("node"), Is.EqualTo(node));
         }
 
         [Test]
@@ -57,7 +55,7 @@ namespace Tests.Runtime.Gameplay.AI
             if(exists)
                 _blackboard.SetProperty(5, "val");
 
-            Assert.IsTrue(_blackboard.HasProperty("val") == exists);
+            Assert.That(_blackboard.HasProperty("val"), Is.EqualTo(exists));
         }
         #endregion
     }

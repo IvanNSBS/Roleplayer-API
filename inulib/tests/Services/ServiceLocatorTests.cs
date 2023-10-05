@@ -26,7 +26,7 @@ namespace Tests.Runtime.BackendToolkit.ServiceLocatorTests
         public void Singleton_CRTP_Creates_The_Instance()
         {
             MockSingleton.InitSingleton();
-            Assert.NotNull(MockSingleton.Instance);
+            Assert.That(MockSingleton.Instance, Is.Not.Null);
             MockSingleton.DestroySingleton();
         }
 
@@ -34,7 +34,7 @@ namespace Tests.Runtime.BackendToolkit.ServiceLocatorTests
         public void Service_Is_Registered()
         {
             bool added = _locator.RegisterService<MockClass>(new MockClass());
-            Assert.IsTrue(added);
+            Assert.That(added, Is.True);
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace Tests.Runtime.BackendToolkit.ServiceLocatorTests
             bool added = _locator.RegisterService<MockClass>(new MockClass());
             var mock = _locator.GetService<MockClass>();
 
-            Assert.NotNull(mock);
+            Assert.That(mock, Is.Not.Null);
         }
 
         [Test]
@@ -52,14 +52,14 @@ namespace Tests.Runtime.BackendToolkit.ServiceLocatorTests
             bool added = _locator.RegisterService<MockClass>(new MockClass());
             bool removed = _locator.RemoveService<MockClass>();
 
-            Assert.IsTrue(added && removed);
+            Assert.That(added && removed, Is.True);
         }
 
         [Test]
         public void Can_Register_Service_By_Interface_With_Implementation_Class()
         {
             bool added = _locator.RegisterService<IMockInterface>(new MockClass());
-            Assert.IsTrue(added);
+            Assert.That(added, Is.True);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace Tests.Runtime.BackendToolkit.ServiceLocatorTests
         {
             bool added = _locator.RegisterService<IMockInterface>(new MockClass());
             bool removed = _locator.RemoveService<IMockInterface>();
-            Assert.IsTrue(added && removed);
+            Assert.That(added && removed, Is.True);
         }
 
         [Test]
@@ -76,8 +76,8 @@ namespace Tests.Runtime.BackendToolkit.ServiceLocatorTests
             _locator.RegisterService<IMockInterface>(new MockClass());
             var mock = _locator.GetService<IMockInterface>();
 
-            Assert.NotNull(mock);
-            Assert.IsTrue(mock.MockInt == 5);
+            Assert.That(mock, Is.Not.Null);
+            Assert.That(mock.MockInt, Is.EqualTo(5));
         }
         #endregion
     }
