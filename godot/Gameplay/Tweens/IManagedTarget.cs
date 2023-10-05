@@ -1,4 +1,4 @@
-namespace INUlib.BackendToolkit.ManagedTweens
+namespace INUlib.Serialization.ManagedTweens
 {
     /// <summary>
     /// Interface for a ManagedSequence target.

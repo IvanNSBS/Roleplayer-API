@@ -1,6 +1,6 @@
 ﻿using Godot;
 
-namespace INUlib.BackendToolkit.Meta
+namespace INUlib.Serialization.Meta
 {
     public abstract class ScriptableMeta<T> : IMetaFile<T> where T : Resource
     {
